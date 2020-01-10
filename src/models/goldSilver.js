@@ -1,0 +1,310 @@
+import { thunk, action } from "easy-peasy";
+import {rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats} from './utils';
+const remote = require('electron').remote;
+const dialog = remote.dialog;
+const fs = remote.require('fs');
+
+const pokemonNameStartByte = 1772404; //Pokemon names start at byte 0x1c21e and also run in Index order.
+const pokemonEvosMovesByte = 0x429B3; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x429B3.
+const pokemonStartByte = 334603; //Pokemon data starts at byte 0x51B0B. It goes in Pokedex order, Bulbasaur through Mewtwo.
+//const pokedexStartByte = 266276; //List of pokedex IDs start at byte 0x41024 and run in Index order, Rhydon through Victreebel.
+
+//values used to load the pokemon types
+const typesBankByte = 0x4C000; // bank 9
+const typesPointer = 0x49AE; // this is a pointer within a bank, not the full address
+//values used to load the moves
+const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 bytes into the file.
+const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
+//values used to load the TMs and HMs
+const tmStartByte = 0x11A66; //The TM info.
+
+export default {
+  version: "GOLD/SILVER",
+  rawBinArray: [],
+  fileFilters: [
+    { name: 'Gameboy Color ROM', extensions: ['gbc'] }
+    ],
+  generation: 2,
+  moveAnimations: gscMoveAnimations,
+  moveEffects: gscMoveEffects,
+  evolveTypes: gscEvolveTypes,
+  evolveStones: gscStones,
+  evolveHappiness: gscHappiness,
+  evolveStats: gscStats,
+  defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
+  loadData: thunk(async (actions, payload) => {
+    actions.loadBinaryData(payload);
+    actions.loadPokemonData();
+    actions.loadPokemonTypes();
+    actions.loadPokemonMoves();
+    actions.loadTMs();
+  }),
+  loadBinaryData: action((state, payload) => {
+    state.rawBinArray = payload;
+  }),
+  loadPokemonData: thunk(async (actions, payload, {getState, getStoreActions}) => {    
+    let pokemon = [];
+    let currentEvosMovesByte = pokemonEvosMovesByte;
+    for(let i = 0; i < 251; i++){
+      var currentPokemon = {};
+      currentPokemon.hp = getState().rawBinArray[pokemonStartByte + (i * 32) +1];
+      currentPokemon.attack = getState().rawBinArray[pokemonStartByte + (i * 32) +2];
+      currentPokemon.defense = getState().rawBinArray[pokemonStartByte + (i * 32) +3];
+      currentPokemon.speed = getState().rawBinArray[pokemonStartByte + (i * 32) +4];
+      currentPokemon.specialAttack = getState().rawBinArray[pokemonStartByte + (i * 32) +5];
+      currentPokemon.specialDefense = getState().rawBinArray[pokemonStartByte + (i * 32) +6];
+      currentPokemon.type1 = getState().rawBinArray[pokemonStartByte + (i * 32) +7];
+      currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 32) +8];
+      currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 32) + 9];
+      currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 32) + 10];
+
+      //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
+      //first we grab the 8 bytes in an array.
+      let tmIntArray = [];
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 24]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 25]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 26]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 27]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 28]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 29]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 30]);
+      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 31]);
+      
+      let tmBoolArray = [];
+
+      tmIntArray.forEach((tm) => {
+        //this takes each byte and splits it into its base 2 equivalent padded with 0s so each string is 8 characters, then we reverse the string
+        let bitArray = tm.toString(2).padStart(8, '0').split("").reverse().join("");
+        //go through each character of the string, convert it to a boolean, and add it to our bool array.
+        for(let i = 0; i < 8; i++){
+          if(tmBoolArray.length < 57){
+            tmBoolArray.push(Boolean(Number(bitArray[i])));
+          }          
+        }
+      });
+
+      currentPokemon.tms = tmBoolArray;
+
+
+      currentPokemon.evolutions = [];
+      currentPokemon.learnedMoves = [];
+      
+      //Evolutions.
+      while(getState().rawBinArray[currentEvosMovesByte] !== 0)
+      {
+          let evo = {evolveLevel: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1}; //initialize with some default values.
+          evo.evolve = getState().rawBinArray[currentEvosMovesByte];
+          
+          if (getState().rawBinArray[currentEvosMovesByte] === 1) //Level up
+          {
+              evo.evolveLevel = getState().rawBinArray[++currentEvosMovesByte];
+              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
+              currentEvosMovesByte++;
+          }
+          else if (getState().rawBinArray[currentEvosMovesByte] === 2) //Stone
+          {
+              evo.evolveStone = getState().rawBinArray[++currentEvosMovesByte];
+              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
+              currentEvosMovesByte++;
+          }
+          else if (getState().rawBinArray[currentEvosMovesByte] === 3) //Trade
+          {
+              currentEvosMovesByte++;
+              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
+              currentEvosMovesByte++;
+          }
+          else if (getState().rawBinArray[currentEvosMovesByte] === 4) //Happiness
+          {
+              evo.evolveHappiness = getState().rawBinArray[++currentEvosMovesByte];
+              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
+              currentEvosMovesByte++;
+          }
+          else if (getState().rawBinArray[currentEvosMovesByte] === 5) //Stats
+          {
+              evo.evolveLevel = getState().rawBinArray[++currentEvosMovesByte];
+              evo.evolveStats = getState().rawBinArray[++currentEvosMovesByte];
+              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
+              currentEvosMovesByte++;
+          }
+          //console.log(evo);
+          currentPokemon.evolutions.push(evo);
+      }
+      currentEvosMovesByte++;//Move to the next byte after reading all of the evolution data.
+      
+
+      //Moves learned while leveling up.
+      while (getState().rawBinArray[currentEvosMovesByte] !== 0) //0 marks the end of move data
+      {
+          let moveToAdd = {};
+          moveToAdd.level = getState().rawBinArray[currentEvosMovesByte++]; //for each move the level learned is the first byte.
+          moveToAdd.moveID = getState().rawBinArray[currentEvosMovesByte++]; //move ID is 2nd byte.
+          currentPokemon.learnedMoves.push(moveToAdd);
+      }
+      currentEvosMovesByte++;
+
+      let pokemonName = "";
+      
+      for (let j = 0; j < 10; j++) //Each name is 10 bytes
+      {
+        // hex 50 is blank. This is different than a space and only used at the end of names that are less than 10 characters.
+        // EF is the male sign. F5 is the female sign. These 2 are only used by the Nidorans
+        if (getState().rawBinArray[pokemonNameStartByte + (i * 10) + j] !== 0x50)
+        {
+            pokemonName += rbygsLetters.get(getState().rawBinArray[pokemonNameStartByte + (i * 10) + j]);
+        }
+      }
+      
+      currentPokemon.name = pokemonName;
+      pokemon.push(currentPokemon); 
+    }
+    getStoreActions().setPokemonArray(pokemon);
+  }),
+  loadPokemonTypes: thunk ( async (actions, payload, {getState, getStoreActions}) => {
+    let types = [];
+    let newType;
+    let currentPointerByte = typesBankByte + typesPointer;
+    let namesStartByte;
+    let currentNamesByte;
+    let typeName;
+    let typeIndex = 0;
+
+    let namePointer1 = getState().rawBinArray[currentPointerByte++];
+    let namePointer2 = getState().rawBinArray[currentPointerByte++] * 256;
+
+    currentPointerByte -= 2; //reset position because it will be read again in the loop
+
+    //to know that we've reached the end of pointers we will stop at location of the first name
+    namesStartByte = typesBankByte + namePointer1 + namePointer2;
+
+    while (currentPointerByte < namesStartByte)
+    {
+      newType = {};
+      typeName = "";
+
+      //get the location of the type's name
+      namePointer1 = getState().rawBinArray[currentPointerByte++];
+      namePointer2 = getState().rawBinArray[currentPointerByte++] * 256;
+      currentNamesByte = typesBankByte + namePointer1 + namePointer2;
+                
+      // the unused types all point to the first name: "NORMAL". There is also a pointer to a pokemon type of "???". I skip it with the Or statement.
+      if ((currentNamesByte === namesStartByte && types.length !== 0) || currentNamesByte === 0x50A04)
+      {
+          newType.typeIsUsed = false;
+      }
+      else
+      {
+          newType.typeIsUsed = true;
+      }
+
+      // read the name of each type
+      while (getState().rawBinArray[currentNamesByte] !== 0x50) //0x50 is the deliminator for the end of a name.
+      {
+          typeName += rbygsLetters.get(getState().rawBinArray[currentNamesByte++]);
+      }
+      if (!newType.typeIsUsed)
+      {
+          typeName = "(unused)";
+      }
+      newType.typeName = typeName;
+      newType.typeIndex = typeIndex++;
+
+      types.push(newType);
+    }
+    //console.log(types);
+    getStoreActions().setPokemonTypes(types);
+  }),
+  loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
+    let moves = [];
+    let currentMoveNameByte = moveNamesByte;
+    let moveToAdd;
+    let moveName;
+
+    moveToAdd = {}; //The Red/blue ROM uses 0x00 for blank starter moves in the pokemon base stats section. Maybe not needed in Gold?
+    moveToAdd.id = 0;
+    moveToAdd.name = "nothing";
+    moves.push(moveToAdd);
+
+    for (let i = 0; i < 251; i++) //251 because there are 251 moves in the game.
+    {
+        moveName = "";
+
+        //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
+        while (getState().rawBinArray[currentMoveNameByte] !== 0x50) //0x50 is the deliminator for the end of a name.
+        {
+            moveName += rbygsLetters.get(getState().rawBinArray[currentMoveNameByte]);
+            currentMoveNameByte++;
+        }
+        currentMoveNameByte++;
+
+        moveToAdd = {};
+        moveToAdd.id = i + 1;
+        moveToAdd.name = moveName;
+        //Each Move uses 7 bytes. i = the current move so we take the starting point and add 7 for each move
+        // that we have already read and then add 0-6 as we read through the data fields for that move.
+        moveToAdd.animationID = getState().rawBinArray[movesStartingByte + (i * 7)];
+        moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 7) + 1];
+        moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 7) + 2];
+        moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 7) + 3];
+        moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 7) + 4];
+        moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 7) + 5];
+        moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 7) + 6];
+
+        moves.push(moveToAdd);
+    }
+    //console.log(moves);
+    getStoreActions().setMovesArray(moves);
+    //return moves;
+  }),
+  loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
+
+    let tms = [];
+
+    for (let i = 0; i < 57; i++) //There are 50 TMs and 7 HMs. Each is 1 byte which is the moveID
+    {
+        let newTM = {};
+        //newTM.TMNumber = i; this is just the index, not sure why it was needed in C#
+        newTM.move = getState().rawBinArray[tmStartByte + i];
+        if (i < 50)
+        {
+            newTM.name = `TM${i + 1}`;
+        }
+        else
+        {
+            newTM.name = `HM${i - 49}`;
+        }
+        tms.push(newTM);
+    }
+    
+    //for gold/silver/crystal the tm/hm prices are stored with the other items.
+
+    //console.log(tms);
+    getStoreActions().setTMs(tms);
+  }),
+  saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    dialog.showSaveDialog({
+      title: 'Save ROM',
+      filters: getState().fileFilters
+    }).then((res) => {
+      //console.log("file path: " + res.filePath);
+      getStoreActions().setCurrentFile(res.filePath);
+      let pokemon = getStoreState().pokemon;
+
+      for(let i = 0; i < 251; i++){
+        getState().rawBinArray[pokemonStartByte + (i * 28) +1] = pokemon[i].hp;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +2] = pokemon[i].attack;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +3] = pokemon[i].defense;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +4] = pokemon[i].speed;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +5] = pokemon[i].specialAttack;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +6] = pokemon[i].specialDefense;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +7] = pokemon[i].type1;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +8] = pokemon[i].type2;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +9] = pokemon[i].catchRate;
+        getState().rawBinArray[pokemonStartByte + (i * 28) +10] = pokemon[i].expYield;
+      }
+
+      fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
+    }).catch((err) => {
+      console.log(err);
+    });
+  })
+}

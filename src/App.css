@@ -2,37 +2,29 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.app-container {
+  display: grid;
+  grid-template-rows: 100px calc(100vh - 100px);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+input {
+  width: 100px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.pokemon-full-data-container {
+  display: grid;
+  grid-template-columns: 180px auto 250px 350px;
+  grid-template-rows: calc(100vh - 140px);
 }
 
-.App-link {
-  color: #61dafb;
+th {
+  background: white;
+  position: sticky;
+  top: 0;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.items-tab-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: calc(100vh - 100px);
 }
