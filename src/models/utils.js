@@ -1,4 +1,5 @@
 const rbygsLetters = new Map([
+            [ 84, "Poke"],
             [ 127, " " ],
             [ 128, "A"],
             [ 129, "B" ],

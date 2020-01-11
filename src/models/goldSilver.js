@@ -17,6 +17,8 @@ const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 byt
 const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
 //values used to load the TMs and HMs
 const tmStartByte = 0x11A66; //The TM info.
+const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
+const itemNamesByte = 0x1B0000  // could be useful later.
 
 export default {
   version: "GOLD/SILVER",
@@ -38,6 +40,7 @@ export default {
     actions.loadPokemonTypes();
     actions.loadPokemonMoves();
     actions.loadTMs();
+    actions.loadItems();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -279,6 +282,29 @@ export default {
 
     //console.log(tms);
     getStoreActions().setTMs(tms);
+  }),
+  loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
+    let items = [];
+    let currentNamesByte = itemNamesByte;
+    for(let i = 0; i < 249; i++){
+      let newItem = {};
+      
+      //The price is stored in 2 bytes stored little endian so we need to multiply the 2nd byte by 256 and add it to the first byte.
+      newItem.price = (getState().rawBinArray[itemPropertiesStartByte + i*7 + 1] * 256) + getState().rawBinArray[itemPropertiesStartByte + i*7];
+
+      let itemName = "";
+      while(getState().rawBinArray[currentNamesByte] !== 0x50){
+
+        itemName += rbygsLetters.get(getState().rawBinArray[currentNamesByte]);
+        currentNamesByte++;
+      }
+      currentNamesByte++;
+      newItem.name = itemName;
+
+      items.push(newItem);
+    }
+    //console.log(items);
+    getStoreActions().setItems(items);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
