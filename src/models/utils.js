@@ -895,4 +895,10 @@ const rbyItems = {
   TM_50: 250
 }
 
-export {rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats};
+const damageModifiers = {
+  No_Effect: 0,
+  Half_Damage: 5,
+  Double_Damage: 20
+}
+
+export {damageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats};

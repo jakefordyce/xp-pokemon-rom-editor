@@ -20,6 +20,10 @@ const tmStartByte = 0x11A66; //The TM info.
 const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
 const itemNamesByte = 0x1B0000  // could be useful later.
 
+// notes for gold/silver types
+// https://github.com/pret/pokegold/blob/master/constants/type_constants.asm
+// https://github.com/pret/pokecrystal/blob/master/data/types/type_matchups.asm
+
 export default {
   version: "GOLD/SILVER",
   rawBinArray: [],

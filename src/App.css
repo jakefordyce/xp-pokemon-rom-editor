@@ -28,3 +28,9 @@ th {
   grid-template-columns: auto auto;
   grid-template-rows: calc(100vh - 100px);
 }
+
+.types-tab-container {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: calc(100vh - 100px);
+}

@@ -14,6 +14,7 @@ function PokemonFullData(){
   const updateEvolution = useStoreActions(actions => actions.updatePokemonEvolutionProperty);
   const addEvolution = useStoreActions(actions => actions.addPokemonEvolution);
   const removeEvolution = useStoreActions(actions => actions.removePokemonEvolution);
+  const updatePokemonTM = useStoreActions(actions => actions.updatePokemonTMProperty);
   const moves = useStoreState(state => state.moves);
   const tms = useStoreState(state => state.tms);
   const pokemonTypes = useStoreState(state => state.pokemonTypes);
@@ -53,13 +54,12 @@ function PokemonFullData(){
     </li>
   );
   
-  console.log(tms);
+  
   const pokemonTMs = pokemon[selectedPokemon].tms.map((tm, index) => 
       <div key={index}>
-        <input type="checkbox" checked={tm} onChange={handleTMChange} />
+        <input type="checkbox" checked={tm} onChange={(e) => handleTMChange(e, index)} />
         {moves[tms[index].move].name}
       </div>
-    
   );
 
   function handleLevelUpMoveChange(event, levelupMoveIndex, propName){
@@ -88,8 +88,9 @@ function PokemonFullData(){
     removeEvolution(evolutionIndex);
   };
 
-  function handleTMChange(event){
-
+  function handleTMChange(event, tmIndex){
+    let newValue = event.target.checked;
+    updatePokemonTM({index: tmIndex, propValue: newValue});
   };
 
   return (

@@ -17,6 +17,7 @@ export default {
   moves: [{}],
   tms: [{}],
   items: [{}],
+  typeMatchups: [{}],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -35,6 +36,9 @@ export default {
   setItems: action((state, payload) => {
     state.items = payload;
   }),
+  setTypeMatchups: action((state, payload) => {
+    state.typeMatchups = payload;
+  }),
   updatePokemonProperty: action((state, payload) => {
     state.pokemon[payload.index][payload.propName] = payload.propValue;
   }),
@@ -47,9 +51,11 @@ export default {
     state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName] = newValue;
   }),
   updatePokemonEvolutionProperty: action((state, payload) => {
-    //this sets the new value to be the same type as the property being updated.
     let newValue = state.pokemon[payload.pokeIndex].evolutions[payload.evolveIndex][payload.propName].constructor(payload.propValue);
     state.pokemon[payload.pokeIndex].evolutions[payload.evolveIndex][payload.propName] = newValue;
+  }),
+  updatePokemonTMProperty: action((state, payload) => {
+    state.pokemon[state.selectedPokemon].tms[payload.index] = payload.propValue;
   }),
   updateTMProperty: action((state, payload) => {
     let newValue = state.tms[payload.index][payload.propName].constructor(payload.propValue);
@@ -60,6 +66,12 @@ export default {
   }),
   removePokemonEvolution: action((state, payload) => {
     state.pokemon[state.selectedPokemon].evolutions.splice(payload, 1);
+  }),
+  updateTypeMatchupProperty: action((state, payload) => {
+    state.typeMatchups[payload.index][payload.propName] = payload.propValue;
+  }),
+  updateTypeProperty: action((state, payload) => {
+    state.pokemonTypes[payload.index][payload.propName] = payload.propValue;
   }),
 
   //accessing data from the correct ROM

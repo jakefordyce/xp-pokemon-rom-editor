@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones} from './utils';
+import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, damageModifiers} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -14,6 +14,7 @@ const pokedexStartByte = 266276; //List of pokedex IDs start at byte 0x41024 and
 //values used to load the pokemon types
 const typesBankByte = 0x20000; // bank 9
 const typesPointer = 0x7DAE; // this is a pointer within a bank, not the full address
+const typeChartByte = 255092; //The types' strengths start at byte 0x3E474.
 //values used to load the moves
 const moveNamesByte = 720896; //The data for move names starts at 0xB0000 bytes into the file which is 720896 in Decimal.
 const movesStartingByte = 229376; //The move data starts 0x38000 bytes into the file which is 229376 in Decimal.
@@ -44,14 +45,16 @@ export default {
   moveEffects: rbyMoveEffects,
   evolveStones: rbyStones,
   evolveTypes: rbyEvolveTypes,
+  damageModifiers: damageModifiers,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
-    actions.loadPokemonData();
     actions.loadPokemonTypes();
     actions.loadPokemonMoves();
     actions.loadTMs();
+    actions.loadPokemonData();
     actions.loadItems();
+    actions.loadTypeMatchups();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -98,12 +101,12 @@ export default {
         for(let i = 0; i < 8; i++){
           if(tmBoolArray.length < 55){
             tmBoolArray.push(Boolean(Number(bitArray[i])));
-          }          
+          }
         }
       });
-
+      
       currentPokemon.tms = tmBoolArray;
-            
+
       pokemon.push(currentPokemon);
     }
 
@@ -366,6 +369,27 @@ export default {
     }
     //console.log(items);
     getStoreActions().setItems(items);
+  }),
+  loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let typeMatchups = [];
+    
+    for (let i = 0; i < 82; i++) //There are 82 type strengths. Each is 3 bytes and the group is terminated by the byte FF.
+    {
+        if(getState().rawBinArray[typeChartByte + (i * 3)] !== 0xFF) // Since we are checking the ending byte this can be converted to a while loop?
+        {
+          let typeMatchupToAdd = {};
+          typeMatchupToAdd.attackType = getState().rawBinArray[typeChartByte + (i * 3)]; //first byte is the attacking type
+          typeMatchupToAdd.defenseType = getState().rawBinArray[typeChartByte + (i * 3) + 1]; //second byte is the defending type
+          typeMatchupToAdd.effectiveness = getState().rawBinArray[typeChartByte + (i * 3) + 2]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
+          typeMatchups.push(typeMatchupToAdd);
+        }
+        else
+        {
+            break;
+        }
+    }
+    getStoreActions().setTypeMatchups(typeMatchups);
+    //console.log(typeMatchups);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
