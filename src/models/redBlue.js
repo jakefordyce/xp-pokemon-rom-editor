@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, damageModifiers} from './utils';
+import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyDamageModifiers} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -45,7 +45,7 @@ export default {
   moveEffects: rbyMoveEffects,
   evolveStones: rbyStones,
   evolveTypes: rbyEvolveTypes,
-  damageModifiers: damageModifiers,
+  damageModifiers: rbyDamageModifiers,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);

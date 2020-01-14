@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats} from './utils';
+import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -12,6 +12,7 @@ const pokemonStartByte = 334603; //Pokemon data starts at byte 0x51B0B. It goes 
 //values used to load the pokemon types
 const typesBankByte = 0x4C000; // bank 9
 const typesPointer = 0x49AE; // this is a pointer within a bank, not the full address
+const typeChartByte = 0x34D01; 
 //values used to load the moves
 const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 bytes into the file.
 const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
@@ -37,14 +38,16 @@ export default {
   evolveStones: gscStones,
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
+  damageModifiers: gscDamageModifiers,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
-    actions.loadPokemonData();
     actions.loadPokemonTypes();
     actions.loadPokemonMoves();
     actions.loadTMs();
+    actions.loadPokemonData();
     actions.loadItems();
+    actions.loadTypeMatchups();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -309,6 +312,29 @@ export default {
     }
     //console.log(items);
     getStoreActions().setItems(items);
+  }),
+  loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let typeMatchups = [];
+    let currentByte = typeChartByte;
+    
+    while(getState().rawBinArray[currentByte] !== 0xFF) // Since we are checking the ending byte this can be converted to a while loop?
+    {
+      // The type matchups are split into 2 groups. The first group ends with FE. 
+      // The 2nd group is the ghost immunes that are cancelled by using the Foresight move.
+      if(getState().rawBinArray[currentByte] === 0xFE){
+        currentByte++;
+      }
+      else{
+        let typeMatchupToAdd = {};
+        typeMatchupToAdd.attackType = getState().rawBinArray[currentByte++]; //first byte is the attacking type
+        typeMatchupToAdd.defenseType = getState().rawBinArray[currentByte++]; //second byte is the defending type
+        typeMatchupToAdd.effectiveness = getState().rawBinArray[currentByte++]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
+        typeMatchups.push(typeMatchupToAdd);
+      }
+    }
+    
+    getStoreActions().setTypeMatchups(typeMatchups);
+    //console.log(typeMatchups);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({

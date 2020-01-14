@@ -895,10 +895,18 @@ const rbyItems = {
   TM_50: 250
 }
 
-const damageModifiers = {
+const rbyDamageModifiers = {
   No_Effect: 0,
   Half_Damage: 5,
   Double_Damage: 20
 }
 
-export {damageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats};
+const gscDamageModifiers = {
+  No_Effect: 0,
+  Half_Damage: 5,
+  Normal_Damage: 10,
+  More_Damage: 15,
+  Double_Damage: 20
+}
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats};
