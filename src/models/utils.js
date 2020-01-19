@@ -212,7 +212,7 @@ const rbyMoveAnimations = [
   "SUPER FANG",
   "SLASH",
   "SUBSTITUTE"
-]
+];
 
 const rbyMoveEffects = [
   "No Additional Effect",
@@ -299,7 +299,7 @@ const rbyMoveEffects = [
   "Steal HP Each Turn",
   "Move Has No Effect",
   "Disable Random Enemy Move"
-]
+];
 
 const gscMoveAnimations = [
   "None",
@@ -554,7 +554,7 @@ const gscMoveAnimations = [
   "ROCK_SMASH",
   "WHIRLPOOL",
   "BEAT_UP"
-]
+];
 
 const gscMoveEffects = [
   "NORMAL HIT",
@@ -714,13 +714,13 @@ const gscMoveEffects = [
   "BEAT UP",
   "FLY",
   "DEFENSE CURL"
-]
+];
 
 const rbyEvolveTypes = {
   LEVEL: 1,
   STONE: 2,
   TRADE: 3
-}
+};
 
 const gscEvolveTypes = {
   LEVEL: 1,
@@ -728,7 +728,7 @@ const gscEvolveTypes = {
   TRADE: 3,
   HAPPINESS: 4,
   STATS: 5
-}
+};
 
 const rbyStones = {
   MOON_STONE: 10,
@@ -736,7 +736,7 @@ const rbyStones = {
   THUNDER_STONE: 33,
   WATER_STONE: 34,
   LEAF_STONE: 47
-}
+};
 
 const gscStones = {
   MOON_STONE: 8,
@@ -745,19 +745,19 @@ const gscStones = {
   WATER_STONE: 24,
   LEAF_STONE: 34,
   SUN_STONE: 169
-}
+};
 
 const gscHappiness = {
   ANYTIME: 1,
   MORN_DAY: 2,
   NIGHT: 3
-}
+};
 
 const gscStats = {
   ATT_GT_DEF: 1,
   ATT_LT_DEF: 2,
   ATT_EQ_DEF: 3
-}
+};
 
 const rbyItems = {
   MASTER_BALL: 1,
@@ -893,13 +893,13 @@ const rbyItems = {
   TM_48: 248,
   TM_49: 249,
   TM_50: 250
-}
+};
 
 const rbyDamageModifiers = {
   No_Effect: 0,
   Half_Damage: 5,
   Double_Damage: 20
-}
+};
 
 const gscDamageModifiers = {
   No_Effect: 0,
@@ -907,6 +907,134 @@ const gscDamageModifiers = {
   Normal_Damage: 10,
   More_Damage: 15,
   Double_Damage: 20
-}
+};
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats};
+const rbyZoneNames = [
+  "Route 1",
+  "Route 2",
+  "Route 22",
+  "Viridian Forest",
+  "Route 3",
+  "MT. Moon 1",
+  "MT. Moon B1",
+  "MT. Moon B2",
+  "Route 4",
+  "Route 24",
+  "Route 25",
+  "Route 9",
+  "Route 5",
+  "Route 6",
+  "Route 11",
+  "Rock Tunnel 1",
+  "Rock Tunnel 2",
+  "Route 10",
+  "Route 12",
+  "Route 8",
+  "Route 7",            
+  "Pokemon Tower 3",
+  "Pokemon Tower 4",
+  "Pokemon Tower 5",
+  "Pokemon Tower 6",
+  "Pokemon Tower 7",
+  "Route 13",
+  "Route 14",
+  "Route 15",
+  "Route 16",
+  "Route 17",
+  "Route 18",
+  "Safari Zone Center",
+  "Safari Zone 1",
+  "Safari Zone 2",
+  "Safari Zone 3",
+  "Water Pokemon",
+  "Seafoam Island 1",
+  "Seafoam Island B1",
+  "Seafoam Island B2",
+  "Seafoam Island B3",
+  "Seafoam Island B4",
+  "Mansion 1",
+  "Mansion 2",
+  "Mansion 3",
+  "Mansion B1",
+  "Route 21 Grass",
+  "Route 21 Surf",
+  "Unknown Dungeon 1",
+  "Unknown Dungeon 2",
+  "Unknown Dungeon B1",
+  "Power Plant",
+  "Route 23",
+  "Victory Road 2",
+  "Victory Road 3",
+  "Victory Road 1",
+  "Digletts Cave"
+];
+
+const gsZoneNames = [
+  "SPROUT_TOWER_2F",
+  "SPROUT_TOWER_3F",
+  "TIN_TOWER_2F",
+  "TIN_TOWER_3F",
+  "TIN_TOWER_4F",
+  "TIN_TOWER_5F",
+  "TIN_TOWER_6F",
+  "TIN_TOWER_7F",
+  "TIN_TOWER_8F",
+  "TIN_TOWER_9F",
+  "BURNED_TOWER_1F",
+  "BURNED_TOWER_B1F",
+  "NATIONAL_PARK",
+  "RUINS_OF_ALPH_OUTSIDE",
+  "RUINS_OF_ALPH_INNER_CHAMBER",
+  "UNION_CAVE_1F",
+  "UNION_CAVE_B1F",
+  "UNION_CAVE_B2F",
+  "SLOWPOKE_WELL_B1F",
+  "SLOWPOKE_WELL_B2F",
+  "ILEX_FOREST",
+  "MOUNT_MORTAR_1F_OUTSIDE",
+  "MOUNT_MORTAR_1F_INSIDE",
+  "MOUNT_MORTAR_2F_INSIDE",
+  "MOUNT_MORTAR_B1F",
+  "ICE_PATH_1F",
+  "ICE_PATH_B1F",
+  "ICE_PATH_B2F_MAHOGANY_SIDE",
+  "ICE_PATH_B2F_BLACKTHORN_SIDE",
+  "ICE_PATH_B3F",
+  "WHIRL_ISLAND_NW",
+  "WHIRL_ISLAND_NE",
+  "WHIRL_ISLAND_SW",
+  "WHIRL_ISLAND_CAVE",
+  "WHIRL_ISLAND_SE",
+  "WHIRL_ISLAND_B1F",
+  "WHIRL_ISLAND_B2F",
+  "WHIRL_ISLAND_LUGIA_CHAMBER",
+  "SILVER_CAVE_ROOM_1",
+  "SILVER_CAVE_ROOM_2",
+  "SILVER_CAVE_ROOM_3",
+  "SILVER_CAVE_ITEM_ROOMS",
+  "DARK_CAVE_VIOLET_ENTRANCE",
+  "DARK_CAVE_BLACKTHORN_ENTRANCE",
+  "ROUTE_29",
+  "ROUTE_30",
+  "ROUTE_31",
+  "ROUTE_32",
+  "ROUTE_33",
+  "ROUTE_34",
+  "ROUTE_35",
+  "ROUTE_36",
+  "ROUTE_37",
+  "ROUTE_38",
+  "ROUTE_39",
+  "ROUTE_42",
+  "ROUTE_43",
+  "ROUTE_44",
+  "ROUTE_45",
+  "ROUTE_46",
+  "SILVER_CAVE_OUTSIDE"
+];
+
+const rbyGrassEncChances = [20,20,15,10,10,10,5,5,4,1];
+
+const gscGrassEncChances = [30, 30, 20, 10, 5, 4, 1];
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances};

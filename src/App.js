@@ -5,6 +5,7 @@ import PokemonTab from './components/PokemonTab';
 import MovesTab from './components/MovesTab';
 import ItemsTab from './components/ItemsTab';
 import TypesTab from './components/TypesTab';
+import EncountersTab from './components/EncountersTab';
 
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <button id="moves-tab" className={tabClassNames(1)} onClick={(e) => handleTabClicked(e, 1)}>Moves</button>
           <button id="items-tab" className={tabClassNames(2)} onClick={(e) => handleTabClicked(e, 2)}>Items</button>
           <button id="types-tab" className={tabClassNames(3)} onClick={(e) => handleTabClicked(e, 3)}>Types</button>
+          <button id="encounters-tab" className={tabClassNames(4)} onClick={(e) => handleTabClicked(e, 4)}>Encounters</button>
         </nav>
       </div>      
       <div style={{overflowY: "scroll"}}>
@@ -41,6 +43,7 @@ function App() {
         {tab === 1 && <MovesTab />}
         {tab === 2 && <ItemsTab />}
         {tab === 3 && <TypesTab />}
+        {tab === 4 && <EncountersTab />}
       </div>
     </div>
   );

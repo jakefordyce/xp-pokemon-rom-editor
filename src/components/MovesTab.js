@@ -4,6 +4,7 @@ import MovesGridRow from './MovesGridRow';
 
 function MovesTab(){
 
+  const dataLoaded = useStoreState(state => state.dataLoaded);
   const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
   const pokemonTypes = useStoreState(state => state.pokemonTypes);
@@ -12,7 +13,7 @@ function MovesTab(){
   const moveRows = moves.map((move, index) => <MovesGridRow key={index} move={move} gen={generation} types={pokemonTypes} animations={moveAnimations} effects={moveEffects}/>);
   
 
-  return(
+  return( dataLoaded &&
     <div>
       <table>
         <thead>

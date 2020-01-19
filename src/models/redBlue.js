@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyDamageModifiers} from './utils';
+import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -10,6 +10,8 @@ const pokemonNameStartByte = 115230; //Pokemon names start at byte 0x1c21e and a
 const pokemonEvosMovesByte = 242136; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x3B1D8.
 const pokemonStartByte = 230366; //Pokemon data starts at byte 0x383DE. It goes in Pokedex order, Bulbasaur through Mewtwo.
 const pokedexStartByte = 266276; //List of pokedex IDs start at byte 0x41024 and run in Index order, Rhydon through Victreebel.
+let pokedexIDs = new Map();
+let indexIDs = new Map();
 
 //values used to load the pokemon types
 const typesBankByte = 0x20000; // bank 9
@@ -22,6 +24,9 @@ const movesStartingByte = 229376; //The move data starts 0x38000 bytes into the 
 const tmStartByte = 79731; //The TM info starts at byte 0x13773.
 const tmPricesStartByte = 507815; //TM prices start at byte 0x7BFA7
 const itemPricesStartByte = 17928; // The prices for items start at byte 0x4608
+//values used to load wild encounters
+const wildEncountersByte = 53471; //The data for wild encounters start at 0xD0DE but the first one is empty so I skip it.
+const wildEncountersEndByte = 54727;
 
 function HexToDec(hexNum)
 {
@@ -46,6 +51,8 @@ export default {
   evolveStones: rbyStones,
   evolveTypes: rbyEvolveTypes,
   damageModifiers: rbyDamageModifiers,
+  zoneNames: rbyZoneNames,
+  grassChances: rbyGrassEncChances,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -55,15 +62,14 @@ export default {
     actions.loadPokemonData();
     actions.loadItems();
     actions.loadTypeMatchups();
+    actions.loadEncounters();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
   }),
   loadPokemonData: thunk( async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
-    let currentEvosMovesByte = pokemonEvosMovesByte;
-    let pokedexIDs = new Map();
-    let indexIDs = new Map();
+    let currentEvosMovesByte = pokemonEvosMovesByte;    
 
     for(let i = 0; i < 150; i++){
       var currentPokemon = {};
@@ -390,6 +396,45 @@ export default {
     }
     getStoreActions().setTypeMatchups(typeMatchups);
     //console.log(typeMatchups);
+  }),
+  loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let zones = [];
+    let currentByte = wildEncountersByte;
+
+    while (currentByte < wildEncountersEndByte)
+    {
+        if(zones.length === 36) // There's an extra byte at the beginning of this data.
+        {
+            currentByte++;
+        }                
+        if(getState().rawBinArray[currentByte] !== 0) //The zones that dont have encounters are marked with 0 for the first byte.
+        {
+            let newZone = {};
+            newZone.encounterRate = getState().rawBinArray[currentByte++];
+            newZone.name = rbyZoneNames[zones.length];
+            newZone.encounters = [];
+            // If the zone has encounters it has 10 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
+            // The first byte is the pokemon's level and the 2nd is the index ID. We are converting to pokedex IDs for display purposes.
+            for(let i = 0; i < 10; i++){
+              let encounter = {};
+              encounter.level = getState().rawBinArray[currentByte++]
+              encounter.pokemon = pokedexIDs.get(getState().rawBinArray[currentByte++]);
+              newZone.encounters.push(encounter);
+            }
+            
+            if (zones.length !== 36 && zones.length !== 46 && zones.length !== 47) //There's no ending byte at the end of these 3 zones.
+            {
+                currentByte++;
+            }
+            zones.push(newZone);
+        }
+        else // Zones with no encounters have only 2 bytes
+        {
+            currentByte += 2;
+        }
+    }
+    //console.log(encounters);
+    getStoreActions().setEncounterZones(zones);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({

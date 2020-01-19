@@ -13,11 +13,13 @@ export default {
   //data we want to edit and actions which edit
   pokemon: pokemonDefault,
   selectedPokemon: 0,
+  selectedZone: 0,
   pokemonTypes: [{typeIsUsed: 'true', typeName: 'NORMAL', typeIndex: 0}],
   moves: [{}],
   tms: [{}],
   items: [{}],
   typeMatchups: [{}],
+  encounterZones: [{encounters: []}],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -38,6 +40,12 @@ export default {
   }),
   setTypeMatchups: action((state, payload) => {
     state.typeMatchups = payload;
+  }),
+  setEncounterZones: action((state, payload) => {
+    state.encounterZones = payload;
+  }),
+  setSelectedZone: action((state, payload) => {
+    state.selectedZone = payload;
   }),
   updatePokemonProperty: action((state, payload) => {
     state.pokemon[payload.index][payload.propName] = payload.propValue;
@@ -73,8 +81,12 @@ export default {
   updateTypeProperty: action((state, payload) => {
     state.pokemonTypes[payload.index][payload.propName] = payload.propValue;
   }),
+  updateZoneProperty: action((state, payload) => {
+    state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = payload.propValue;
+  }),
 
   //accessing data from the correct ROM
+  dataLoaded: false,
   redBlueModel: redBlue,
   goldSilverModel: goldSilver,
   selectedROM: 0, 
@@ -121,7 +133,7 @@ export default {
     return modelState;
   }),
 
-  //file io
+  //file io  
   currentFile: '',
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
@@ -129,6 +141,7 @@ export default {
   supportedROMs: [{text: 'red/blue', select: 0}, {text: 'gold/silver', select: 1}],
   defaultSupportedROM: 'red/blue',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
+    getState().dataLoaded = false;
     let filedata;
     dialog.showOpenDialog(
       {filters: getState().romModelState.fileFilters}
@@ -138,6 +151,7 @@ export default {
       return actions.getRomModelActions();
     }).then((res) => {
       res.loadData(filedata);
+      getState().dataLoaded = true;
     }).catch(err => {
       //TODO
     });

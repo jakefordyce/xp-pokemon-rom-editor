@@ -4,6 +4,7 @@ import ArraySelect from './ArraySelect';
 
 function ItemsTab(){
   
+  const dataLoaded = useStoreState(state => state.dataLoaded);
   const moves = useStoreState(state => state.moves);
   const tms = useStoreState(state => state.tms);
   const items = useStoreState(state => state.items);
@@ -42,7 +43,7 @@ function ItemsTab(){
     updateItem({index: itemIndex, propName: propName, propValue: newValue});
   }
 
-  return(
+  return( dataLoaded &&
     <div className="items-tab-container">
       <div style={{overflowY: "scroll"}}>
         <table>

@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats} from './utils';
+import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -20,10 +20,10 @@ const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the
 const tmStartByte = 0x11A66; //The TM info.
 const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
 const itemNamesByte = 0x1B0000  // could be useful later.
+//values used to load wild encounters
+const johtoGrassWildEncountersByte = 0x2AB35; //The data for
+const kantoGrassWildEncountersByte = 0x2B7C0;
 
-// notes for gold/silver types
-// https://github.com/pret/pokegold/blob/master/constants/type_constants.asm
-// https://github.com/pret/pokecrystal/blob/master/data/types/type_matchups.asm
 
 export default {
   version: "GOLD/SILVER",
@@ -39,6 +39,7 @@ export default {
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
   damageModifiers: gscDamageModifiers,
+  grassChances: gscGrassEncChances,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -48,6 +49,7 @@ export default {
     actions.loadPokemonData();
     actions.loadItems();
     actions.loadTypeMatchups();
+    actions.loadEncounters();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -335,6 +337,59 @@ export default {
     
     getStoreActions().setTypeMatchups(typeMatchups);
     //console.log(typeMatchups);
+  }),
+  loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let zones = [];
+    let currentByte = johtoGrassWildEncountersByte;
+
+    while (getState().rawBinArray[currentByte] !== 0xFF)
+    {
+      currentByte += 2; // map id
+      let newZone = {};
+      newZone.encounterRate = getState().rawBinArray[currentByte++];
+      let dayEncounterRate = getState().rawBinArray[currentByte++];
+      let nightEncounterRate = getState().rawBinArray[currentByte++];
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} morning`;
+      newZone.encounters = [];
+      // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
+      // The first byte is the pokemon's level and the 2nd is the pokemon id.
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+
+      newZone = {};
+      newZone.encounterRate = dayEncounterRate;
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} day`;
+      newZone.encounters = [];
+      
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+
+      newZone = {};
+      newZone.encounterRate = nightEncounterRate;
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} night`;
+      newZone.encounters = [];
+      
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+        
+    }
+    //console.log(encounters);
+    getStoreActions().setEncounterZones(zones);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({

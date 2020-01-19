@@ -5,6 +5,7 @@ import EnumSelect from './EnumSelect';
 
 function TypesTab(){
     
+  const dataLoaded = useStoreState(state => state.dataLoaded);
   const types = useStoreState(state => state.pokemonTypes);
   const typeMatchups = useStoreState(state => state.typeMatchups);
   const damageModifiers = useStoreState(state => state.romModelState.damageModifiers);
@@ -42,7 +43,7 @@ function TypesTab(){
     updateTypeMatchup({index: matchupIndex, propName: propName, propValue: newValue});
   }
 
-  return(
+  return( dataLoaded &&
     <div className="types-tab-container">
       <div style={{overflowY: "scroll"}}>
         <table>
