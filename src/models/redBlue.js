@@ -1,5 +1,6 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances} from './utils';
+import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, 
+  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -27,6 +28,11 @@ const itemPricesStartByte = 17928; // The prices for items start at byte 0x4608
 //values used to load wild encounters
 const wildEncountersByte = 53471; //The data for wild encounters start at 0xD0DE but the first one is empty so I skip it.
 const wildEncountersEndByte = 54727;
+//values used to load trainers
+//const trainerNamesByte = 236031; //The names of the trainer groups start at byte 0x399FF
+//const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
+const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
+const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
 
 function HexToDec(hexNum)
 {
@@ -63,6 +69,7 @@ export default {
     actions.loadItems();
     actions.loadTypeMatchups();
     actions.loadEncounters();
+    actions.loadTrainers();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -435,6 +442,66 @@ export default {
     }
     //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
+  }),
+  loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let trainers = [];
+    let currentByte = trainerStartByte;
+    let trainerGroupTracker = 0; // tells which name to pull from the dictionary
+    let numOfTrainersInGroup = 0;
+    //string trainerName = "";    
+
+    while (currentByte < trainerEndByte)
+    {
+        let trainerToAdd = {};
+        trainerToAdd.pokemon = [];
+        if(getState().rawBinArray[currentByte] === 255) // trainers who have pokemon of different levels are marked with 0xFF as the 1st byte
+        {
+            trainerToAdd.allSameLevel = false;
+            currentByte++;
+            trainerToAdd.partyLevel = getState().rawBinArray[currentByte];
+            while(getState().rawBinArray[currentByte] !== 0)
+            {
+                trainerToAdd.pokemon.push({
+                  level: getState().rawBinArray[currentByte++], 
+                  pokemon: pokedexIDs.get(getState().rawBinArray[currentByte++])
+                });
+            }
+        }
+        else // if the first byte isn't 0xFF then it is the level for all of the pokemon in the team.
+        {
+            trainerToAdd.allSameLevel = true;
+            trainerToAdd.partyLevel = getState().rawBinArray[currentByte++];
+            while(getState().rawBinArray[currentByte] !== 0) //list of pokemon ending with 0.
+            {
+                trainerToAdd.pokemon.push({
+                  level: trainerToAdd.partyLevel, 
+                  pokemon: pokedexIDs.get(getState().rawBinArray[currentByte++])
+                });
+            }
+        }
+        currentByte++;
+        
+        let trainerName = `${rbTrainerNames[trainerGroupTracker]} ${numOfTrainersInGroup +1}`;
+        if (rbUnusedTrainers.includes(trainers.length))
+        {
+            trainerName += " (unused)";
+        }
+        trainerToAdd.name = trainerName;
+
+        //trainerToAdd.GroupNum = trainerGroupTracker + 201;
+        //trainerToAdd.TrainerNum = numOfTrainersInGroup + 1;
+
+        numOfTrainersInGroup++;
+        while(numOfTrainersInGroup === rbTrainerCounts[trainerGroupTracker] && trainerGroupTracker < 46)
+        {
+            trainerGroupTracker++;
+            numOfTrainersInGroup = 0;
+        }
+        trainers.push(trainerToAdd);
+    }
+
+    //console.log(trainers);
+    getStoreActions().setTrainers(trainers);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({

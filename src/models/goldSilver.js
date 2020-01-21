@@ -340,7 +340,59 @@ export default {
   }),
   loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
     let zones = [];
+    
+    //johto grass pokemon
     let currentByte = johtoGrassWildEncountersByte;
+
+    while (getState().rawBinArray[currentByte] !== 0xFF)
+    {
+      currentByte += 2; // map id
+      let newZone = {};
+      newZone.encounterRate = getState().rawBinArray[currentByte++];
+      let dayEncounterRate = getState().rawBinArray[currentByte++];
+      let nightEncounterRate = getState().rawBinArray[currentByte++];
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} morning`;
+      newZone.encounters = [];
+      // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
+      // The first byte is the pokemon's level and the 2nd is the pokemon id.
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+
+      newZone = {};
+      newZone.encounterRate = dayEncounterRate;
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} day`;
+      newZone.encounters = [];
+      
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+
+      newZone = {};
+      newZone.encounterRate = nightEncounterRate;
+      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} night`;
+      newZone.encounters = [];
+      
+      for(let i = 0; i < 7; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+        
+    }
+
+    //kanto grass pokemon
+    currentByte = kantoGrassWildEncountersByte;
 
     while (getState().rawBinArray[currentByte] !== 0xFF)
     {

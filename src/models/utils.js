@@ -1030,11 +1030,95 @@ const gsZoneNames = [
   "ROUTE_44",
   "ROUTE_45",
   "ROUTE_46",
-  "SILVER_CAVE_OUTSIDE"
+  "SILVER_CAVE_OUTSIDE",
+  "DIGLETTS_CAVE",
+  "MOUNT_MOON",
+  "ROCK_TUNNEL_1F",
+  "ROCK_TUNNEL_B1F",
+  "VICTORY_ROAD",
+  "TOHJO_FALLS",
+  "ROUTE_1",
+  "ROUTE_2",
+  "ROUTE_3",
+  "ROUTE_4",
+  "ROUTE_5",
+  "ROUTE_6",
+  "ROUTE_7",
+  "ROUTE_8",
+  "ROUTE_9",
+  "ROUTE_10_NORTH",
+  "ROUTE_11",
+  "ROUTE_13",
+  "ROUTE_14",
+  "ROUTE_15",
+  "ROUTE_16",
+  "ROUTE_17",
+  "ROUTE_18",
+  "ROUTE_21",
+  "ROUTE_22",
+  "ROUTE_24",
+  "ROUTE_25",
+  "ROUTE_26",
+  "ROUTE_27",
+  "ROUTE_28"
 ];
 
 const rbyGrassEncChances = [20,20,15,10,10,10,5,5,4,1];
 
 const gscGrassEncChances = [30, 30, 20, 10, 5, 4, 1];
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances};
+const rbTrainerNames = [
+  "Youngster",
+  "BugCatcher",
+  "Lass",
+  "Sailor",
+  "JrTrainerM",
+  "JrTrainerF",
+  "Pokemaniac",
+  "SuperNerd",
+  "Hiker",
+  "Biker",
+  "Burglar",
+  "Engineer",
+  "Juggler",
+  "Fisher",
+  "Swimmer",
+  "CueBall",
+  "Gambler",
+  "Beauty",
+  "Psychic",
+  "Rocker",
+  "Juggler",
+  "Tamer",
+  "BirdKeeper",
+  "Blackbelt",
+  "Rival",
+  "ProfOak",
+  "Chief",
+  "Scientist",
+  "Giovanni",
+  "Rocket",
+  "CoolTrainerM",
+  "CoolTrainerF",
+  "Bruno",
+  "Brock",
+  "Misty",
+  "Lt.Surge",
+  "Erika",
+  "Koga",
+  "Blaine",
+  "Sabrina",
+  "Gentleman",
+  "Rival",
+  "Rival",
+  "Lorelei",
+  "Channeler",
+  "Agatha",
+  "Lance"
+];
+
+const rbTrainerCounts = [13, 14, 18, 8, 9, 24, 7, 12, 14, 15, 9, 3, 0, 11, 15, 9, 7, 15, 4, 2, 8, 6, 17, 9, 9, 3, 0, 13, 3, 41, 10, 8, 1, 1, 1, 1, 1, 1, 1, 1, 5, 12, 3, 1, 24, 1, 1];
+
+const rbUnusedTrainers = [12, 24, 58, 65, 98, 99, 100, 134, 135, 136, 143, 186, 198, 214, 222, 234, 235, 258, 259, 260, 261, 298, 321, 323, 324, 325, 331, 333, 334, 335, 347, 365, 366, 367, 368, 371, 375, 377, 379];
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances};

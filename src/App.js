@@ -6,6 +6,7 @@ import MovesTab from './components/MovesTab';
 import ItemsTab from './components/ItemsTab';
 import TypesTab from './components/TypesTab';
 import EncountersTab from './components/EncountersTab';
+import TrainersTab from './components/TrainersTab';
 
 
 function App() {
@@ -36,6 +37,7 @@ function App() {
           <button id="items-tab" className={tabClassNames(2)} onClick={(e) => handleTabClicked(e, 2)}>Items</button>
           <button id="types-tab" className={tabClassNames(3)} onClick={(e) => handleTabClicked(e, 3)}>Types</button>
           <button id="encounters-tab" className={tabClassNames(4)} onClick={(e) => handleTabClicked(e, 4)}>Encounters</button>
+          <button id="trainers-tab" className={tabClassNames(5)} onClick={(e) => handleTabClicked(e, 5)}>Trainers</button>
         </nav>
       </div>      
       <div style={{overflowY: "scroll"}}>
@@ -44,6 +46,7 @@ function App() {
         {tab === 2 && <ItemsTab />}
         {tab === 3 && <TypesTab />}
         {tab === 4 && <EncountersTab />}
+        {tab === 5 && <TrainersTab />}
       </div>
     </div>
   );

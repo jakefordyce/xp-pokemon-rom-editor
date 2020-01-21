@@ -14,12 +14,14 @@ export default {
   pokemon: pokemonDefault,
   selectedPokemon: 0,
   selectedZone: 0,
+  selectedTrainer: 0,
   pokemonTypes: [{typeIsUsed: 'true', typeName: 'NORMAL', typeIndex: 0}],
   moves: [{}],
   tms: [{}],
   items: [{}],
   typeMatchups: [{}],
   encounterZones: [{encounters: []}],
+  trainers: [{pokemon: []}],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -46,6 +48,12 @@ export default {
   }),
   setSelectedZone: action((state, payload) => {
     state.selectedZone = payload;
+  }),
+  setTrainers: action((state, payload) => {
+    state.trainers = payload;
+  }),
+  setSelectedTrainer: action((state, payload) => {
+    state.selectedTrainer = payload;
   }),
   updatePokemonProperty: action((state, payload) => {
     state.pokemon[payload.index][payload.propName] = payload.propValue;
@@ -83,6 +91,12 @@ export default {
   }),
   updateZoneProperty: action((state, payload) => {
     state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = payload.propValue;
+  }),
+  updateTrainerPokemonProperty: action((state, payload) => {
+    state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName] = payload.propValue;
+  }),
+  updateTrainerProperty: action((state, payload) => {
+    state.trainers[payload.index][payload.propName] = payload.propValue;
   }),
 
   //accessing data from the correct ROM

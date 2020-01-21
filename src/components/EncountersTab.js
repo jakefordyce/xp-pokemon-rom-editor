@@ -1,7 +1,6 @@
 import React from 'react';
 import {useStoreState, useStoreActions} from 'easy-peasy';
 import ArraySelect from './ArraySelect';
-//import EnumSelect from './EnumSelect';
 
 function EncountersTab(){
     
