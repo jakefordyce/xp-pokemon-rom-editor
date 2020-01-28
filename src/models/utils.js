@@ -895,12 +895,14 @@ const rbyItems = {
   TM_50: 250
 };
 
+//the actual number is 1/10th what is listed here.
 const rbyDamageModifiers = {
   No_Effect: 0,
   Half_Damage: 5,
   Double_Damage: 20
 };
 
+//the actual number is 1/10th what is listed here.
 const gscDamageModifiers = {
   No_Effect: 0,
   Half_Damage: 5,
@@ -1117,8 +1119,90 @@ const rbTrainerNames = [
   "Lance"
 ];
 
+//this is the number of trainers in each group. This lets us know when to switch to the next group name.
 const rbTrainerCounts = [13, 14, 18, 8, 9, 24, 7, 12, 14, 15, 9, 3, 0, 11, 15, 9, 7, 15, 4, 2, 8, 6, 17, 9, 9, 3, 0, 13, 3, 41, 10, 8, 1, 1, 1, 1, 1, 1, 1, 1, 5, 12, 3, 1, 24, 1, 1];
 
+//these trainers aren't in the game. We will mark them as unused so the user knows they can remove pokemon from their rosters to free up extra space.
 const rbUnusedTrainers = [12, 24, 58, 65, 98, 99, 100, 134, 135, 136, 143, 186, 198, 214, 222, 234, 235, 258, 259, 260, 261, 298, 321, 323, 324, 325, 331, 333, 334, 335, 347, 365, 366, 367, 368, 371, 375, 377, 379];
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances};
+//
+const gsTrainerGroups = ["Falkner",
+"Whitney",
+"Bugsy",
+"Morty",
+"Pryce",
+"Jasmine",
+"Chuck",
+"Clair",
+"Rival1",
+"PokemonProf",
+"Will",
+"PKMNTrainer",
+"Bruno",
+"Karen",
+"Koga",
+"Champion",
+"Brock",
+"Misty",
+"LtSurge",
+"Scientist",
+"Erika",
+"Youngster",
+"Schoolboy",
+"BirdKeeper",
+"Lass",
+"Janine",
+"CooltrainerM",
+"CooltrainerF",
+"Beauty",
+"Pokemaniac",
+"GruntM",
+"Gentleman",
+"Skier",
+"Teacher",
+"Sabrina",
+"BugCatcher",
+"Fisher",
+"SwimmerM",
+"SwimmerF",
+"Sailor",
+"SuperNerd",
+"Rival2",
+"Guitarist",
+"Hiker",
+"Biker",
+"Blaine",
+"Burglar",
+"Firebreather",
+"Juggler",
+"Blackbelt",
+"ExecutiveM",
+"Psychic",
+"Picnicker",
+"Camper",
+"ExecutiveF",
+"Sage",
+"Medium",
+"Boarder",
+"PokefanM",
+"KimonoGirl",
+"Twins",
+"PokefanF",
+"Red",
+"Blue",
+"Officer",
+"GruntF"];
+
+const gsTrainerCounts = [1,1,1,1,1,1,1,1,15,0,1,3,1,1,1,1,1,1,1,5,1,12,18,19,15,1,19,20,16,13,31,5,2,3,1,14,22,21,19,12,12,6,2,20,9,1,3,8,5,9,4,12,21,19,2,9,7,3,12,6,8,5,1,1,2,5];
+
+const gsUniqueGroupNameIds = [0,1,2,3,4,5,6,7,10,12,13,14,15,16,17,18,20,25,34,45,62,63];
+
+const gsTrainerTypes = [
+  "Normal",
+  "Custom Moves",
+  "Item",
+  "Item and Moves"
+];
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, 
+  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes};

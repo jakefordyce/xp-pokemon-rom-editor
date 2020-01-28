@@ -448,7 +448,6 @@ export default {
     let currentByte = trainerStartByte;
     let trainerGroupTracker = 0; // tells which name to pull from the dictionary
     let numOfTrainersInGroup = 0;
-    //string trainerName = "";    
 
     while (currentByte < trainerEndByte)
     {

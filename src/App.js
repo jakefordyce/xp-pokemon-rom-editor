@@ -40,7 +40,7 @@ function App() {
           <button id="trainers-tab" className={tabClassNames(5)} onClick={(e) => handleTabClicked(e, 5)}>Trainers</button>
         </nav>
       </div>      
-      <div style={{overflowY: "scroll"}}>
+      <div >
         {tab === 0 && <PokemonTab />}
         {tab === 1 && <MovesTab />}
         {tab === 2 && <ItemsTab />}

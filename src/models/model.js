@@ -93,10 +93,12 @@ export default {
     state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = payload.propValue;
   }),
   updateTrainerPokemonProperty: action((state, payload) => {
-    state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName].constructor(payload.propValue);
+    state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName] = newValue;
   }),
   updateTrainerProperty: action((state, payload) => {
-    state.trainers[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.trainers[payload.index][payload.propName].constructor(payload.propValue)
+    state.trainers[payload.index][payload.propName] = newValue;
   }),
 
   //accessing data from the correct ROM

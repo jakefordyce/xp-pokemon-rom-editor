@@ -1,5 +1,6 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances} from './utils';
+import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
+  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -23,6 +24,9 @@ const itemNamesByte = 0x1B0000  // could be useful later.
 //values used to load wild encounters
 const johtoGrassWildEncountersByte = 0x2AB35; //The data for
 const kantoGrassWildEncountersByte = 0x2B7C0;
+//values used to load trainers
+const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
+const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
 
 
 export default {
@@ -40,6 +44,7 @@ export default {
   evolveStats: gscStats,
   damageModifiers: gscDamageModifiers,
   grassChances: gscGrassEncChances,
+  trainerTypes: gsTrainerTypes,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -50,6 +55,7 @@ export default {
     actions.loadItems();
     actions.loadTypeMatchups();
     actions.loadEncounters();
+    actions.loadTrainers();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -442,6 +448,80 @@ export default {
     }
     //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
+  }),
+  loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let trainers = [];
+    let currentPointerByte = trainerPointersByte;
+    let numOfTrainersInGroup = 0;
+
+    // 66 trainer groups
+    for(let groupNum = 0; groupNum < 66; groupNum++){
+
+      //get the starting point for the group's data
+      let pointerByte1 = getState().rawBinArray[currentPointerByte++];
+      let pointerByte2 = getState().rawBinArray[currentPointerByte++] * 256;
+      let currentTrainerByte = trainerBankByte + pointerByte1 + pointerByte2;
+
+      //while we haven't reached the last trainer in the group keep loading trainers
+      while(numOfTrainersInGroup < gsTrainerCounts[groupNum]){
+        let newTrainer = {};
+        let trainerName = "";
+
+        //first thing is the name. Each trainer has an individual name and a group name. 
+        // For some groups it doesn't make sense to use both e.g. "Lance Lance". 
+        if(!gsUniqueGroupNameIds.includes(groupNum)){
+          trainerName += `${gsTrainerGroups[groupNum]} `;
+        }
+
+        //reads the name. The ending is marked with 0x50
+        while(getState().rawBinArray[currentTrainerByte] !== 0x50){
+          trainerName += rbygsLetters.get(getState().rawBinArray[currentTrainerByte++]);
+        }
+        newTrainer.name = trainerName;
+        currentTrainerByte++;
+
+        //the type determines if the trainer has an item to use and if their pokemon have custom movesets.
+        newTrainer.type = getState().rawBinArray[currentTrainerByte++];
+
+        newTrainer.pokemon = [];
+        //the end of each trainer's data is marked with 0xFF
+        while(getState().rawBinArray[currentTrainerByte] !== 0xFF){
+          let newPokemon = {};
+          newPokemon.level = getState().rawBinArray[currentTrainerByte++];
+          newPokemon.pokemon = getState().rawBinArray[currentTrainerByte++]-1; // -1 because the pokemon array is 0 based. We will add 1 when saving.
+
+          //if the type is 2 or 3 the next byte is the pokemon's item
+          if(newTrainer.type === 2 || newTrainer.type === 3){
+            newPokemon.item = getState().rawBinArray[currentTrainerByte++]-1;
+          }else{ // setting default value in case the user switches the trainer's type to one that uses items.
+            newPokemon.item = 0;
+          }
+
+          //if the type is 1 or 3 the next 4 bytes will be the pokemon's moves.
+          if(newTrainer.type === 1 || newTrainer.type === 3){
+            newPokemon.move1 = getState().rawBinArray[currentTrainerByte++];
+            newPokemon.move2 = getState().rawBinArray[currentTrainerByte++];
+            newPokemon.move3 = getState().rawBinArray[currentTrainerByte++];
+            newPokemon.move4 = getState().rawBinArray[currentTrainerByte++];
+          }else{ // setting some default values in case the user switches the trainer's type to one that uses moves.
+            newPokemon.move1 = 0;
+            newPokemon.move2 = 0;
+            newPokemon.move3 = 0;
+            newPokemon.move4 = 0;
+          }
+          newTrainer.pokemon.push(newPokemon);
+        }
+        
+        trainers.push(newTrainer);
+        currentTrainerByte++;
+        numOfTrainersInGroup++;
+      }
+      numOfTrainersInGroup = 0;
+      
+    }
+
+    //console.log(trainers);
+    getStoreActions().setTrainers(trainers);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
