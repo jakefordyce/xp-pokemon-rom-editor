@@ -15,6 +15,7 @@ export default {
   selectedPokemon: 0,
   selectedZone: 0,
   selectedTrainer: 0,
+  selectedShop: 0,
   pokemonTypes: [{typeIsUsed: 'true', typeName: 'NORMAL', typeIndex: 0}],
   moves: [{}],
   tms: [{}],
@@ -22,6 +23,7 @@ export default {
   typeMatchups: [{}],
   encounterZones: [{encounters: []}],
   trainers: [{pokemon: []}],
+  shops: [{items: []}],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -54,6 +56,12 @@ export default {
   }),
   setSelectedTrainer: action((state, payload) => {
     state.selectedTrainer = payload;
+  }),
+  setShops: action((state, payload) => {
+    state.shops = payload;
+  }),
+  setSelectedShop: action((state, payload) => {
+    state.selectedShop = payload;
   }),
   updatePokemonProperty: action((state, payload) => {
     state.pokemon[payload.index][payload.propName] = payload.propValue;
@@ -99,6 +107,10 @@ export default {
   updateTrainerProperty: action((state, payload) => {
     let newValue = state.trainers[payload.index][payload.propName].constructor(payload.propValue)
     state.trainers[payload.index][payload.propName] = newValue;
+  }),
+  updateShopItemProperty: action((state, payload) => {
+    let newValue = state.shops[state.selectedShop].items[payload.index][payload.propName].constructor(payload.propValue)
+    state.shops[state.selectedShop].items[payload.index][payload.propName] = newValue;
   }),
 
   //accessing data from the correct ROM

@@ -46,3 +46,9 @@ th {
   grid-template-columns: 310px auto;
   grid-template-rows: calc(100vh - 100px);
 }
+
+.shops-tab-container {
+  display: grid;
+  grid-template-columns: 310px auto;
+  grid-template-rows: calc(100vh - 100px);
+}

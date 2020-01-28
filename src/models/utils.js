@@ -1204,5 +1204,24 @@ const gsTrainerTypes = [
   "Item and Moves"
 ];
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, 
+const rbyShopNames = [
+  "Viridian City",
+  "Pewter City",
+  "Cerulean City",
+  "Bike Shop",
+  "Vermilion City",
+  "Lavender City",
+  "Celadon Floor 2 Clerk 1",
+  "Celadon Floor 2 Clerk 2",
+  "Celadon Floor 4",
+  "Celadon Floor 5 Clerk 1",
+  "Celadon Floor 5 Clerk 2",
+  "Fushia City",
+  "unused",
+  "Cinnabar Island",
+  "Saffron City",
+  "Indigo Plateau"
+];
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes};

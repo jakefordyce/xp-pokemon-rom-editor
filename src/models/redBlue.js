@@ -1,6 +1,6 @@
 import { thunk, action } from "easy-peasy";
 import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, 
-  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers} from './utils';
+  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -29,10 +29,11 @@ const itemPricesStartByte = 17928; // The prices for items start at byte 0x4608
 const wildEncountersByte = 53471; //The data for wild encounters start at 0xD0DE but the first one is empty so I skip it.
 const wildEncountersEndByte = 54727;
 //values used to load trainers
-//const trainerNamesByte = 236031; //The names of the trainer groups start at byte 0x399FF
 //const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
 const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
 const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
+
+const shopsStartByte = 9282; //The data for the pokemarts inventories starts at byte 0x2442
 
 function HexToDec(hexNum)
 {
@@ -59,6 +60,7 @@ export default {
   damageModifiers: rbyDamageModifiers,
   zoneNames: rbyZoneNames,
   grassChances: rbyGrassEncChances,
+  items: rbyItems,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -70,6 +72,7 @@ export default {
     actions.loadTypeMatchups();
     actions.loadEncounters();
     actions.loadTrainers();
+    actions.loadShops();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -380,7 +383,7 @@ export default {
       }
       items.push(itemToAdd);
     }
-    //console.log(items);
+    
     getStoreActions().setItems(items);
   }),
   loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
@@ -501,6 +504,26 @@ export default {
 
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
+  }),
+  loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let shops = [];
+    let currentByte = shopsStartByte;
+
+    for (let i = 0; i < 16; i++)
+    {
+        let newShop = {};
+        newShop.name = rbyShopNames[i];
+        newShop.items = [];
+        currentByte += 2; //Skip the first 2 bytes. The first byte is always 0xFE and the 2nd is the number of items for sale.
+        while(getState().rawBinArray[currentByte] !== 0xFF) //the end of the shop is marked by 0xFF
+        {
+            newShop.items.push({item: getState().rawBinArray[currentByte++]});
+        }
+        shops.push(newShop);
+        currentByte++;
+    }
+
+    getStoreActions().setShops(shops);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
