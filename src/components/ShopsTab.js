@@ -1,14 +1,19 @@
 import React from 'react';
 import {useStoreState, useStoreActions} from 'easy-peasy';
 import EnumSelect from './EnumSelect';
+import ArraySelect from './ArraySelect';
 
 function ShopsTab(){
 
   const dataLoaded = useStoreState(state => state.dataLoaded);
+  const generation = useStoreState(state => state.romModelState.generation);
   const shops = useStoreState(state => state.shops);
   const selectedShop = useStoreState(state => state.selectedShop);
   const setSelectedShop = useStoreActions(actions => actions.setSelectedShop);
-  const items = useStoreState(state => state.romModelState.items);
+  // red/blue/yellow have a giant gap in their item numbering so it is easier to use the items enum here instead of the loaded item data.
+  const enumItems = useStoreState(state => state.romModelState.items);
+  const items = useStoreState(state => state.items);
+  const updateShopItemProperty = useStoreActions(actions => actions.updateShopItemProperty);
 
 
   const shopsList = shops.map((shop, index) => 
@@ -17,12 +22,18 @@ function ShopsTab(){
 
   const itemsList = shops[selectedShop].items.map((item, index) => 
     <tr key={index}>
-      <td><EnumSelect enum={items} display='name' selectedValue={item.item} handleOptionChange={handleShopItemChange} arrayIndex={index} propName={'item'} /></td>
+      {generation === 1 &&
+        <td><EnumSelect enum={enumItems} display='name' selectedValue={item.item} handleOptionChange={handleShopItemChange} arrayIndex={index} propName={'item'} /></td>
+      }
+      {generation !== 1 &&
+        <td><ArraySelect collection={items} display='name' selectedValue={item.item} handleOptionChange={handleShopItemChange} arrayIndex={index} propName={'item'} /></td>
+      }
     </tr>
   );
 
   function handleShopItemChange(event, index, propName){
-
+    let newValue = event.target.value;
+    updateShopItemProperty({index: index, propName: propName, propValue: newValue});
   }
 
 

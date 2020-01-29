@@ -1223,5 +1223,45 @@ const rbyShopNames = [
   "Indigo Plateau"
 ];
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects,rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
-  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes};
+const gscShopNames = [
+  "Cherrygrove",
+  "Cherrygrove Dex",
+  "Violet",
+  "Azalea",
+  "Cianwood",
+  "Goldenrod 2F 1",
+  "Goldenrod 2F 2",
+  "Goldenrod 3F",
+  "Goldenrod 4F",
+  "Goldenrod 5F 1",
+  "Goldenrod 5F 2",
+  "Goldenrod 5F 3",
+  "Goldenrod 5F 4",
+  "Olivine",
+  "Ecruteak",
+  "Mahogany 1",
+  "Mahogany 2",
+  "Blackthorn",
+  "Viridian",
+  "Pewter",
+  "Cerulean",
+  "Lavender",
+  "Vermilion",
+  "Celadon 2F 1",
+  "Celadon 2F 2",
+  "Celadon 3F",
+  "Celadon 4F",
+  "Celadon 5F 1",
+  "Celadon 5F 2",
+  "Fuchsia",
+  "Saffron",
+  "MtMoon",
+  "Indigo Plateau",
+  "Underground",
+  "Default Mart"
+];
+
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, 
+  rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
+  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
+  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames};

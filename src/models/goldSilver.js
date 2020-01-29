@@ -1,6 +1,6 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
-  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes} from './utils';
+  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -27,7 +27,8 @@ const kantoGrassWildEncountersByte = 0x2B7C0;
 //values used to load trainers
 const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
 const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
-
+//values used to load shops
+const shopsStartByte = 0x16342;
 
 export default {
   version: "GOLD/SILVER",
@@ -56,6 +57,7 @@ export default {
     actions.loadTypeMatchups();
     actions.loadEncounters();
     actions.loadTrainers();
+    actions.loadShops();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -310,8 +312,7 @@ export default {
       let itemName = "";
       while(getState().rawBinArray[currentNamesByte] !== 0x50){
 
-        itemName += rbygsLetters.get(getState().rawBinArray[currentNamesByte]);
-        currentNamesByte++;
+        itemName += rbygsLetters.get(getState().rawBinArray[currentNamesByte++]);
       }
       currentNamesByte++;
       newItem.name = itemName;
@@ -522,6 +523,26 @@ export default {
 
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
+  }),
+  loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let shops = [];
+    let currentByte = shopsStartByte;
+
+    for (let i = 0; i < 35; i++)
+    {
+        let newShop = {};
+        newShop.name = gscShopNames[i];
+        newShop.items = [];
+        currentByte += 1; //Skip the first byte. The first byte is the number of items for sale.
+        while(getState().rawBinArray[currentByte] !== 0xFF) //the end of the shop is marked by 0xFF
+        {
+            newShop.items.push({item: getState().rawBinArray[currentByte++] -1}); // -1 because it is using the index of the items collection.
+        }
+        shops.push(newShop);
+        currentByte++;
+    }
+
+    getStoreActions().setShops(shops);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
