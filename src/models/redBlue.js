@@ -59,7 +59,6 @@ export default {
   evolveTypes: rbyEvolveTypes,
   damageModifiers: rbyDamageModifiers,
   zoneNames: rbyZoneNames,
-  grassChances: rbyGrassEncChances,
   items: rbyItems,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
@@ -429,6 +428,7 @@ export default {
               let encounter = {};
               encounter.level = getState().rawBinArray[currentByte++]
               encounter.pokemon = pokedexIDs.get(getState().rawBinArray[currentByte++]);
+              encounter.chance = rbyGrassEncChances[i];
               newZone.encounters.push(encounter);
             }
             

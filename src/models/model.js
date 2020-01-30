@@ -119,6 +119,7 @@ export default {
   goldSilverModel: goldSilver,
   selectedROM: 0, 
   romModelSelected: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    getState().dataLoaded = false;
     const romFound = getState().supportedROMs.find(rom => rom.text === payload);
     if(romFound){
       //need to reset data when the rom is changed.
@@ -130,7 +131,7 @@ export default {
     }
   }),
   setRomModel: action((state, payload) => {
-    state.selectedROM = payload;    
+    state.selectedROM = payload;
   }),
   getRomModelActions: thunk(async (actions, payload, {getState}) => {
     let modelActions;

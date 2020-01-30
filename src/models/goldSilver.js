@@ -1,6 +1,6 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
-  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames} from './utils';
+  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -22,8 +22,10 @@ const tmStartByte = 0x11A66; //The TM info.
 const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
 const itemNamesByte = 0x1B0000  // could be useful later.
 //values used to load wild encounters
-const johtoGrassWildEncountersByte = 0x2AB35; //The data for
+const johtoGrassWildEncountersByte = 0x2AB35;
+const johtoWaterWildEncountersByte = 0x2B669;
 const kantoGrassWildEncountersByte = 0x2B7C0;
+const kantoWaterWildEncountersByte = 0x2BD43;
 //values used to load trainers
 const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
 const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
@@ -44,7 +46,6 @@ export default {
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
   damageModifiers: gscDamageModifiers,
-  grassChances: gscGrassEncChances,
   trainerTypes: gsTrainerTypes,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
@@ -350,6 +351,7 @@ export default {
     
     //johto grass pokemon
     let currentByte = johtoGrassWildEncountersByte;
+    let nameCounter = 0;
 
     while (getState().rawBinArray[currentByte] !== 0xFF)
     {
@@ -358,7 +360,7 @@ export default {
       newZone.encounterRate = getState().rawBinArray[currentByte++];
       let dayEncounterRate = getState().rawBinArray[currentByte++];
       let nightEncounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} morning`;
+      newZone.name =  `${gsZoneNames[nameCounter]} morning`;
       newZone.encounters = [];
       // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
@@ -366,36 +368,62 @@ export default {
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
 
       newZone = {};
       newZone.encounterRate = dayEncounterRate;
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} day`;
+      newZone.name =  `${gsZoneNames[nameCounter]} day`;
       newZone.encounters = [];
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
 
       newZone = {};
       newZone.encounterRate = nightEncounterRate;
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} night`;
+      newZone.name =  `${gsZoneNames[nameCounter]} night`;
       newZone.encounters = [];
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
-        
+      nameCounter++;
+    }
+
+    //johto water pokemon
+    currentByte = johtoWaterWildEncountersByte;
+
+    while (getState().rawBinArray[currentByte] !== 0xFF)
+    {
+      currentByte += 2; // map id
+      let newZone = {};
+      newZone.encounterRate = getState().rawBinArray[currentByte++];
+      newZone.name =  `${gsZoneNames[nameCounter]} water`;
+      newZone.encounters = [];
+      // Each water zone has 3 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
+      // The first byte is the pokemon's level and the 2nd is the pokemon id.
+      for(let i = 0; i < 3; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscWaterEncChances[i];
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+      nameCounter++;
     }
 
     //kanto grass pokemon
@@ -408,7 +436,7 @@ export default {
       newZone.encounterRate = getState().rawBinArray[currentByte++];
       let dayEncounterRate = getState().rawBinArray[currentByte++];
       let nightEncounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} morning`;
+      newZone.name =  `${gsZoneNames[nameCounter]} morning`;
       newZone.encounters = [];
       // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
@@ -416,37 +444,64 @@ export default {
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
 
       newZone = {};
       newZone.encounterRate = dayEncounterRate;
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} day`;
+      newZone.name =  `${gsZoneNames[nameCounter]} day`;
       newZone.encounters = [];
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
 
       newZone = {};
       newZone.encounterRate = nightEncounterRate;
-      newZone.name =  `${gsZoneNames[Math.floor(zones.length/3)]} night`;
+      newZone.name =  `${gsZoneNames[nameCounter]} night`;
       newZone.encounters = [];
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
         encounter.level = getState().rawBinArray[currentByte++]
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
       }
       zones.push(newZone);
-        
+      nameCounter++;
     }
+
+    //kanto water pokemon
+    currentByte = kantoWaterWildEncountersByte;
+
+    while (getState().rawBinArray[currentByte] !== 0xFF)
+    {
+      currentByte += 2; // map id
+      let newZone = {};
+      newZone.encounterRate = getState().rawBinArray[currentByte++];
+      newZone.name =  `${gsZoneNames[nameCounter]} water`;
+      newZone.encounters = [];
+      // Each water zone has 3 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
+      // The first byte is the pokemon's level and the 2nd is the pokemon id.
+      for(let i = 0; i < 3; i++){
+        let encounter = {};
+        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
+        encounter.chance = gscWaterEncChances[i];
+        newZone.encounters.push(encounter);
+      }
+      zones.push(newZone);
+      nameCounter++;
+    }
+
     //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
   }),
