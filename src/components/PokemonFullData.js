@@ -14,6 +14,9 @@ function PokemonFullData(){
   const updateEvolution = useStoreActions(actions => actions.updatePokemonEvolutionProperty);
   const addEvolution = useStoreActions(actions => actions.addPokemonEvolution);
   const removeEvolution = useStoreActions(actions => actions.removePokemonEvolution);
+  const addPokemonMove = useStoreActions(actions => actions.addPokemonMove);
+  const removePokemonMove = useStoreActions(actions => actions.removePokemonMove);
+  const sortPokemonMoves = useStoreActions(actions => actions.sortPokemonMoves);
   const updatePokemonTM = useStoreActions(actions => actions.updatePokemonTMProperty);
   const moves = useStoreState(state => state.moves);
   const tms = useStoreState(state => state.tms);
@@ -22,6 +25,7 @@ function PokemonFullData(){
   const evolveStones = useStoreState(state => state.romModelState.evolveStones);
   const evolveHappiness = useStoreState(state => state.romModelState.evolveHappiness);
   const evolveStats = useStoreState(state => state.romModelState.evolveStats);
+  const growthRates = useStoreState(state => state.romModelState.growthRates);
 
   const pokemonList = pokemon.map((pokemon, index) => 
     <li key={index} className={"list-group-item" + (selectedPokemon === index ? " active" : "")} style={{maxWidth: "150px"}} onClick={()=> setSelectedPokemon(index)}>{pokemon.name}</li>
@@ -29,8 +33,9 @@ function PokemonFullData(){
   
   const levelupMoves = pokemon[selectedPokemon].learnedMoves.map((move, index)=> 
     <li key={index} className={"list-group-item"}>
-      <input value={move.level} onChange={(e) => handleLevelUpMoveChange(e, index, 'level')}/>
+      <input value={move.level} onChange={(e) => handleLevelUpMoveChange(e, index, 'level')} onBlur={(e) => handlePokemonMoveBlur(e, selectedPokemon)} />
       <ArraySelect collection={moves} value='id' display='name' selectedValue={move.moveID} handleOptionChange={handleLevelUpMoveChange} arrayIndex={index} propName={'moveID'} />
+      <button onClick={(e) => handleRemoveMove(e, index)}>X</button>
     </li>
   );
 
@@ -75,7 +80,7 @@ function PokemonFullData(){
 
   function handleStatChange(event, pokemonIndex, propName){
     let newValue = event.target.value;
-    if(newValue > 0 && newValue <= 255){
+    if(newValue >= 0 && newValue <= 255){
       updateStat({index: pokemonIndex, propName: propName, propValue: newValue});
     }
   };
@@ -87,6 +92,18 @@ function PokemonFullData(){
   function handleRemoveEvolution(event, evolutionIndex){
     removeEvolution(evolutionIndex);
   };
+
+  function handleAddMove(event){
+    addPokemonMove();
+  }
+
+  function handleRemoveMove(event, moveIndex){
+    removePokemonMove(moveIndex);
+  }
+
+  function handlePokemonMoveBlur(event, pokeIndex){
+    sortPokemonMoves(pokeIndex);
+  }
 
   function handleTMChange(event, tmIndex){
     let newValue = event.target.checked;
@@ -110,6 +127,7 @@ function PokemonFullData(){
             <tr><td><ArraySelect collection={pokemonTypes} value='typeIndex' display='typeName' selectedValue={pokemon[selectedPokemon].type2} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'type2'} /></td></tr>
             <tr><td>Catch Rate: </td><td><input value={pokemon[selectedPokemon].catchRate} onChange={(e) => handleStatChange(e, selectedPokemon, 'catchRate')} /></td></tr>
             <tr><td>EXP Yield: </td><td><input value={pokemon[selectedPokemon].expYield} onChange={(e) => handleStatChange(e, selectedPokemon, 'expYield')} /></td></tr>
+            <tr><td>Growth Rate: </td><td><EnumSelect enum={growthRates} selectedValue={pokemon[selectedPokemon].growthRate} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'growthRate'}/></td></tr>
             {gen === 1 && 
               <tr><td>Start Move 1: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move1} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move1'} /></td>
@@ -142,7 +160,7 @@ function PokemonFullData(){
         </table>
       </div>
       <div style={{overflowY: "scroll"}}>{pokemonTMs}</div>
-      <ul className="list-group" style={{ overflowY: "scroll"}}>{levelupMoves}</ul>
+      <div><ul className="list-group" style={{ overflowY: "scroll"}}>{levelupMoves}</ul><button onClick={handleAddMove}>Add Move</button></div>
     </div>
   );
 

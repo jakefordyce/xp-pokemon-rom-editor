@@ -738,6 +738,13 @@ const rbyStones = {
   LEAF_STONE: 47
 };
 
+const rbyGrowthRates = {
+  Medium_Fast: 0,
+  Medium_Slow: 3,
+  Fast: 4,
+  Slow: 5
+};
+
 const gscStones = {
   MOON_STONE: 8,
   FIRE_STONE: 22,
@@ -757,6 +764,15 @@ const gscStats = {
   ATT_GT_DEF: 1,
   ATT_LT_DEF: 2,
   ATT_EQ_DEF: 3
+};
+
+const gscGrowthRates = {
+  MEDIUM_FAST: 0,
+	SLIGHTLY_FAST: 1,
+	SLIGHTLY_SLOW: 2,
+	MEDIUM_SLOW: 3,
+	FAST: 4,
+	SLOW: 5
 };
 
 const rbyItems = {
@@ -1325,7 +1341,7 @@ const gscShopNames = [
   "Default Mart"
 ];
 
-export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, 
+export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
-  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
+  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames};

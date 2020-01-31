@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, 
+import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
@@ -45,6 +45,7 @@ export default {
   evolveStones: gscStones,
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
+  growthRates: gscGrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
@@ -78,6 +79,7 @@ export default {
       currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 32) +8];
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 32) + 9];
       currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 32) + 10];
+      currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 32) + 22];
 
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
       //first we grab the 8 bytes in an array.

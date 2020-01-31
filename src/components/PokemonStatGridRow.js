@@ -1,16 +1,18 @@
 import React from 'react';
-import {useStoreActions} from 'easy-peasy';
+import {useStoreActions, useStoreState} from 'easy-peasy';
 import ArraySelect from './ArraySelect';
+import EnumSelect from './EnumSelect';
 
 function PokemonStatGridRow(props){
 
   const updateStat = useStoreActions(actions => actions.updatePokemonProperty)
+  const growthRates = useStoreState(state => state.romModelState.growthRates);
 
   function handleStatChange(event, pokemonIndex, propName){
     //console.log(props);
     //console.log(pokemonIndex);
     let newValue = event.target.value;
-    if(newValue > 0 && newValue <= 255){
+    if(newValue >= 0 && newValue <= 255){
       updateStat({index: pokemonIndex, propName: propName, propValue: newValue});
     }
   }  
@@ -28,6 +30,7 @@ function PokemonStatGridRow(props){
       <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type2} handleOptionChange={handleStatChange} arrayIndex={props.pokeIndex} propName={'type2'} /></td>
       <td><input value={props.stats.catchRate} onChange={(e) => handleStatChange(e, props.pokeIndex, 'catchRate')} /></td>
       <td><input value={props.stats.expYield} onChange={(e) => handleStatChange(e, props.pokeIndex, 'expYield')} /></td>
+      <td><EnumSelect enum={growthRates} selectedValue={props.stats.growthRate} handleOptionChange={handleStatChange} arrayIndex={props.pokeIndex} propName={'growthRate'}/></td>
     </tr>
   );
 }

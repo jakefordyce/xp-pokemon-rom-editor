@@ -25,6 +25,7 @@ function PokemonStatGrid(){
             <th>Type 2</th>
             <th>Catch Rate</th>
             <th>EXP Yield</th>
+            <th>Growth Rate</th>
           </tr>
         </thead>
         <tbody>

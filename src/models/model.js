@@ -64,7 +64,8 @@ export default {
     state.selectedShop = payload;
   }),
   updatePokemonProperty: action((state, payload) => {
-    state.pokemon[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.pokemon[payload.index][payload.propName].constructor(payload.propValue);
+    state.pokemon[payload.index][payload.propName] = newValue;
   }),
   updateMoveProperty: action((state, payload) => {
     state.moves[payload.index][payload.propName] = payload.propValue;
@@ -73,6 +74,9 @@ export default {
     //this sets the new value to be the same type as the property being updated.
     let newValue = state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName].constructor(payload.propValue);
     state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName] = newValue;
+  }),
+  sortPokemonMoves: action((state, payload) => {
+    state.pokemon[payload].learnedMoves.sort((a, b) => {return a.level - b.level});
   }),
   updatePokemonEvolutionProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.pokeIndex].evolutions[payload.evolveIndex][payload.propName].constructor(payload.propValue);
@@ -90,6 +94,12 @@ export default {
   }),
   removePokemonEvolution: action((state, payload) => {
     state.pokemon[state.selectedPokemon].evolutions.splice(payload, 1);
+  }),
+  addPokemonMove: action((state, payload) => {
+    state.pokemon[state.selectedPokemon].learnedMoves.unshift({level: 1, moveID: 1});
+  }),
+  removePokemonMove: action((state, payload) => {
+    state.pokemon[state.selectedPokemon].learnedMoves.splice(payload, 1);
   }),
   updateTypeMatchupProperty: action((state, payload) => {
     state.typeMatchups[payload.index][payload.propName] = payload.propValue;

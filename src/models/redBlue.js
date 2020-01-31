@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, 
+import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyGrowthRates,
   rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
@@ -57,6 +57,7 @@ export default {
   moveEffects: rbyMoveEffects,
   evolveStones: rbyStones,
   evolveTypes: rbyEvolveTypes,
+  growthRates: rbyGrowthRates,
   damageModifiers: rbyDamageModifiers,
   zoneNames: rbyZoneNames,
   items: rbyItems,
@@ -95,7 +96,7 @@ export default {
       currentPokemon.move2 = getState().rawBinArray[pokemonStartByte + (i * 28) + 16];
       currentPokemon.move3 = getState().rawBinArray[pokemonStartByte + (i * 28) + 17];
       currentPokemon.move4 = getState().rawBinArray[pokemonStartByte + (i * 28) + 18];
-      currentPokemon.GrowthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 19];
+      currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 19];
       //the tm/hm data for each pokemon is stored as 7 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
       //first we grab the 7 bytes in an array.
       let tmIntArray = [];
@@ -139,7 +140,7 @@ export default {
     mew.move2 = getState().rawBinArray[mewStartByte + 16];
     mew.move3 = getState().rawBinArray[mewStartByte + 17];
     mew.move4 = getState().rawBinArray[mewStartByte + 18];
-    mew.GrowthRate = getState().rawBinArray[mewStartByte + 19];
+    mew.growthRate = getState().rawBinArray[mewStartByte + 19];
     pokemon.push(mew);
 
     let tmIntArray = [];
