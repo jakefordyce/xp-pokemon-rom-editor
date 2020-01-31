@@ -7,7 +7,7 @@
   grid-template-rows: 100px calc(100vh - 100px);
 }
 
-input {
+.number-input {
   width: 100px;
 }
 

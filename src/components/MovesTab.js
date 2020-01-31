@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {useStoreState} from 'easy-peasy';
 import MovesGridRow from './MovesGridRow';
 
@@ -7,11 +7,10 @@ function MovesTab(){
   const dataLoaded = useStoreState(state => state.dataLoaded);
   const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
-  const pokemonTypes = useStoreState(state => state.pokemonTypes);
-  const moveAnimations = useStoreState(state => state.romModelState.moveAnimations);
-  const moveEffects = useStoreState(state => state.romModelState.moveEffects);
-  const moveRows = moves.map((move, index) => <MovesGridRow key={index} move={move} gen={generation} types={pokemonTypes} animations={moveAnimations} effects={moveEffects}/>);
   
+  const movesList = moves.map((move, index) => 
+    <MovesGridRow move={move} />
+  );
 
   return( dataLoaded &&
     <div>
@@ -29,11 +28,11 @@ function MovesTab(){
           </tr>
         </thead>
         <tbody>
-          {moveRows}
+          {movesList}
         </tbody>
       </table>
     </div>
   )
 }
 
-export default MovesTab;
+export default memo(MovesTab);
