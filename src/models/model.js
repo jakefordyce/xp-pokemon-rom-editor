@@ -107,6 +107,18 @@ export default {
   updateTypeProperty: action((state, payload) => {
     state.pokemonTypes[payload.index][payload.propName] = payload.propValue;
   }),
+  addType: action((state, payload) => {
+    state.pokemonTypes.push({typeName: "", typeIsUsed: true, typeIndex: state.pokemonTypes.length});
+  }),
+  removeType: action((state, payload) => {
+    state.pokemonTypes.splice(payload, 1);
+  }),
+  addTypeMatchup: action((state, payload) => {
+    state.typeMatchups.push({attackType: 1, defenseType: 1, effectiveness: 10});
+  }),
+  removeTypeMatchup: action((state, payload) => {
+    state.typeMatchups.splice(payload, 1);
+  }),
   updateZoneProperty: action((state, payload) => {
     state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = payload.propValue;
   }),

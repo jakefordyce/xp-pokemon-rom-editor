@@ -21,6 +21,7 @@ th {
   background: white;
   position: sticky;
   top: 0;
+  text-align: center;
 }
 
 .items-tab-container {
