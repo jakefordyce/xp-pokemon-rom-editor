@@ -61,6 +61,7 @@ export default {
   damageModifiers: rbyDamageModifiers,
   zoneNames: rbyZoneNames,
   items: rbyItems,
+  maxEvosMovesBytes: 1990,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);

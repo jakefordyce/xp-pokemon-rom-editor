@@ -147,6 +147,59 @@ export default {
     state.shops[state.selectedShop].items.splice(payload, 1);
   }),
 
+  //computed data that will be used in the UI
+  currentEvosMovesBytes: computed((state) => {
+    
+    if(state.dataLoaded === true)
+    {
+      let count = 0;
+      
+      state.pokemon.forEach((poke) => 
+      {
+        count += 2; //every pokemon has at least 2 bytes of data. 1 to mark the end of the evolutions and 1 to mark the end of the learned moves.
+
+        poke.evolutions.forEach((evo) => 
+        {
+          if(state.romModelState.generation === 1)
+          {
+            if (evo.evolve === 2) // stone
+            {
+                count += 4;
+            }
+            else
+            {
+                count += 3;
+            }
+          }
+          else // generations other than 1st
+          {
+            if (evo.evolve === 5) // stats
+            {
+                count += 4;
+            }
+            else
+            {
+                count += 3;
+            }
+          }
+          
+        });
+
+        poke.learnedMoves.forEach((move) => 
+        {
+          count += 2;
+        });
+
+      });
+      
+      return count;
+    }
+    else // if the data is not yet loaded.
+    {
+      return 0;
+    }
+  }),
+
   //accessing data from the correct ROM
   dataLoaded: false,
   redBlueModel: redBlue,

@@ -48,6 +48,7 @@ export default {
   growthRates: gscGrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
+  maxEvosMovesBytes: 5709,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);

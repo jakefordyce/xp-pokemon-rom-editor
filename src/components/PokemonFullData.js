@@ -26,6 +26,8 @@ function PokemonFullData(){
   const evolveHappiness = useStoreState(state => state.romModelState.evolveHappiness);
   const evolveStats = useStoreState(state => state.romModelState.evolveStats);
   const growthRates = useStoreState(state => state.romModelState.growthRates);
+  const maxEvosMovesBytes = useStoreState(state => state.romModelState.maxEvosMovesBytes);
+  const currentEvosMovesBytes = useStoreState(state => state.currentEvosMovesBytes);
 
   const pokemonList = pokemon.map((pokemon, index) => 
     <li key={index} className={"list-group-item" + (selectedPokemon === index ? " active" : "")} style={{maxWidth: "150px"}} onClick={()=> setSelectedPokemon(index)}>{pokemon.name}</li>
@@ -160,7 +162,7 @@ function PokemonFullData(){
         </table>
       </div>
       <div style={{overflowY: "scroll"}}>{pokemonTMs}</div>
-      <div><ul className="list-group" style={{ overflowY: "scroll"}}>{levelupMoves}</ul><button onClick={handleAddMove}>Add Move</button></div>
+      <div><div>bytes used: {currentEvosMovesBytes}/{maxEvosMovesBytes}</div><ul className="list-group" style={{ overflowY: "scroll"}}>{levelupMoves}</ul><button onClick={handleAddMove}>Add Move</button></div>
     </div>
   );
 
