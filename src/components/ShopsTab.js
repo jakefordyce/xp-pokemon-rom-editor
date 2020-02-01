@@ -14,6 +14,8 @@ function ShopsTab(){
   const enumItems = useStoreState(state => state.romModelState.items);
   const items = useStoreState(state => state.items);
   const updateShopItemProperty = useStoreActions(actions => actions.updateShopItemProperty);
+  const addShopItem = useStoreActions(actions => actions.addShopItem);
+  const removeShopItem = useStoreActions(actions => actions.removeShopItem);
 
 
   const shopsList = shops.map((shop, index) => 
@@ -28,6 +30,7 @@ function ShopsTab(){
       {generation !== 1 &&
         <td><ArraySelect collection={items} display='name' selectedValue={item.item} handleOptionChange={handleShopItemChange} arrayIndex={index} propName={'item'} /></td>
       }
+      <td><button onClick={(e) => handleRemoveItem(e, index)}>X</button></td>
     </tr>
   );
 
@@ -35,6 +38,14 @@ function ShopsTab(){
     let newValue = event.target.value;
     updateShopItemProperty({index: index, propName: propName, propValue: newValue});
   }
+
+  function handleAddItem(event){
+    addShopItem();
+  }
+
+  function handleRemoveItem(event, itemIndex){
+    removeShopItem(itemIndex);
+  };
 
 
   return (
@@ -46,6 +57,7 @@ function ShopsTab(){
               {itemsList}
             </tbody>
           </table>
+          <button onClick={handleAddItem}>Add Item</button>
         </div>
       </div>
   );

@@ -140,6 +140,12 @@ export default {
     let newValue = state.shops[state.selectedShop].items[payload.index][payload.propName].constructor(payload.propValue)
     state.shops[state.selectedShop].items[payload.index][payload.propName] = newValue;
   }),
+  addShopItem: action((state, payload) => {
+    state.shops[state.selectedShop].items.push({item: 1});
+  }),
+  removeShopItem: action((state, payload) => {
+    state.shops[state.selectedShop].items.splice(payload, 1);
+  }),
 
   //accessing data from the correct ROM
   dataLoaded: false,
