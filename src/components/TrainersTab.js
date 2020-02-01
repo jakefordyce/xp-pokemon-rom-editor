@@ -15,6 +15,8 @@ function TrainersTab(){
   const trainerTypes = useStoreState(state => state.romModelState.trainerTypes);
   const items = useStoreState(state => state.items);
   const moves = useStoreState(state => state.moves);
+  const addTrainerPokemon = useStoreActions(actions => actions.addTrainerPokemon);
+  const removeTrainerPokemon = useStoreActions(actions => actions.removeTrainerPokemon);
 
   const trainersList = trainers.map((trainer, index) => 
     <li key={index} className={"list-group-item" + (selectedTrainer === index ? " active" : "")} style={{maxWidth: "300px"}} onClick={()=> setSelectedTrainer(index)}>{trainer.name}</li>
@@ -41,6 +43,7 @@ function TrainersTab(){
       {generation === 2 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={moves} value='id' display='name' selectedValue={poke.move4} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'move4'} /></td>
       }
+      <td><button onClick={(e) => handleRemovePokemon(e, index)}>X</button></td>
     </tr>
   );
   
@@ -59,6 +62,14 @@ function TrainersTab(){
     updateTrainer({index: trainerIndex, propName: propName, propValue: newValue});
   }
 
+  function handleRemovePokemon(event, pokeIndex){
+    removeTrainerPokemon(pokeIndex);
+  };
+
+  function handleAddPokemon(event){
+    addTrainerPokemon();
+  }
+
   return(
       dataLoaded && <div className="trainers-tab-container">
         <ul className="list-group" style={{ overflowY: "scroll"}}>{trainersList}</ul>
@@ -71,6 +82,7 @@ function TrainersTab(){
               {pokemonList}
             </tbody>
           </table>
+          <button onClick={handleAddPokemon}>Add Pokemon</button>
         </div>
       </div>
   )

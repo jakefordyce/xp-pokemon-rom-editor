@@ -130,6 +130,12 @@ export default {
     let newValue = state.trainers[payload.index][payload.propName].constructor(payload.propValue)
     state.trainers[payload.index][payload.propName] = newValue;
   }),
+  addTrainerPokemon: action((state, payload) => {
+    state.trainers[state.selectedTrainer].pokemon.push({level: 1, pokemon: 1, item: 0, move1: 0, move2: 0, move3: 0, move4: 0});
+  }),
+  removeTrainerPokemon: action((state, payload) => {
+    state.trainers[state.selectedTrainer].pokemon.splice(payload, 1);
+  }),
   updateShopItemProperty: action((state, payload) => {
     let newValue = state.shops[state.selectedShop].items[payload.index][payload.propName].constructor(payload.propValue)
     state.shops[state.selectedShop].items[payload.index][payload.propName] = newValue;
