@@ -13,6 +13,8 @@ const pokemonStartByte = 230366; //Pokemon data starts at byte 0x383DE. It goes 
 const pokedexStartByte = 266276; //List of pokedex IDs start at byte 0x41024 and run in Index order, Rhydon through Victreebel.
 let pokedexIDs = new Map();
 let indexIDs = new Map();
+const pokemonEvosPointersByte = 241756; //The pointers to the pokemon Evolutions and learned moves start at byte 0x3B05C.
+const pointerBase = 212992; //this is the value that is added to the pointers to get the location of evolutions/moves and trainer data
 
 //values used to load the pokemon types
 const typesBankByte = 0x20000; // bank 9
@@ -82,7 +84,7 @@ export default {
   }),
   loadPokemonData: thunk( async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
-    let currentEvosMovesByte = pokemonEvosMovesByte;    
+    let currentEvosMovesByte = pokemonEvosMovesByte;
 
     for(let i = 0; i < 150; i++){
       var currentPokemon = {};
@@ -237,7 +239,7 @@ export default {
         currentEvosMovesByte += 2;
       }
     }
-
+    
     //This is done at the end because the pokedexIDs aren't set until the loop above has went through every pokemon.
     pokemon.forEach(p => {
       p.evolutions.forEach(e => {
@@ -246,6 +248,136 @@ export default {
     });
     
     getStoreActions().setPokemonArray(pokemon);
+  }),
+  savePokemonData: thunk(async(actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let workingArray = getState().rawBinArray;
+    let currentEvosMovesByte = pokemonEvosMovesByte;
+    let currentPointerByte = pokemonEvosPointersByte;
+    let pokemon = getStoreState().pokemon;
+
+    for (let i = 0; i < 150; i++) //There are 151 pokemon in the game but Mew is stored separately from the others.
+    {
+        //basically just write all of the modify-able data back into its location in the binary array.
+        workingArray[pokemonStartByte + (i * 28) + 1] = pokemon[i].hp;
+        workingArray[pokemonStartByte + (i * 28) + 2] = pokemon[i].attack;
+        workingArray[pokemonStartByte + (i * 28) + 3] = pokemon[i].defense;
+        workingArray[pokemonStartByte + (i * 28) + 4] = pokemon[i].speed;
+        workingArray[pokemonStartByte + (i * 28) + 5] = pokemon[i].special;
+        workingArray[pokemonStartByte + (i * 28) + 6] = pokemon[i].type1;
+        workingArray[pokemonStartByte + (i * 28) + 7] = pokemon[i].type2;
+        workingArray[pokemonStartByte + (i * 28) + 8] = pokemon[i].catchRate;
+        workingArray[pokemonStartByte + (i * 28) + 9] = pokemon[i].expYield;
+        workingArray[pokemonStartByte + (i * 28) + 15] = pokemon[i].move1;
+        workingArray[pokemonStartByte + (i * 28) + 16] = pokemon[i].move2;
+        workingArray[pokemonStartByte + (i * 28) + 17] = pokemon[i].move3;
+        workingArray[pokemonStartByte + (i * 28) + 18] = pokemon[i].move4;
+        workingArray[pokemonStartByte + (i * 28) + 19] = pokemon[i].growthRate;
+        let tmArray = [];
+
+        for(let j = 0; j < 7; j++){ //each byte
+          let tmByte = 0;
+          for(let b = 0; b < 8; b++){ //each bit
+            if (pokemon[i].tms[(j * 8 + b)]){
+              tmByte += Math.pow(2, b);
+            }
+          }
+          tmArray.push(tmByte);
+        }
+        
+        workingArray[pokemonStartByte + (i * 28) + 20] = tmArray[0];
+        workingArray[pokemonStartByte + (i * 28) + 21] = tmArray[1];
+        workingArray[pokemonStartByte + (i * 28) + 22] = tmArray[2];
+        workingArray[pokemonStartByte + (i * 28) + 23] = tmArray[3];
+        workingArray[pokemonStartByte + (i * 28) + 24] = tmArray[4];
+        workingArray[pokemonStartByte + (i * 28) + 25] = tmArray[5];
+        workingArray[pokemonStartByte + (i * 28) + 26] = tmArray[6];
+    }
+
+    
+    // Mew            
+    workingArray[mewStartByte + 1] = pokemon[150].hp;
+    workingArray[mewStartByte + 2] = pokemon[150].attack;
+    workingArray[mewStartByte + 3] = pokemon[150].defense;
+    workingArray[mewStartByte + 4] = pokemon[150].speed;
+    workingArray[mewStartByte + 5] = pokemon[150].special;
+    workingArray[mewStartByte + 6] = pokemon[150].type1;
+    workingArray[mewStartByte + 7] = pokemon[150].type2;
+    workingArray[mewStartByte + 8] = pokemon[150].catchRate;
+    workingArray[mewStartByte + 9] = pokemon[150].expYield;
+    workingArray[mewStartByte + 15] = pokemon[150].move1;
+    workingArray[mewStartByte + 16] = pokemon[150].move2;
+    workingArray[mewStartByte + 17] = pokemon[150].move3;
+    workingArray[mewStartByte + 18] = pokemon[150].move4;
+    workingArray[mewStartByte + 19] = pokemon[150].growthRate;
+    let tmArray = [];
+    for(let j = 0; j < 7; j++){ //each byte
+      let tmByte = 0;
+      for(let b = 0; b < 8; b++){ //each bit
+        if (pokemon[150].tms[(j * 8 + b)]){
+          tmByte += Math.pow(2, b);
+        }
+      }
+      tmArray.push(tmByte);
+    }
+    workingArray[mewStartByte + 20] = tmArray[0];
+    workingArray[mewStartByte + 21] = tmArray[1];
+    workingArray[mewStartByte + 22] = tmArray[2];
+    workingArray[mewStartByte + 23] = tmArray[3];
+    workingArray[mewStartByte + 24] = tmArray[4];
+    workingArray[mewStartByte + 25] = tmArray[5];
+    workingArray[mewStartByte + 26] = tmArray[6];
+
+    
+    for(let i = 0; i < 190; i++)
+    {
+      //update pointers so the game knows where to find the updated pokemon evos/learned moves.
+      // The data in the pointers is how many bytes to move past byte 0x34000 in order to find the start of that pokemon data.
+      // 2 bytes per pokemon.
+      let secondPointerByte = (currentEvosMovesByte - pointerBase) / 256;
+      let firstPointerByte = (currentEvosMovesByte - pointerBase) - (secondPointerByte * 256);
+      workingArray[currentPointerByte++] = firstPointerByte;
+      workingArray[currentPointerByte++] = secondPointerByte;
+
+      if (pokedexIDs.get(i+1) !== undefined) //lookup the pokedex ID so we can skip missingnos
+      {
+        //evolutions
+        let indexfound = workingArray[pokedexStartByte + i] - 1;
+        pokemon[indexfound].evolutions.forEach((e) => {
+          if (e.evolve === 1)
+            {
+              workingArray[currentEvosMovesByte++] = 1;
+              workingArray[currentEvosMovesByte++] = e.evolveLevel;
+              workingArray[currentEvosMovesByte++] = indexIDs.get(e.evolveTo +1);
+            }
+            else if (e.evolve === 2)
+            {
+              workingArray[currentEvosMovesByte++] = 2;
+              workingArray[currentEvosMovesByte++] = e.evolveStone;
+              workingArray[currentEvosMovesByte++] = 1;
+              workingArray[currentEvosMovesByte++] = indexIDs.get(e.evolveTo +1);
+            }
+            else if (e.evolve === 3)
+            {
+              workingArray[currentEvosMovesByte++] = 3;
+              workingArray[currentEvosMovesByte++] = 1;
+              workingArray[currentEvosMovesByte++] = indexIDs.get(e.evolveTo +1);
+            }
+        });
+        workingArray[currentEvosMovesByte++] = 0;
+
+        pokemon[indexfound].learnedMoves.forEach((m) => {
+          workingArray[currentEvosMovesByte++] = m.level;
+          workingArray[currentEvosMovesByte++] = m.moveID;
+        });
+        workingArray[currentEvosMovesByte++] = 0;
+      }
+      else
+      {
+        //write 2 zeroes for missingnos. 1 for no evolution, 1 for no moves
+        workingArray[currentEvosMovesByte++] = 0;
+        workingArray[currentEvosMovesByte++] = 0;
+      }
+    }
   }),
   loadPokemonTypes: thunk ( async (actions, payload, {getState, getStoreActions}) => {
     let types = [];
@@ -536,28 +668,7 @@ export default {
     }).then((res) => {
       //console.log("file path: " + res.filePath);
       getStoreActions().setCurrentFile(res.filePath);
-      let pokemon = getStoreState().pokemon;
-
-      for(let i = 0; i < 150; i++){
-        getState().rawBinArray[pokemonStartByte + (i * 28) +1] = pokemon[i].hp;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +2] = pokemon[i].attack;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +3] = pokemon[i].defense;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +4] = pokemon[i].speed;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +5] = pokemon[i].specialAttack;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +6] = pokemon[i].type1;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +7] = pokemon[i].type2;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +8] = pokemon[i].catchRate;
-        getState().rawBinArray[pokemonStartByte + (i * 28) +9] = pokemon[i].expYield;
-      }
-      getState().rawBinArray[mewStartByte+1] = pokemon[150].hp;
-      getState().rawBinArray[mewStartByte+2] = pokemon[150].attack;
-      getState().rawBinArray[mewStartByte+3] = pokemon[150].defense;
-      getState().rawBinArray[mewStartByte+4] = pokemon[150].speed;
-      getState().rawBinArray[mewStartByte+5] = pokemon[150].specialAttack;
-      getState().rawBinArray[mewStartByte+6] = pokemon[150].type1;
-      getState().rawBinArray[mewStartByte+7] = pokemon[150].type2;
-      getState().rawBinArray[mewStartByte+8] = pokemon[150].catchRate;
-      getState().rawBinArray[mewStartByte+9] = pokemon[150].expYield;
+      actions.savePokemonData();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
