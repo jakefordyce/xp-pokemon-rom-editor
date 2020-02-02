@@ -17,6 +17,8 @@ function TrainersTab(){
   const moves = useStoreState(state => state.moves);
   const addTrainerPokemon = useStoreActions(actions => actions.addTrainerPokemon);
   const removeTrainerPokemon = useStoreActions(actions => actions.removeTrainerPokemon);
+  const currentTrainerBytes = useStoreState(state => state.currentTrainerBytes);
+  const maxTrainerBytes = useStoreState(state => state.romModelState.maxTrainerBytes);
 
   const trainersList = trainers.map((trainer, index) => 
     <li key={index} className={"list-group-item" + (selectedTrainer === index ? " active" : "")} style={{maxWidth: "300px"}} onClick={()=> setSelectedTrainer(index)}>{trainer.name}</li>
@@ -74,6 +76,7 @@ function TrainersTab(){
       dataLoaded && <div className="trainers-tab-container">
         <ul className="list-group" style={{ overflowY: "scroll"}}>{trainersList}</ul>
         <div style={{ overflowY: "scroll"}}>
+          <div>Space used: {currentTrainerBytes}/{maxTrainerBytes}</div>
           <table>
             <tbody>
               {generation === 1 && <tr><td>All Same Level: </td><td><input type="checkbox" checked={trainers[selectedTrainer].allSameLevel} onChange={(e) => handleTrainerCheckbox(e, selectedTrainer, 'allSameLevel')} /></td></tr>}

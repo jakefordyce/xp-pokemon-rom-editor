@@ -49,6 +49,8 @@ export default {
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
   maxEvosMovesBytes: 5709,
+  maxTrainerBytes: 9791,
+  maxShopItems: 229,
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -532,11 +534,14 @@ export default {
           trainerName += `${gsTrainerGroups[groupNum]} `;
         }
 
+        let uniqueName = "";
         //reads the name. The ending is marked with 0x50
         while(getState().rawBinArray[currentTrainerByte] !== 0x50){
-          trainerName += rbygsLetters.get(getState().rawBinArray[currentTrainerByte++]);
+          uniqueName += rbygsLetters.get(getState().rawBinArray[currentTrainerByte++]);
         }
+        trainerName += uniqueName;
         newTrainer.name = trainerName;
+        newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process and calculating remaining space.
         currentTrainerByte++;
 
         //the type determines if the trainer has an item to use and if their pokemon have custom movesets.

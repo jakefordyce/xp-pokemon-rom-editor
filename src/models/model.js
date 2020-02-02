@@ -22,7 +22,7 @@ export default {
   items: [{}],
   typeMatchups: [{}],
   encounterZones: [{encounters: []}],
-  trainers: [{pokemon: []}],
+  trainers: [{uniqueName: '', pokemon: []}],
   shops: [{items: []}],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
@@ -149,9 +149,6 @@ export default {
 
   //computed data that will be used in the UI
   currentEvosMovesBytes: computed((state) => {
-    
-    if(state.dataLoaded === true)
-    {
       let count = 0;
       
       state.pokemon.forEach((poke) => 
@@ -182,22 +179,64 @@ export default {
                 count += 3;
             }
           }
-          
         });
 
         poke.learnedMoves.forEach((move) => 
         {
           count += 2;
         });
-
       });
       
-      return count;
-    }
-    else // if the data is not yet loaded.
+      return count;    
+  }),
+  currentTrainerBytes: computed((state) => {
+    let count = 0;
+
+    if(state.generation === 1)
     {
-      return 0;
+      state.trainers.forEach((trainer) => 
+      {
+        count += 2; //every trainer has at least 2 bytes. The first is whether the pokemon have unique levels or all the same, second is the 0 to mark the end of the trainer's pokemon
+        if (trainer.allSameLevel)
+        {
+            count += trainer.pokemon.length; //1 byte per pokemon if they are all the same level
+        }
+        else
+        {
+            count += (trainer.pokemon.length * 2); //2 bytes if they each have a different level
+        }
+      });
     }
+    else
+    {
+      state.trainers.forEach((trainer) => 
+      {
+        //every trainer has at least 3 bytes. 
+        //The first is the 0x50 to mark the end of the trainer's unique name.
+        //The second is the trainer's type: normal, items, moves, or items and moves.
+        //The third is the 0 to mark the end of the trainer's data.
+        count += trainer.uniqueName.length + 3;
+        
+        switch(trainer.type)
+        {
+          case 0:
+            count += (trainer.pokemon.length * 2)
+            break;
+          case 1:
+            count += (trainer.pokemon.length * 6)
+            break;
+          case 2:
+            count += (trainer.pokemon.length * 3)
+            break;
+          case 3:
+            count += (trainer.pokemon.length * 7)
+            break;
+          default:
+            break;
+        }
+      });
+    }
+    return count;
   }),
 
   //accessing data from the correct ROM
