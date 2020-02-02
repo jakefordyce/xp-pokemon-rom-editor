@@ -192,33 +192,26 @@ export default {
   currentTrainerBytes: computed((state) => {
     let count = 0;
 
-    if(state.generation === 1)
-    {
-      state.trainers.forEach((trainer) => 
-      {
+    if(state.romModelState.generation === 1){
+      state.trainers.forEach((trainer) => {
         count += 2; //every trainer has at least 2 bytes. The first is whether the pokemon have unique levels or all the same, second is the 0 to mark the end of the trainer's pokemon
-        if (trainer.allSameLevel)
-        {
+        if (trainer.allSameLevel){
             count += trainer.pokemon.length; //1 byte per pokemon if they are all the same level
         }
-        else
-        {
+        else{
             count += (trainer.pokemon.length * 2); //2 bytes if they each have a different level
         }
       });
     }
-    else
-    {
-      state.trainers.forEach((trainer) => 
-      {
+    else if(state.romModelState.generation === 2){
+      state.trainers.forEach((trainer) => {
         //every trainer has at least 3 bytes. 
         //The first is the 0x50 to mark the end of the trainer's unique name.
         //The second is the trainer's type: normal, items, moves, or items and moves.
         //The third is the 0 to mark the end of the trainer's data.
         count += trainer.uniqueName.length + 3;
         
-        switch(trainer.type)
-        {
+        switch(trainer.type){
           case 0:
             count += (trainer.pokemon.length * 2)
             break;
@@ -238,6 +231,13 @@ export default {
     }
     return count;
   }),
+  currentShopItems: computed((state) => {
+    let count = 0;
+    state.shops.forEach((shop) => {
+      count += shop.items.length;
+    });
+    return count;
+  }),
 
   //accessing data from the correct ROM
   dataLoaded: false,
@@ -253,6 +253,7 @@ export default {
       actions.setPokemonArray(pokemonDefault);
       actions.setMovesArray([{}]);
       actions.setTMs([{}]);
+      actions.setTrainers([{uniqueName: '', pokemon: []}]);
       actions.setRomModel(romFound.select);
     }
   }),

@@ -16,6 +16,8 @@ function ShopsTab(){
   const updateShopItemProperty = useStoreActions(actions => actions.updateShopItemProperty);
   const addShopItem = useStoreActions(actions => actions.addShopItem);
   const removeShopItem = useStoreActions(actions => actions.removeShopItem);
+  const currentShopItems = useStoreState(state => state.currentShopItems);
+  const maxShopItems = useStoreState(state => state.romModelState.maxShopItems);
 
 
   const shopsList = shops.map((shop, index) => 
@@ -52,6 +54,7 @@ function ShopsTab(){
     dataLoaded && <div className="shops-tab-container">
         <ul className="list-group" style={{ overflowY: "scroll"}}>{shopsList}</ul>
         <div style={{ overflowY: "scroll"}}>
+          <div>Space used: {currentShopItems}/{maxShopItems}</div>
           <table>
             <tbody>
               {itemsList}

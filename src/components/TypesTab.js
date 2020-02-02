@@ -18,7 +18,7 @@ function TypesTab(){
   const generation = useStoreState(state => state.romModelState.generation);
 
   const typeMatchupList = typeMatchups.map((typematch, index) =>
-    <tr>
+    <tr key={index}>
       <td><ArraySelect collection={types} value='typeIndex' display='typeName' selectedValue={typematch.attackType} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName='attackType'/></td>
       <td><ArraySelect collection={types} value='typeIndex' display='typeName' selectedValue={typematch.defenseType} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName='defenseType'/></td>
       <td><EnumSelect enum={damageModifiers} selectedValue={typematch.effectiveness} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName={'effectiveness'}/></td>
@@ -27,7 +27,7 @@ function TypesTab(){
   );
 
   const typeList = types.map((type, index) => 
-    <tr>
+    <tr key={index}>
       <td><input value={type.typeName} onChange={(e) => handleTypeChange(e, index, 'typeName')} /></td>
       <td><input type="checkbox" checked={type.typeIsUsed} onChange={(e) => handleTypeCheckbox(e, index, 'typeIsUsed')} /></td>
       <td><button onClick={(e) => handleRemoveType(e, index)}>X</button></td>

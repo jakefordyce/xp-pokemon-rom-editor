@@ -9,7 +9,7 @@ function MovesTab(){
   const generation = useStoreState(state => state.romModelState.generation);
   
   const movesList = moves.map((move, index) => 
-    <MovesGridRow move={move} />
+    <MovesGridRow key={index} move={move} />
   );
 
   return( dataLoaded &&

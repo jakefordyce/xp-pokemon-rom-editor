@@ -16,7 +16,7 @@ function EncountersTab(){
   );
 
   const encountersList = encounterZones[selectedZone].encounters.map((encounter, index) =>
-    <tr>
+    <tr key={index}>
       <td>{encounter.chance}% Spawn Chance -> Level:</td><td><input value={encounter.level} onChange={(e) => handleZoneChange(e, index, 'level')} /></td>
       <td><ArraySelect collection={pokemon} display='name' selectedValue={encounter.pokemon} handleOptionChange={handleZoneChange} arrayIndex={index} propName={'pokemon'} /></td>
     </tr>

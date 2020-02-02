@@ -526,7 +526,7 @@ export default {
         shops.push(newShop);
         currentByte++;
     }
-
+    
     getStoreActions().setShops(shops);
   }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {

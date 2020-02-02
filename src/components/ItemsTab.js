@@ -26,7 +26,7 @@ function ItemsTab(){
   );
 
   const itemList = items.filter(item => item.price !== undefined).map((item, index) =>    
-    <tr>
+    <tr key={index}>
       <td>{item.name}</td>
       <td>Price: </td>
       <td><input value={item.price} onChange={(e) => handleItemChange(e, index, 'price')} /></td>
