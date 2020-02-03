@@ -47,6 +47,15 @@ const rbygsLetters = new Map([
             [ 255, "9" ]
 ]);
 
+function getKeyByValue(mapObject, searchValue) {
+  
+  for (let [key, value] of mapObject.entries()) {
+    if (value === searchValue)
+      return key;
+  }
+  return 0x50;
+};
+
 const rbyMoveAnimations = [
   "None",
   "POUND",
@@ -1345,4 +1354,5 @@ const gscShopNames = [
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscGrowthRates,
-  gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames};
+  gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames,
+  getKeyByValue};

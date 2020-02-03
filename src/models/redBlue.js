@@ -1,6 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyGrowthRates,
-  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames} from './utils';
+  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
+  getKeyByValue} from './utils';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -473,6 +474,29 @@ export default {
     getStoreActions().setMovesArray(moves);
     //return moves;
   }),
+  savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let currentMoveNameByte = moveNamesByte;
+    let romData = getState().rawBinArray;
+    let moves = getStoreState().moves;
+
+    for(let i = 0; i < 165; i++)
+    {
+        romData[movesStartingByte + (i * 6)] = moves[i + 1].animationID;
+        romData[movesStartingByte + (i * 6) + 1] = moves[i + 1].effect;
+        romData[movesStartingByte + (i * 6) + 2] = moves[i + 1].power;
+        romData[movesStartingByte + (i * 6) + 3] = moves[i + 1].moveType;
+        romData[movesStartingByte + (i * 6) + 4] = moves[i + 1].accuracy;
+        romData[movesStartingByte + (i * 6) + 5] = moves[i + 1].pp;
+
+        moves[i + 1].name.split("").forEach((c) => {
+          romData[currentMoveNameByte] = getKeyByValue(rbygsLetters, c);
+          currentMoveNameByte++;
+        });
+        
+        romData[currentMoveNameByte] = 0x50;
+        currentMoveNameByte++;
+    }
+  }),
   loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
 
     let tms = [];
@@ -669,6 +693,7 @@ export default {
       //console.log("file path: " + res.filePath);
       getStoreActions().setCurrentFile(res.filePath);
       actions.savePokemonData();
+      actions.savePokemonMoves();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
