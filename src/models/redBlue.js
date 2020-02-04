@@ -49,6 +49,17 @@ function HexToDec(hexNum)
     return (tensNum * 10) + onesNum;
 }
 
+function DecToHex(decNum)
+{
+  let hexsNum = 0;
+  let onesNum = 0;
+
+  hexsNum = Math.floor(decNum / 10);
+  onesNum = decNum % 10;
+
+  return (hexsNum * 16) + onesNum;
+}
+
 export default {
   version: "RED/BLUE",
   rawBinArray: [],
@@ -526,7 +537,22 @@ export default {
     
     getStoreActions().setTMs(tms);
   }),
-  loadItems: thunk (async (action, payload, {getState, getStoreActions}) => {
+  saveTMs: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let tms = getStoreState().tms;
+
+    for (let i = 0; i < 55; i++) //There are 50 TMs and 5 HMs. Each is 1 byte which is the moveID
+    {
+        romData[tmStartByte + i] = tms[i].move;
+    }
+    for(let i = 0; i < 25; i++)
+    {
+        let price = tms[i * 2].price * 16 + tms[i * 2 + 1].price;
+        romData[tmPricesStartByte + i] = price;
+    }
+
+  }),
+  loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let items = [];
     let itemToAdd;
 
@@ -545,7 +571,31 @@ export default {
     
     getStoreActions().setItems(items);
   }),
-  loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
+  saveItems: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let items = getStoreState().items;
+    let currentByte = itemPricesStartByte;
+
+    for(let i = 0; i < items.length; i++){
+      if(i < 83){
+        let price = items[i].price;
+        let firstPriceByte = DecToHex(Math.floor(price / 10000));
+        price -= (HexToDec(firstPriceByte) * 10000);
+        let secondPriceByte = DecToHex(Math.floor(price / 100));
+        price -= (HexToDec(secondPriceByte) * 100);
+        let thirdPriceByte = DecToHex(price);
+
+        romData[currentByte++] = firstPriceByte;
+        romData[currentByte++] = secondPriceByte;
+        romData[currentByte++] = thirdPriceByte;
+      }
+      else {
+        break;
+      }
+    }
+       
+  }),
+  loadTypeMatchups: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let typeMatchups = [];
     
     for (let i = 0; i < 82; i++) //There are 82 type strengths. Each is 3 bytes and the group is terminated by the byte FF.
@@ -566,7 +616,7 @@ export default {
     getStoreActions().setTypeMatchups(typeMatchups);
     //console.log(typeMatchups);
   }),
-  loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadEncounters: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let zones = [];
     let currentByte = wildEncountersByte;
 
@@ -606,7 +656,7 @@ export default {
     //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
   }),
-  loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadTrainers: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let trainers = [];
     let currentByte = trainerStartByte;
     let trainerGroupTracker = 0; // tells which name to pull from the dictionary
@@ -665,7 +715,7 @@ export default {
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
   }),
-  loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadShops: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let shops = [];
     let currentByte = shopsStartByte;
 
@@ -694,6 +744,8 @@ export default {
       getStoreActions().setCurrentFile(res.filePath);
       actions.savePokemonData();
       actions.savePokemonMoves();
+      actions.saveTMs();
+      actions.saveItems();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
