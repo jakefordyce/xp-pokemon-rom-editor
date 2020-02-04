@@ -2,6 +2,7 @@ import { thunk, action } from "easy-peasy";
 import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyGrowthRates,
   rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
   getKeyByValue} from './utils';
+import RomBank from './romBank';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -445,6 +446,68 @@ export default {
     //console.log(types);
     getStoreActions().setPokemonTypes(types);
   }),
+  savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let pokemonTypes = getStoreState().pokemonTypes;
+
+    let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
+    let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
+    //int endOfBank = 0x28000; // this is the first byte of the next bank. We can't write on this byte or any after it.
+    let firstPointerByte;
+    let secondPointerByte;
+
+    //setup a class that will help us track where we are saving data.
+    let romBank = new RomBank(typesPointer + typesBankByte, 0x27fff);
+
+    //get a reference to the block of data that we don't want to overwrite.
+    let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
+
+    let numOfPointerBytes = pokemonTypes.length * 2; // there are 2 bytes for each pointer and we need a pointer for each type even if it is not used.
+    let currentPointerByte = typesBankByte + typesPointer; // this is the beginning of the pointers.
+    let currentNamesByte = currentPointerByte + numOfPointerBytes; //this is where we will start writing the names.
+
+    //get a reference to the block of data that has the pointers.
+    let pointersBlock = romBank.addDataBlock(currentPointerByte, currentNamesByte - 1);
+
+    let firstNamesByte = currentNamesByte; // save the first name location for the types that aren't used.
+    
+    for(let i = 0; i < pokemonTypes.length; i++)
+    {
+      if(pokemonTypes[i].typeIsUsed === true) // if the type is used point to the correct name.
+      {
+        // check our bank to find where our free space is located.
+        currentNamesByte = romBank.hasRoomAt(pokemonTypes[i].typeName.length+1);
+        
+        // if there is no space it will return negative.
+        if(currentNamesByte >= 0)
+        {
+          romBank.addData(currentNamesByte, pokemonTypes[i].typeName.length+1);
+          secondPointerByte = Math.floor((currentNamesByte - typesBankByte) / 256);
+          firstPointerByte = (currentNamesByte - typesBankByte) - (secondPointerByte * 256);
+          // write the pointer to the name
+          romData[currentPointerByte++] = firstPointerByte;
+          romData[currentPointerByte++] = secondPointerByte;
+
+          // write the name
+          pokemonTypes[i].typeName.split("").forEach((c) => {
+            romData[currentNamesByte] = getKeyByValue(rbygsLetters, c);
+            currentNamesByte++;
+          });
+          romData[currentNamesByte] = 0x50;
+
+        }
+      }
+      else // if the type isn't used point to the first name.
+      {
+        secondPointerByte = Math.floor((firstNamesByte - typesBankByte) / 256);
+        firstPointerByte = (firstNamesByte - typesBankByte) - (secondPointerByte * 256);
+        // write the pointer to the name
+        romData[currentPointerByte++] = firstPointerByte;
+        romData[currentPointerByte++] = secondPointerByte;
+      }
+                        
+    }
+  }),
   loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let moves = [];
     let currentMoveNameByte = moveNamesByte;
@@ -746,6 +809,7 @@ export default {
       actions.savePokemonMoves();
       actions.saveTMs();
       actions.saveItems();
+      actions.savePokemonTypes();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {

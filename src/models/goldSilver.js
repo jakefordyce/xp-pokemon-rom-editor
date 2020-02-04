@@ -277,7 +277,7 @@ export default {
     }
 
   }),
-  loadPokemonTypes: thunk ( async (actions, payload, {getState, getStoreActions}) => {
+  loadPokemonTypes: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let types = [];
     let newType;
     let currentPointerByte = typesBankByte + typesPointer;
@@ -305,7 +305,7 @@ export default {
       currentNamesByte = typesBankByte + namePointer1 + namePointer2;
                 
       // the unused types all point to the first name: "NORMAL". There is also a pointer to a pokemon type of "???". I skip it with the Or statement.
-      if ((currentNamesByte === namesStartByte && types.length !== 0) || currentNamesByte === 0x50A04)
+      if ((currentNamesByte === namesStartByte && types.length !== 0) || getState().rawBinArray[currentNamesByte] === 0xE6)
       {
           newType.typeIsUsed = false;
       }
@@ -330,6 +330,44 @@ export default {
     }
     //console.log(types);
     getStoreActions().setPokemonTypes(types);
+  }),
+  savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let pokemonTypes = getStoreState().pokemonTypes;
+
+    let firstPointerByte;
+    let secondPointerByte;
+    let numOfPointerBytes = pokemonTypes.length * 2; // there are 2 bytes for each pointer and we need a pointer for each type even if it is not used.
+    let currentPointerByte = typesBankByte + typesPointer; // this is the beginning of the pointers.
+    let currentNamesByte = currentPointerByte + numOfPointerBytes; //this is where we will start writing the names.
+
+    let firstNamesByte = currentNamesByte; // save the first name location for the types that aren't used.
+
+    for(let i = 0; i < pokemonTypes.length; i++)
+    {
+      if(pokemonTypes[i].typeIsUsed === true) // if the type is used point to the correct name.
+      {
+        secondPointerByte = Math.floor((currentNamesByte - typesBankByte) / 256);
+        firstPointerByte = (currentNamesByte - typesBankByte) - (secondPointerByte * 256);
+        // write the pointer to the name
+        romData[currentPointerByte++] = firstPointerByte;
+        romData[currentPointerByte++] = secondPointerByte;
+
+        // write the name
+        pokemonTypes[i].typeName.split("").forEach((c) => {
+          romData[currentNamesByte++] = getKeyByValue(rbygsLetters, c);
+        });
+        romData[currentNamesByte++] = 0x50;
+      }
+      else // if the type isn't used point to the first name.
+      {
+        secondPointerByte = Math.floor((firstNamesByte - typesBankByte) / 256);
+        firstPointerByte = (firstNamesByte - typesBankByte) - (secondPointerByte * 256);
+        // write the pointer to the name
+        romData[currentPointerByte++] = firstPointerByte;
+        romData[currentPointerByte++] = secondPointerByte;
+      }
+    }
   }),
   loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let moves = [];
@@ -764,6 +802,7 @@ export default {
       actions.savePokemonMoves();
       actions.saveTMs();
       actions.saveItems();
+      actions.savePokemonTypes();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
