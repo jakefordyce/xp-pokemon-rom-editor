@@ -535,6 +535,22 @@ export default {
     getStoreActions().setTypeMatchups(typeMatchups);
     //console.log(typeMatchups);
   }),
+  saveTypeMatchups: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let typeMatchups = getStoreState().typeMatchups;
+    let currentByte = typeChartByte;
+
+    for(let i = 0; i < typeMatchups.length; i++){
+      romData[currentByte++] = typeMatchups[i].attackType;
+      romData[currentByte++] = typeMatchups[i].defenseType;
+      romData[currentByte++] = typeMatchups[i].effectiveness;
+      if(i === typeMatchups.length-3){
+        romData[currentByte++] = 0xFE; //0xFE separates the last 2 type matchups. They are the ghost immunes that are removed by foresight.
+      }
+    }
+    romData[currentByte++] = 0xFF; //writing the ending byte manually in case the user removed some type strengths.
+
+  }),
   loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
     let zones = [];
     
@@ -803,6 +819,7 @@ export default {
       actions.saveTMs();
       actions.saveItems();
       actions.savePokemonTypes();
+      actions.saveTypeMatchups();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
