@@ -31,6 +31,7 @@ const kantoWaterWildEncountersByte = 0x2BD43;
 //values used to load trainers
 const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
 const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
+const trainerDataByte = 0x399C2;
 //values used to load shops
 const shopsStartByte = 0x16342;
 
@@ -863,6 +864,58 @@ export default {
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
   }),
+  saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let trainers = getStoreState().trainers;
+    
+    let numOfTrainersInGroup = 0;
+    let currentPointerByte = trainerPointersByte;
+    let currentTrainerByte = trainerDataByte;
+    let currentTrainer = 0;
+
+    for(let groupNum = 0; groupNum < 66; groupNum++){
+      //update pointers so the game knows where to find the updated trainer groups.
+      let secondPointerByte = Math.floor((currentTrainerByte - trainerBankByte) / 256);
+      let firstPointerByte = (currentTrainerByte - trainerBankByte) - (secondPointerByte * 256);
+      romData[currentPointerByte++] = firstPointerByte;
+      romData[currentPointerByte++] = secondPointerByte;
+      
+      //while we haven't reached the last trainer in the group keep saving trainers
+      while(numOfTrainersInGroup < gsTrainerCounts[groupNum]){
+
+        //first is the trainer's unique name.
+        trainers[currentTrainer].uniqueName.split("").forEach((c) => {
+          romData[currentTrainerByte++] = getKeyByValue(rbygsLetters, c);
+        });
+        romData[currentTrainerByte++] = 0x50; //mark the end of the name.
+        romData[currentTrainerByte++] = trainers[currentTrainer].type;
+
+        for(let i = 0; i < trainers[currentTrainer].pokemon.length; i++){
+          romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].level;
+          romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].pokemon + 1;
+
+          //if the type is 2 or 3 the next byte is the pokemon's item
+          if(trainers[currentTrainer].type === 2 || trainers[currentTrainer].type === 3){
+            romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].item +1;
+          }else
+
+          //if the type is 1 or 3 the next 4 bytes will be the pokemon's moves.
+          if(trainers[currentTrainer].type === 1 || trainers[currentTrainer].type === 3){
+            romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].move1;
+            romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].move2;
+            romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].move3;
+            romData[currentTrainerByte++] = trainers[currentTrainer].pokemon[i].move4;
+          }
+        }
+        romData[currentTrainerByte++] = 0xFF; //this marks the end of each trainer.
+        currentTrainer++;
+        numOfTrainersInGroup++;
+      }
+      
+      numOfTrainersInGroup = 0;
+    }
+    
+  }),
   loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
     let shops = [];
     let currentByte = shopsStartByte;
@@ -897,6 +950,7 @@ export default {
       actions.savePokemonTypes();
       actions.saveTypeMatchups();
       actions.saveEncounters();
+      actions.saveTrainers();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
