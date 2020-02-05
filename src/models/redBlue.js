@@ -33,7 +33,7 @@ const itemPricesStartByte = 17928; // The prices for items start at byte 0x4608
 const wildEncountersByte = 53471; //The data for wild encounters start at 0xD0DE but the first one is empty so I skip it.
 const wildEncountersEndByte = 54727;
 //values used to load trainers
-//const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
+const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
 const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
 const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
 
@@ -769,7 +769,7 @@ export default {
     let trainerGroupTracker = 0; // tells which name to pull from the dictionary
     let numOfTrainersInGroup = 0;
 
-    while (currentByte < trainerEndByte)
+    while (trainers.length < 391)
     {
         let trainerToAdd = {};
         trainerToAdd.pokemon = [];
@@ -822,6 +822,64 @@ export default {
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
   }),
+  saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let trainers = getStoreState().trainers;
+
+    let currentByte = trainerStartByte;
+    let currentTrainerGroup = 0;
+    let numOfTrainers = 0;
+    let currentPointerByte = trainerPointersByte;
+    
+
+    for(let i = 0; i < trainers.length; i++)
+    {
+      if(numOfTrainers === 0)
+      {
+        //update pointers so the game knows where to find the updated trainer groups.
+        // The data in the pointers is how many bytes to move past byte 0x34000 in order to find the start of that trainer group.
+        // 2 bytes per trainer.
+        let secondPointerByte = Math.floor((currentByte - pointerBase) / 256);
+        let firstPointerByte = (currentByte - pointerBase) - (secondPointerByte * 256);
+        romData[currentPointerByte++] = firstPointerByte;
+        romData[currentPointerByte++] = secondPointerByte;
+
+        //There are 2 trainer groups that aren't used. they have the same pointers as the groups that come after them so I'm just writing those groups twice.
+        if (currentTrainerGroup === 12 || currentTrainerGroup === 25) 
+        {
+          romData[currentPointerByte++] = firstPointerByte;
+          romData[currentPointerByte++] = secondPointerByte;
+        }
+      }
+
+      if (trainers[i].allSameLevel)
+      {
+        romData[currentByte++] = trainers[i].partyLevel;
+        for(let p = 0; p < trainers[i].pokemon.length; p++)
+        {
+          romData[currentByte++] = indexIDs.get(trainers[i].pokemon[p].pokemon + 1);
+        }
+        romData[currentByte++] = 0;
+      }
+      else
+      {
+        romData[currentByte++] = 0xFF;
+        for(let p = 0; p < trainers[i].pokemon.length; p++)
+        {
+          romData[currentByte++] = trainers[i].pokemon[p].level;
+          romData[currentByte++] = indexIDs.get(trainers[i].pokemon[p].pokemon + 1);
+        }
+        romData[currentByte++] = 0;
+      }
+
+      numOfTrainers++;
+      if(numOfTrainers === rbTrainerCounts[currentTrainerGroup])
+      {
+        currentTrainerGroup++;
+        numOfTrainers = 0;
+      }
+    }
+  }),
   loadShops: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let shops = [];
     let currentByte = shopsStartByte;
@@ -856,6 +914,7 @@ export default {
       actions.savePokemonTypes();
       actions.saveTypeMatchups();
       actions.saveEncounters();
+      actions.saveTrainers();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
