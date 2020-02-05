@@ -732,6 +732,37 @@ export default {
     //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
   }),
+  saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let zones = getStoreState().encounterZones;
+    
+    let currentByte = wildEncountersByte;
+    for (let i = 0; i < 57; i++)
+    {
+      if(i === 36) //There's an extra byte at the beginning of this zone
+      {
+        romData[currentByte++] = 0;
+      }
+      romData[currentByte++] = zones[i].encounterRate;
+      for(let k = 0; k < zones[i].encounters.length; k++){
+        romData[currentByte++] = zones[i].encounters[k].level;
+        romData[currentByte++] = indexIDs.get(zones[i].encounters[k].pokemon +1);
+      }
+      
+      if(i !== 36 && i !== 46 && i !== 47) //there's no ending byte for these 3
+      {
+          romData[currentByte++] = 0;
+      }
+      if(i === 20) //These 4 bytes are the first 2 floors of the pokemon tower. The data for them comes after Route 7.
+      {
+          romData[currentByte++] = 0;
+          romData[currentByte++] = 0;
+          romData[currentByte++] = 0;
+          romData[currentByte++] = 0;
+      }
+    }
+
+  }),
   loadTrainers: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let trainers = [];
     let currentByte = trainerStartByte;
@@ -824,6 +855,7 @@ export default {
       actions.saveItems();
       actions.savePokemonTypes();
       actions.saveTypeMatchups();
+      actions.saveEncounters();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {

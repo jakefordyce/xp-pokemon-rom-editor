@@ -707,8 +707,84 @@ export default {
       nameCounter++;
     }
 
-    //console.log(encounters);
+    //console.log(zones.length);
     getStoreActions().setEncounterZones(zones);
+  }),
+  saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let zones = getStoreState().encounterZones;
+    let indexStartingPoint = 0;
+    
+    let currentByte = johtoGrassWildEncountersByte;
+    for (let i = 0; i < 61; i++) // johto has 61 grass zones.
+    {
+      currentByte += 2; //skip the map IDs, we aren't modifying them.
+      //when loading we split the zones into morn/day/night but when saving we need them all grouped together.
+      romData[currentByte++] = zones[i * 3].encounterRate;
+      romData[currentByte++] = zones[i * 3 + 1].encounterRate;
+      romData[currentByte++] = zones[i * 3 + 2].encounterRate;
+
+      for(let k = 0; k < zones[i * 3].encounters.length; k++){
+        romData[currentByte++] = zones[i * 3].encounters[k].level;
+        romData[currentByte++] = zones[i * 3].encounters[k].pokemon +1;
+      }
+      for(let k = 0; k < zones[i * 3 + 1].encounters.length; k++){
+        romData[currentByte++] = zones[i * 3 + 1].encounters[k].level;
+        romData[currentByte++] = zones[i * 3 + 1].encounters[k].pokemon +1;
+      }
+      for(let k = 0; k < zones[i * 3 + 2].encounters.length; k++){
+        romData[currentByte++] = zones[i * 3 + 2].encounters[k].level;
+        romData[currentByte++] = zones[i * 3 + 2].encounters[k].pokemon +1;
+      }
+    }
+    indexStartingPoint += 183;
+
+    currentByte = johtoWaterWildEncountersByte;
+    for(let i = 0; i < 38; i++){
+      currentByte += 2; //skip the map IDs, we aren't modifying them.
+      romData[currentByte++] = zones[indexStartingPoint + i].encounterRate;
+
+      for(let k = 0; k < zones[indexStartingPoint + i].encounters.length; k++){
+        romData[currentByte++] = zones[indexStartingPoint + i].encounters[k].level;
+        romData[currentByte++] = zones[indexStartingPoint + i].encounters[k].pokemon +1;
+      }
+    }
+    indexStartingPoint += 38;
+
+    currentByte = kantoGrassWildEncountersByte;
+    for (let i = 0; i < 30; i++) // kanto has 30 grass zones.
+    {
+      currentByte += 2; //skip the map IDs, we aren't modifying them.
+      //when loading we split the zones into morn/day/night but when saving we need them all grouped together.
+      romData[currentByte++] = zones[indexStartingPoint + i * 3].encounterRate;
+      romData[currentByte++] = zones[indexStartingPoint + i * 3 + 1].encounterRate;
+      romData[currentByte++] = zones[indexStartingPoint + i * 3 + 2].encounterRate;
+
+      for(let k = 0; k < zones[indexStartingPoint + i * 3].encounters.length; k++){
+        romData[currentByte++] = zones[indexStartingPoint + i * 3].encounters[k].level;
+        romData[currentByte++] = zones[indexStartingPoint + i * 3].encounters[k].pokemon +1;
+      }
+      for(let k = 0; k < zones[indexStartingPoint + i * 3 + 1].encounters.length; k++){
+        romData[currentByte++] = zones[indexStartingPoint + i * 3 + 1].encounters[k].level;
+        romData[currentByte++] = zones[indexStartingPoint + i * 3 + 1].encounters[k].pokemon +1;
+      }
+      for(let k = 0; k < zones[indexStartingPoint + i * 3 + 2].encounters.length; k++){
+        romData[currentByte++] = zones[indexStartingPoint + i * 3 + 2].encounters[k].level;
+        romData[currentByte++] = zones[indexStartingPoint + i * 3 + 2].encounters[k].pokemon +1;
+      }
+    }
+    indexStartingPoint += 90;
+
+    currentByte = kantoWaterWildEncountersByte;
+    for(let i = 0; i < 24; i++){
+      currentByte += 2; //skip the map IDs, we aren't modifying them.
+      romData[currentByte++] = zones[indexStartingPoint + i].encounterRate;
+      for(let k = 0; k < zones[indexStartingPoint + i].encounters.length; k++){
+        romData[currentByte++] = zones[indexStartingPoint + i].encounters[k].level;
+        romData[currentByte++] = zones[indexStartingPoint + i].encounters[k].pokemon +1;
+      }
+    }
+
   }),
   loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
     let trainers = [];
@@ -820,6 +896,7 @@ export default {
       actions.saveItems();
       actions.savePokemonTypes();
       actions.saveTypeMatchups();
+      actions.saveEncounters();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
