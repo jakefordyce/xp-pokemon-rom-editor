@@ -573,7 +573,7 @@ export default {
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -587,7 +587,7 @@ export default {
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -601,7 +601,7 @@ export default {
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -624,7 +624,7 @@ export default {
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
       for(let i = 0; i < 3; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscWaterEncChances[i];
         newZone.encounters.push(encounter);
@@ -649,7 +649,7 @@ export default {
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -663,7 +663,7 @@ export default {
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -677,7 +677,7 @@ export default {
       
       for(let i = 0; i < 7; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscGrassEncChances[i];
         newZone.encounters.push(encounter);
@@ -700,7 +700,7 @@ export default {
       // The first byte is the pokemon's level and the 2nd is the pokemon id.
       for(let i = 0; i < 3; i++){
         let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++]
+        encounter.level = getState().rawBinArray[currentByte++];
         encounter.pokemon = getState().rawBinArray[currentByte++]-1;
         encounter.chance = gscWaterEncChances[i];
         newZone.encounters.push(encounter);

@@ -1075,8 +1075,7 @@ const gsZoneNames = [
   "SILVER_CAVE_ROOM_2",
   "DARK_CAVE_VIOLET_ENTRANCE",
   "DARK_CAVE_BLACKTHORN_ENTRANCE",
-  "DRAGONS_DEN_B1F",
-  "OLIVINE_PORT",
+  "DRAGONS_DEN_B1F",  
   "ROUTE_30",
   "ROUTE_31",
   "ROUTE_32",
@@ -1097,6 +1096,7 @@ const gsZoneNames = [
   "LAKE_OF_RAGE",
   "BLACKTHORN_CITY",
   "SILVER_CAVE_OUTSIDE",
+  "OLIVINE_PORT",
   "DIGLETTS_CAVE",
   "MOUNT_MOON",
   "ROCK_TUNNEL_1F",
@@ -1127,8 +1127,6 @@ const gsZoneNames = [
   "ROUTE_26",
   "ROUTE_27",
   "ROUTE_28",
-  "TOHJO_FALLS",
-  "VERMILION_PORT",
   "ROUTE_4",
   "ROUTE_6",
   "ROUTE_9",
@@ -1143,6 +1141,7 @@ const gsZoneNames = [
   "ROUTE_25",
   "ROUTE_26",
   "ROUTE_27",
+  "TOHJO_FALLS",
   "ROUTE_28",
   "PALLET_TOWN",
   "VIRIDIAN_CITY",
@@ -1150,7 +1149,8 @@ const gsZoneNames = [
   "VERMILION_CITY",
   "CELADON_CITY",
   "FUCHSIA_CITY",
-  "CINNABAR_ISLAND"
+  "CINNABAR_ISLAND",
+  "VERMILION_PORT"
 ];
 
 const rbyGrassEncChances = [20,20,15,10,10,10,5,5,4,1];
