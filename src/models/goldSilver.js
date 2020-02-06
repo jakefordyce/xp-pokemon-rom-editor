@@ -34,6 +34,7 @@ const trainerBankByte = 0x34000; // the pointers are added to this value to find
 const trainerDataByte = 0x399C2;
 //values used to load shops
 const shopsStartByte = 0x16342;
+const shopsPointerStartByte = 0x162FE;
 
 export default {
   version: "GOLD/SILVER",
@@ -936,6 +937,35 @@ export default {
 
     getStoreActions().setShops(shops);
   }),
+  saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let shops = getStoreState().shops;
+
+    let currentByte = shopsStartByte;
+    let currentPointerByte = shopsPointerStartByte;
+    for (let i = 0; i < 35; i++)
+    {                
+        //first update pointers to the new location of the shop's data.
+        //the game stores these pointers along with the pointers to the text data.
+        if(i !== 34) //the last mart doesn't have a pointer i guess?
+        {
+            let secondPointerByte = Math.floor((currentByte) / 256);
+            let firstPointerByte = (currentByte) - (secondPointerByte * 256);
+            romData[currentPointerByte++] = firstPointerByte;
+            romData[currentPointerByte++] = secondPointerByte;
+        }
+
+        //next update the shop data.
+        //The first byte is always the number of items for sale.
+        romData[currentByte++] = shops[i].items.length;
+
+        for(let k = 0; k < shops[i].items.length; k++)
+        {                    
+            romData[currentByte++] = shops[i].items[k].item + 1;
+        }
+        romData[currentByte++] = 0xFF; //mark end of shop
+    }
+  }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
       title: 'Save ROM',
@@ -951,6 +981,7 @@ export default {
       actions.saveTypeMatchups();
       actions.saveEncounters();
       actions.saveTrainers();
+      actions.saveShops();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {

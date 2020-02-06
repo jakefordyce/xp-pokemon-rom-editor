@@ -38,6 +38,7 @@ const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
 const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
 
 const shopsStartByte = 9282; //The data for the pokemarts inventories starts at byte 0x2442
+const shopPointerBytes = [0x1D4EA, 0x74CB6, 0x5C898, 0x00, 0x5C9E4, 0x5C92F, 0x560F8, 0x560FA, 0x48359, 0x49070, 0x49072, 0x1DD8B, 0x00, 0x75E81, 0x5D40C, 0x19C85];
 
 function HexToDec(hexNum)
 {
@@ -900,6 +901,35 @@ export default {
     
     getStoreActions().setShops(shops);
   }),
+  saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let shops = getStoreState().shops;
+
+    let currentByte = shopsStartByte;
+    for (let i = 0; i < 16; i++)
+    {                
+        //first update pointers to the new location of the shop's data.
+        //the game stores these pointers along with the pointers to the text data.
+        if(shopPointerBytes[i] !== 0x00) //there are 2 pointers that aren't used. We don't need to update them
+        {                    
+            let secondPointerByte = Math.floor((currentByte) / 256);
+            let firstPointerByte = (currentByte) - (secondPointerByte * 256);
+            romData[shopPointerBytes[i]] = firstPointerByte;
+            romData[shopPointerBytes[i]+1] = secondPointerByte;
+        }
+
+        //next update the shop data.
+        //The first byte is always 0xFE and the 2nd is the number of items for sale.
+        romData[currentByte++] = 0xFE;
+        romData[currentByte++] = shops[i].items.length;
+
+        for(let k = 0; k < shops[i].items.length; k++)
+        {                    
+            romData[currentByte++] = shops[i].items[k].item;
+        }
+        romData[currentByte++] = 0xFF; //mark end of shop
+    }
+  }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
       title: 'Save ROM',
@@ -915,6 +945,7 @@ export default {
       actions.saveTypeMatchups();
       actions.saveEncounters();
       actions.saveTrainers();
+      actions.saveShops();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
