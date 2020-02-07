@@ -77,12 +77,14 @@ export default {
     let currentEvosMovesByte = pokemonEvosMovesByte;
     for(let i = 0; i < 251; i++){
       var currentPokemon = {};
+      currentPokemon.id = i;
       currentPokemon.hp = getState().rawBinArray[pokemonStartByte + (i * 32) +1];
       currentPokemon.attack = getState().rawBinArray[pokemonStartByte + (i * 32) +2];
       currentPokemon.defense = getState().rawBinArray[pokemonStartByte + (i * 32) +3];
       currentPokemon.speed = getState().rawBinArray[pokemonStartByte + (i * 32) +4];
       currentPokemon.specialAttack = getState().rawBinArray[pokemonStartByte + (i * 32) +5];
       currentPokemon.specialDefense = getState().rawBinArray[pokemonStartByte + (i * 32) +6];
+      currentPokemon.totalStats = currentPokemon.hp + currentPokemon.attack + currentPokemon.defense + currentPokemon.speed + currentPokemon.specialAttack + currentPokemon.specialDefense;
       currentPokemon.type1 = getState().rawBinArray[pokemonStartByte + (i * 32) +7];
       currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 32) +8];
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 32) + 9];

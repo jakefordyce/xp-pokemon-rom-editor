@@ -66,6 +66,7 @@ export default {
   updatePokemonProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.index][payload.propName].constructor(payload.propValue);
     state.pokemon[payload.index][payload.propName] = newValue;
+    state.pokemon[payload.index].totalStats = state.pokemon[payload.index].hp + state.pokemon[payload.index].attack + state.pokemon[payload.index].defense + state.pokemon[payload.index].speed + state.pokemon[payload.index].specialAttack + state.pokemon[payload.index].specialDefense;
   }),
   updateMoveProperty: action((state, payload) => {
     state.moves[payload.index][payload.propName] = payload.propValue;
@@ -145,6 +146,42 @@ export default {
   }),
   removeShopItem: action((state, payload) => {
     state.shops[state.selectedShop].items.splice(payload, 1);
+  }),  
+
+  pokemonSortColumn: "id",
+  updatePokemonSortColumn: action((state, payload) => {
+    state.pokemonSortColumn = payload;
+  }),
+  pokemonSortOrder: 1,
+  updatePokemonSortOrder: action((state, payload) => {
+    state.pokemonSortOrder = payload;
+  }),
+  updatePokemonSorting: thunk(async (actions, payload, {getState, getStoreActions}) => {
+    //console.log(`sorting changed ${column}`);
+    if(payload !== getState().pokemonSortColumn){
+      actions.updatePokemonSortColumn(payload);
+      actions.updatePokemonSortOrder(1);
+    }else{
+      let newValue = getState().pokemonSortOrder * -1;
+      actions.updatePokemonSortOrder(newValue);
+    }
+    actions.sortPokemon();
+  }),
+  sortPokemon: action((state, payload) => {
+    state.pokemon.sort((a, b) => { 
+      if( a[state.pokemonSortColumn] < b[state.pokemonSortColumn] ){
+        return (-1 * state.pokemonSortOrder)
+      }
+      if( a[state.pokemonSortColumn] > b[state.pokemonSortColumn] ){
+        return state.pokemonSortOrder
+      }
+      if( a["name"] < b["name"]){
+        return -1;
+      }
+      else{
+        return 1;
+      }
+    });
   }),
 
   //computed data that will be used in the UI
@@ -313,7 +350,10 @@ export default {
     });
   }),
   saveFileAs: thunk(async (actions, payload) => {
-    //console.log(actions.getRomModelActions());
+    //return the pokemon to their original order before saving.
+    actions.updatePokemonSortColumn("id");
+    actions.updatePokemonSortOrder(1);
+    actions.sortPokemon();
     actions.getRomModelActions()
     .then(res => {
       res.saveFileAs();

@@ -18,10 +18,17 @@
 }
 
 th {
-  background: white;
+  background: #eee;
   position: sticky;
   top: 0;
   text-align: center;
+}
+
+.header-button {
+  width: "100%";
+  min-width: 100px;
+  background: none;
+  border: none;  
 }
 
 .items-tab-container {

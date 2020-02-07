@@ -102,11 +102,14 @@ export default {
 
     for(let i = 0; i < 150; i++){
       var currentPokemon = {};
+      currentPokemon.id = i;
       currentPokemon.hp = getState().rawBinArray[pokemonStartByte + (i * 28) +1];
       currentPokemon.attack = getState().rawBinArray[pokemonStartByte + (i * 28) +2];
       currentPokemon.defense = getState().rawBinArray[pokemonStartByte + (i * 28) +3];
       currentPokemon.speed = getState().rawBinArray[pokemonStartByte + (i * 28) +4];
       currentPokemon.specialAttack = getState().rawBinArray[pokemonStartByte + (i * 28) +5];
+      currentPokemon.specialDefense = 0;
+      currentPokemon.totalStats = currentPokemon.hp + currentPokemon.attack + currentPokemon.defense + currentPokemon.speed + currentPokemon.specialAttack + currentPokemon.specialDefense;
       currentPokemon.type1 = getState().rawBinArray[pokemonStartByte + (i * 28) +6];
       currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 28) +7];
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 8];
@@ -146,11 +149,14 @@ export default {
     }
 
     var mew = {};
+    mew.id = 150;
     mew.hp = getState().rawBinArray[mewStartByte+1];
     mew.attack = getState().rawBinArray[mewStartByte+2];
     mew.defense = getState().rawBinArray[mewStartByte+3];
     mew.speed = getState().rawBinArray[mewStartByte+4];
     mew.specialAttack = getState().rawBinArray[mewStartByte+5];
+    mew.specialDefense = 0;
+    mew.totalStats = mew.hp + mew.attack + mew.defense + mew.speed + mew.specialAttack + mew.specialDefense;
     mew.type1 = getState().rawBinArray[mewStartByte +6];
     mew.type2 = getState().rawBinArray[mewStartByte +7];
     mew.catchRate = getState().rawBinArray[mewStartByte + 8];
