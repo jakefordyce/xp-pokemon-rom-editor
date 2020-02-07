@@ -383,6 +383,9 @@ export default {
     moveToAdd = {}; //The Red/blue ROM uses 0x00 for blank starter moves in the pokemon base stats section. Maybe not needed in Gold?
     moveToAdd.id = 0;
     moveToAdd.name = "nothing";
+    moveToAdd.power = 0;
+    moveToAdd.accuracy = 0;
+    moveToAdd.pp = 0;
     moves.push(moveToAdd);
 
     for (let i = 0; i < 251; i++) //251 because there are 251 moves in the game.

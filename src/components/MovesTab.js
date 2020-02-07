@@ -1,5 +1,5 @@
 import React, {memo} from 'react';
-import {useStoreState} from 'easy-peasy';
+import {useStoreState, useStoreActions} from 'easy-peasy';
 import MovesGridRow from './MovesGridRow';
 
 function MovesTab(){
@@ -7,24 +7,29 @@ function MovesTab(){
   const dataLoaded = useStoreState(state => state.dataLoaded);
   const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
+  const updateMovesSorting = useStoreActions(actions => actions.updateMovesSorting);
   
   const movesList = moves.map((move, index) => 
     <MovesGridRow key={index} move={move} />
   );
+
+  function changeSorting(event, column){
+    updateMovesSorting(column);
+  }
 
   return( dataLoaded &&
     <div>
       <table>
         <thead>
           <tr>
-            <th>Move</th>
-            <th>Animation</th>
-            <th>Effect</th>
-            <th>Power</th>
-            <th>Type</th>
-            <th>Accuracy</th>
-            <th>PP</th>
-            {generation === 2 && <th>Effect Chance</th>}
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "id")}>Move</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "animationID")}>Animation</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "effect")}>Effect</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "power")}>Power</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "moveType")}>Type</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
+            <th><button class="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
+            {generation === 2 && <th><button class="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
           </tr>
         </thead>
         <tbody>

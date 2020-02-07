@@ -282,7 +282,7 @@ export default {
         workingArray[pokemonStartByte + (i * 28) + 2] = pokemon[i].attack;
         workingArray[pokemonStartByte + (i * 28) + 3] = pokemon[i].defense;
         workingArray[pokemonStartByte + (i * 28) + 4] = pokemon[i].speed;
-        workingArray[pokemonStartByte + (i * 28) + 5] = pokemon[i].special;
+        workingArray[pokemonStartByte + (i * 28) + 5] = pokemon[i].specialAttack;
         workingArray[pokemonStartByte + (i * 28) + 6] = pokemon[i].type1;
         workingArray[pokemonStartByte + (i * 28) + 7] = pokemon[i].type2;
         workingArray[pokemonStartByte + (i * 28) + 8] = pokemon[i].catchRate;
@@ -524,6 +524,9 @@ export default {
     moveToAdd = {}; //The ROM uses 0x00 for blank starter moves in the pokemon base stats section.
     moveToAdd.id = 0;
     moveToAdd.name = "nothing";
+    moveToAdd.power = 0;
+    moveToAdd.accuracy = 0;
+    moveToAdd.pp = 0;
     moves.push(moveToAdd);
 
     for (let i = 0; i < 165; i++) //165 because there are 165 moves in the game.

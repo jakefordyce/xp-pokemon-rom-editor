@@ -183,6 +183,41 @@ export default {
       }
     });
   }),
+  movesSortColumn: "id",
+  updateMovesSortColumn: action((state, payload) => {
+    state.movesSortColumn = payload;
+  }),
+  movesSortOrder: 1,
+  updateMovesSortOrder: action((state, payload) => {
+    state.movesSortOrder = payload;
+  }),
+  updateMovesSorting: thunk(async (actions, payload, {getState, getStoreActions}) => {
+    //console.log(`sorting changed ${column}`);
+    if(payload !== getState().movesSortColumn){
+      actions.updateMovesSortColumn(payload);
+      actions.updateMovesSortOrder(1);
+    }else{
+      let newValue = getState().movesSortOrder * -1;
+      actions.updateMovesSortOrder(newValue);
+    }
+    actions.sortMoves();
+  }),
+  sortMoves: action((state, payload) => {
+    state.moves.sort((a, b) => { 
+      if( a[state.movesSortColumn] < b[state.movesSortColumn] ){
+        return (-1 * state.movesSortOrder)
+      }
+      if( a[state.movesSortColumn] > b[state.movesSortColumn] ){
+        return state.movesSortOrder
+      }
+      if( a["id"] < b["id"]){
+        return -1;
+      }
+      else{
+        return 1;
+      }
+    });
+  }),
 
   //computed data that will be used in the UI
   currentEvosMovesBytes: computed((state) => {
@@ -354,6 +389,10 @@ export default {
     actions.updatePokemonSortColumn("id");
     actions.updatePokemonSortOrder(1);
     actions.sortPokemon();
+    //return the moves to their original order before saving.
+    actions.updateMovesSortColumn("id");
+    actions.updateMovesSortOrder(1);
+    actions.sortMoves();
     actions.getRomModelActions()
     .then(res => {
       res.saveFileAs();
