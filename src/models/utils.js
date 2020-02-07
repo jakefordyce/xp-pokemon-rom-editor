@@ -776,6 +776,14 @@ const gscStats = {
   ATT_EQ_DEF: 3
 };
 
+const gscTradeItems = {
+  KINGS_ROCK: 0x52,
+  METAL_COAT: 0x8F,
+  DRAGON_SCALE: 0x90,
+  UP_GRADE: 0xAC,
+  no_item: 0xFF
+}
+
 const gscGrowthRates = {
   MEDIUM_FAST: 0,
 	SLIGHTLY_FAST: 1,
@@ -1353,6 +1361,6 @@ const gscShopNames = [
 
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
-  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscGrowthRates,
+  gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames,
   getKeyByValue};

@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscGrowthRates,
+import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
   getKeyByValue} from './utils';
 const remote = require('electron').remote;
@@ -49,6 +49,7 @@ export default {
   evolveStones: gscStones,
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
+  tradeItems: gscTradeItems,
   growthRates: gscGrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,

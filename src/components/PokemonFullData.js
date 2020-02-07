@@ -25,6 +25,7 @@ function PokemonFullData(){
   const evolveStones = useStoreState(state => state.romModelState.evolveStones);
   const evolveHappiness = useStoreState(state => state.romModelState.evolveHappiness);
   const evolveStats = useStoreState(state => state.romModelState.evolveStats);
+  const tradeItems = useStoreState(state => state.romModelState.tradeItems);
   const growthRates = useStoreState(state => state.romModelState.growthRates);
   const maxEvosMovesBytes = useStoreState(state => state.romModelState.maxEvosMovesBytes);
   const currentEvosMovesBytes = useStoreState(state => state.currentEvosMovesBytes);
@@ -49,6 +50,9 @@ function PokemonFullData(){
       }
       {evol.evolve === 2 &&  
         <EnumSelect enum={evolveStones} selectedValue={evol.evolveStone} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStone'} />
+      }
+      {evol.evolve === 3 && gen !== 1 &&
+        <EnumSelect enum={tradeItems} selectedValue={evol.tradeItem} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'tradeItem'} />
       }
       {evol.evolve === 4 &&  
         <EnumSelect enum={evolveHappiness} selectedValue={evol.evolveHappiness} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveHappiness'} />
