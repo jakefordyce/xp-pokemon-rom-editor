@@ -24,6 +24,7 @@ export default {
   encounterZones: [{encounters: []}],
   trainers: [{uniqueName: '', pokemon: []}],
   shops: [{items: []}],
+  starters: [],
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -62,6 +63,9 @@ export default {
   }),
   setSelectedShop: action((state, payload) => {
     state.selectedShop = payload;
+  }),
+  setStarters: action((state, payload) => {
+    state.starters = payload;
   }),
   updatePokemonProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.index][payload.propName].constructor(payload.propValue);
@@ -146,7 +150,11 @@ export default {
   }),
   removeShopItem: action((state, payload) => {
     state.shops[state.selectedShop].items.splice(payload, 1);
-  }),  
+  }),
+  updateStarterProperty: action((state, payload) => {
+    let newValue = state.starters[payload.index][payload.propName].constructor(payload.propValue);
+    state.starters[payload.index][payload.propName] = newValue;
+  }),
 
   pokemonSortColumn: "id",
   updatePokemonSortColumn: action((state, payload) => {

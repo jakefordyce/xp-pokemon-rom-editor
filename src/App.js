@@ -8,6 +8,7 @@ import TypesTab from './components/TypesTab';
 import EncountersTab from './components/EncountersTab';
 import TrainersTab from './components/TrainersTab';
 import ShopsTab from './components/ShopsTab';
+import MiscTab from './components/MiscTab';
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
           <button id="encounters-tab" className={tabClassNames(4)} onClick={(e) => handleTabClicked(e, 4)}>Encounters</button>
           <button id="trainers-tab" className={tabClassNames(5)} onClick={(e) => handleTabClicked(e, 5)}>Trainers</button>
           <button id="shops-tab" className={tabClassNames(6)} onClick={(e) => handleTabClicked(e, 6)}>Shops</button>
+          <button id="misc-tab" className={tabClassNames(7)} onClick={(e) => handleTabClicked(e, 7)}>Misc</button>
         </nav>
       </div>      
       <div >
@@ -50,6 +52,7 @@ function App() {
         {tab === 4 && <EncountersTab />}
         {tab === 5 && <TrainersTab />}
         {tab === 6 && <ShopsTab />}
+        {tab === 7 && <MiscTab />}
       </div>
     </div>
   );

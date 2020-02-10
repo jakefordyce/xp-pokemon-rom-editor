@@ -68,6 +68,7 @@ export default {
     actions.loadEncounters();
     actions.loadTrainers();
     actions.loadShops();
+    actions.loadStarters();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -223,6 +224,7 @@ export default {
         }
         tmArray.push(tmByte);
       }
+      //console.log(tmArray);
       
       workingArray[pokemonStartByte + (i * 32) + 24] = tmArray[0];
       workingArray[pokemonStartByte + (i * 32) + 25] = tmArray[1];
@@ -231,10 +233,10 @@ export default {
       workingArray[pokemonStartByte + (i * 32) + 28] = tmArray[4];
       workingArray[pokemonStartByte + (i * 32) + 29] = tmArray[5];
       workingArray[pokemonStartByte + (i * 32) + 30] = tmArray[6];
-      workingArray[pokemonStartByte + (i * 32) + 31] = tmArray[6];
+      workingArray[pokemonStartByte + (i * 32) + 31] = tmArray[7];
 
 
-      let secondPointerByte = (currentEvosMovesByte - pointerBase) / 256;
+      let secondPointerByte = Math.floor((currentEvosMovesByte - pointerBase) / 256);
       let firstPointerByte = (currentEvosMovesByte - pointerBase) - (secondPointerByte * 256);
       workingArray[currentPointerByte++] = firstPointerByte;
       workingArray[currentPointerByte++] = secondPointerByte;
@@ -485,11 +487,11 @@ export default {
       
       //The price is stored in 2 bytes stored little endian so we need to multiply the 2nd byte by 256 and add it to the first byte.
       newItem.price = (getState().rawBinArray[itemPropertiesStartByte + i*7 + 1] * 256) + getState().rawBinArray[itemPropertiesStartByte + i*7];
-      newItem.holdEffect = getState().rawBinArray[itemPropertiesStartByte + i*7]+2;
-      newItem.parameter = getState().rawBinArray[itemPropertiesStartByte + i*7]+3;
-      newItem.property = getState().rawBinArray[itemPropertiesStartByte + i*7]+4;
-      newItem.pocket = getState().rawBinArray[itemPropertiesStartByte + i*7]+5;
-      newItem.menus = getState().rawBinArray[itemPropertiesStartByte + i*7]+6;
+      newItem.holdEffect = getState().rawBinArray[itemPropertiesStartByte + i*7 +2];
+      newItem.parameter = getState().rawBinArray[itemPropertiesStartByte + i*7 +3];
+      newItem.property = getState().rawBinArray[itemPropertiesStartByte + i*7 +4];
+      newItem.pocket = getState().rawBinArray[itemPropertiesStartByte + i*7 +5];
+      newItem.menus = getState().rawBinArray[itemPropertiesStartByte + i*7 +6];
 
 
       let itemName = "";
@@ -972,6 +974,72 @@ export default {
         romData[currentByte++] = 0xFF; //mark end of shop
     }
   }),
+  loadStarters: thunk (async (actions, payload, {getState, getStoreActions}) => {
+    const starterBytes = [0x1800F6, 0x180138, 0x180174];
+    let starters = [];
+
+    for(let i = 0; i < 3; i++){
+      let newStarter = {};
+      newStarter.pokemon = getState().rawBinArray[starterBytes[i]] - 1;
+      newStarter.level = getState().rawBinArray[starterBytes[i]+1];
+      newStarter.item = getState().rawBinArray[starterBytes[i]+2] - 1;
+      starters.push(newStarter);
+    }
+
+    getStoreActions().setStarters(starters);
+  }),
+  saveStarters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let starters = getStoreState().starters;
+    let pokemon = getStoreState().pokemon;
+    const starterBytes = [0x1800D2, 0x180114, 0x180150];
+    const starterMessageBytes = [0x1805E4, 0x18060F, 0x18063B];
+    const originalStarters = [0x9B, 0x9E, 0x98];
+    const starterOriginalMessages = [[0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x98, 0xae, 0xb4, 0xd1, 0xab, 0x7f, 0xb3, 0xa0, 0xaa, 0xa4, 0x4f, 0x82, 0x98, 0x8d, 0x83, 0x80, 0x90, 0x94, 0x88, 0x8b, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xa5, 0xa8, 0xb1, 0xa4, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00],
+     [0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x83, 0xae, 0x7f, 0xb8, 0xae, 0xb4, 0x7f, 0xb6, 0xa0, 0xad, 0xb3, 0x4f, 0x93, 0x8e, 0x93, 0x8e, 0x83, 0x88, 0x8b, 0x84, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xb6, 0xa0, 0xb3, 0xa4, 0xb1, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00],
+     [0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x92, 0xae, 0xf4, 0x7f, 0xb8, 0xae, 0xb4, 0x7f, 0xab, 0xa8, 0xaa, 0xa4, 0x4f, 0x82, 0x87, 0x88, 0x8a, 0x8e, 0x91, 0x88, 0x93, 0x80, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xa6, 0xb1, 0xa0, 0xb2, 0xb2, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00]];
+    
+    for(let i = 0; i < 3; i++){
+      //pokemon image to display
+      romData[starterBytes[i]] = starters[i].pokemon +1;
+      //pokemon cry
+      romData[starterBytes[i]+2] = starters[i].pokemon +1;
+      //pokemon name for receive message
+      romData[starterBytes[i]+25] = starters[i].pokemon +1;
+      //pokemon to receive
+      romData[starterBytes[i]+36] = starters[i].pokemon +1;
+      //pokemon's level
+      romData[starterBytes[i]+37] = starters[i].level;
+      //pokemon's held item
+      romData[starterBytes[i]+38] = starters[i].item +1;
+
+      //if the starter hasn't changed then use the original message;
+      if(starters[i].pokemon+1 === originalStarters[i]){
+        for(let k = 0; k < starterOriginalMessages[i].length; k++ ){
+          romData[starterMessageBytes + k] = starterOriginalMessages[i][k];
+        }
+      }
+      else{ //if the user changed the starters then we need to update the "so you want..." question
+        let messageIndex = 0;
+        let currentMessageByte = starterMessageBytes[i];
+        while(starterOriginalMessages[i][messageIndex] !== 0x4F){
+          romData[currentMessageByte++] = starterOriginalMessages[i][messageIndex++];
+        }
+        romData[currentMessageByte++] = 0x4F;
+        //console.log(pokemon);
+        //console.log(starters);
+        //console.log(pokemon[starters[i].pokemon + 1]);
+        pokemon[starters[i].pokemon].name.split("").forEach((c) => {
+          romData[currentMessageByte++] = getKeyByValue(rbygsLetters, c);
+        });
+        romData[currentMessageByte++] = 0xE6;
+        romData[currentMessageByte++] = 0x57;
+      }
+
+
+    }    
+
+  }),
   saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     dialog.showSaveDialog({
       title: 'Save ROM',
@@ -988,6 +1056,7 @@ export default {
       actions.saveEncounters();
       actions.saveTrainers();
       actions.saveShops();
+      actions.saveStarters();
 
       fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
     }).catch((err) => {
