@@ -107,7 +107,8 @@ export default {
     state.pokemon[state.selectedPokemon].learnedMoves.splice(payload, 1);
   }),
   updateTypeMatchupProperty: action((state, payload) => {
-    state.typeMatchups[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.typeMatchups[payload.index][payload.propName].constructor(payload.propValue);
+    state.typeMatchups[payload.index][payload.propName] = newValue;
   }),
   updateTypeProperty: action((state, payload) => {
     state.pokemonTypes[payload.index][payload.propName] = payload.propValue;
