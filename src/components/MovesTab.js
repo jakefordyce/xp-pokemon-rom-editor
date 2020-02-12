@@ -21,7 +21,7 @@ function MovesTab(){
     <div>
       <table>
         <thead>
-          <tr>
+          <tr className="sticky-header">
             <th><button class="header-button" onClick={(e) => changeSorting(e, "id")}>Move</button></th>
             <th><button class="header-button" onClick={(e) => changeSorting(e, "animationID")}>Animation</button></th>
             <th><button class="header-button" onClick={(e) => changeSorting(e, "effect")}>Effect</button></th>

@@ -17,11 +17,15 @@
   grid-template-rows: calc(100vh - 140px);
 }
 
-th {
+.sticky-header > th {
   background: #eee;
   position: sticky;
   top: 0;
   text-align: center;
+}
+
+td {
+  border: 1px solid #ddd;
 }
 
 .header-button {
@@ -39,8 +43,44 @@ th {
 
 .types-tab-container {
   display: grid;
-  grid-template-columns: auto auto;
+  grid-template-columns: auto auto auto;
   grid-template-rows: calc(100vh - 100px);
+}
+
+.type-table {
+  overflow-x: scroll;
+  padding-right: 50px;
+}
+
+.type-table tr:nth-child(even){background-color: #f2f2f2;}
+
+.type-header {
+  height: 100px;
+  white-space: nowrap;
+}
+
+.type-header > div {
+  transform: 
+    translate(19px, 28px)
+    rotate(315deg);
+  width: 30px;
+}
+
+.type-header > div > span {
+  border-bottom: 1px solid #ccc;
+  padding: 5px 10px;
+}
+
+.type-double {
+  background-color: lightgreen;
+}
+
+.type-half {
+  background-color: lightsalmon;
+}
+
+.type-none {
+  background-color: lightslategray;
 }
 
 .zones-tab-container {

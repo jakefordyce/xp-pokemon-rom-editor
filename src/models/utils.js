@@ -967,18 +967,16 @@ const rbyItems = {
 
 //the actual number is 1/10th what is listed here.
 const rbyDamageModifiers = {
-  No_Effect: 0,
-  Half_Damage: 5,
-  Double_Damage: 20
+  Zero: 0,
+  Half: 5,
+  Double: 20
 };
 
 //the actual number is 1/10th what is listed here.
 const gscDamageModifiers = {
-  No_Effect: 0,
-  Half_Damage: 5,
-  Normal_Damage: 10,
-  More_Damage: 15,
-  Double_Damage: 20
+  Zero: 0,
+  Half: 5,  
+  Double: 20
 };
 
 const rbyZoneNames = [

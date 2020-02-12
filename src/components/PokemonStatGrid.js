@@ -18,7 +18,7 @@ function PokemonStatGrid(){
     <div>
       <table>
         <thead>
-          <tr>
+          <tr className="sticky-header">
             <th><button className="header-button" onClick={(e) => changeSorting(e, "id")}>Pokemon</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "hp")}>HP</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "attack")}>Attack</button></th>
