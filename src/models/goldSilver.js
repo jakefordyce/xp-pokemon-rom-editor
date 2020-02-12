@@ -553,13 +553,30 @@ export default {
     let typeMatchups = getStoreState().typeMatchups;
     let currentByte = typeChartByte;
 
-    //order matchups by foresight and id.
+    let foresightCount = 1;
+    for(let m = 0; m < typeMatchups.length; m++){
+      if (typeMatchups[m].foresight === true){
+        foresightCount++;
+      }
+    }
+
+    //make sure the matchups that foresight affect are saved last.
+    typeMatchups.sort((a,b) => {
+      if(a.foresight=== true && b.foresight === false){
+        return 1;
+      }else if(a.foresight === false && b.foresight === true){
+        return -1;
+      }else{
+        return 0;
+      }
+    });    
+    
     for(let i = 0; i < typeMatchups.length; i++){
       romData[currentByte++] = typeMatchups[i].attackType;
       romData[currentByte++] = typeMatchups[i].defenseType;
       romData[currentByte++] = typeMatchups[i].effectiveness;
-      if(i === typeMatchups.length-3){ // change this to a count of number of matchups where foresight === true + 1
-        romData[currentByte++] = 0xFE; //0xFE separates the last 2 type matchups. They are the ghost immunes that are removed by foresight.
+      if(i === typeMatchups.length-foresightCount){
+        romData[currentByte++] = 0xFE; //0xFE separates the last 2 type matchups. Originally they are the ghost immunes that are removed by foresight.
       }
     }
     romData[currentByte++] = 0xFF; //writing the ending byte manually in case the user removed some type strengths.
