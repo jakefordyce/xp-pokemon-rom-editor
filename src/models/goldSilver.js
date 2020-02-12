@@ -525,19 +525,22 @@ export default {
   loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
     let typeMatchups = [];
     let currentByte = typeChartByte;
-    
+    let foresightTypes = false;
+
     while(getState().rawBinArray[currentByte] !== 0xFF) // Since we are checking the ending byte this can be converted to a while loop?
     {
       // The type matchups are split into 2 groups. The first group ends with FE. 
       // The 2nd group is the ghost immunes that are cancelled by using the Foresight move.
       if(getState().rawBinArray[currentByte] === 0xFE){
         currentByte++;
+        foresightTypes = true;
       }
       else{
         let typeMatchupToAdd = {};
         typeMatchupToAdd.attackType = getState().rawBinArray[currentByte++]; //first byte is the attacking type
         typeMatchupToAdd.defenseType = getState().rawBinArray[currentByte++]; //second byte is the defending type
         typeMatchupToAdd.effectiveness = getState().rawBinArray[currentByte++]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
+        typeMatchupToAdd.foresight = foresightTypes;
         typeMatchups.push(typeMatchupToAdd);
       }
     }
@@ -550,11 +553,12 @@ export default {
     let typeMatchups = getStoreState().typeMatchups;
     let currentByte = typeChartByte;
 
+    //order matchups by foresight and id.
     for(let i = 0; i < typeMatchups.length; i++){
       romData[currentByte++] = typeMatchups[i].attackType;
       romData[currentByte++] = typeMatchups[i].defenseType;
       romData[currentByte++] = typeMatchups[i].effectiveness;
-      if(i === typeMatchups.length-3){
+      if(i === typeMatchups.length-3){ // change this to a count of number of matchups where foresight === true + 1
         romData[currentByte++] = 0xFE; //0xFE separates the last 2 type matchups. They are the ghost immunes that are removed by foresight.
       }
     }

@@ -16,18 +16,11 @@ function TypesTab(){
   const addTypeMatchup = useStoreActions(actions => actions.addTypeMatchup);
   const removeTypeMatchup = useStoreActions(actions => actions.removeTypeMatchup);
   const generation = useStoreState(state => state.romModelState.generation);
+  const selectedTypeMatchup = useStoreState(state => state.selectedTypeMatchup);
+  const setSelectedTypeMatchup = useStoreActions(actions => actions.setSelectedTypeMatchup);
   
   const usedTypes = types.filter((type) => type.typeIsUsed);
-
-  const typeMatchupList = typeMatchups.map((typematch, index) =>
-    <tr key={index}>
-      <td><ArraySelect collection={types} value='typeIndex' display='typeName' selectedValue={typematch.attackType} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName='attackType'/></td>
-      <td><ArraySelect collection={types} value='typeIndex' display='typeName' selectedValue={typematch.defenseType} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName='defenseType'/></td>
-      <td><EnumSelect enum={damageModifiers} selectedValue={typematch.effectiveness} handleOptionChange={handleTypeMatchupChange} arrayIndex={index} propName={'effectiveness'}/></td>
-      <td><button onClick={(e) => handleRemoveTypeMatchup(e, index)}>X</button></td>
-    </tr>
-  );
-
+  
   const typeList = types.map((type, index) => 
     <tr key={index}>
       <td><input style={{width: "100px"}} value={type.typeName} onChange={(e) => handleTypeChange(e, index, 'typeName')} /></td>
@@ -62,9 +55,14 @@ function TypesTab(){
           effectiveCSS = "type-double";
           cellText = "x2";
         }
+
+        if(matchup.foresight){
+          effectiveCSS += " type-foresight";
+        }
       }
 
-      return <td className={effectiveCSS} key={defIndex}>{cellText}</td>
+      return <td className={effectiveCSS} key={defIndex} onClick={(e) => handleTypeMatchupChange(e, type, defType)} 
+      onContextMenu={(e) => {e.preventDefault(); handleTypeMatchupChange(e, type, defType)}} >{cellText}</td>
     });
     return <tr key={index}><td>{type.typeName}</td>{cells}</tr>
   });
@@ -79,9 +77,27 @@ function TypesTab(){
     updateType({index: typeIndex, propName: propName, propValue: newValue});
   };
 
-  function handleTypeMatchupChange(event, matchupIndex, propName){
-    let newValue = event.target.value;
-    updateTypeMatchup({index: matchupIndex, propName: propName, propValue: newValue});
+  function handleTypeMatchupChange(event, attType, defType){
+    let matchup = typeMatchups.find((match) => match.defenseType === defType.typeIndex && match.attackType === attType.typeIndex);
+    
+    if(event.button === 0){ //left click
+      if(matchup !== undefined){
+        if(matchup.effectiveness === 0){
+          updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 5});
+        }else if(matchup.effectiveness === 5){
+          updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 20});
+        }else if(matchup.effectiveness === 20){
+          removeTypeMatchup(typeMatchups.indexOf(matchup));
+        }
+      }else{
+        console.log(`att: ${ attType.typeIndex}  def: ${defType.typeIndex}`)
+        addTypeMatchup({attackType: attType.typeIndex, defenseType: defType.typeIndex});
+      }
+    }else if(event.button === 2){ //right click
+      if(matchup !== undefined){
+        updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "foresight", propValue: !matchup.foresight});
+      }
+    }
   }
 
   function handleRemoveType(event, typeIndex){
@@ -92,45 +108,8 @@ function TypesTab(){
     addType();
   }
 
-  function handleRemoveTypeMatchup(event, matchupIndex){
-    removeTypeMatchup(matchupIndex);
-  };
-
-  function handleAddTypeMatchup(event){
-    addTypeMatchup();
-  }
-
   return( dataLoaded &&
     <div className="types-tab-container">
-      <div style={{overflowY: "scroll"}}>
-        <button onClick={handleAddTypeMatchup}>Add Row</button>
-        <table>
-          <thead>
-            <tr className="sticky-header">
-              <th>Attacking</th>
-              <th>Defending</th>
-              <th>Effectiveness</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {typeMatchupList}
-          </tbody>
-        </table>
-      </div>
-      <div className="type-table">
-      <table >
-          <thead>
-            <tr>
-              <th></th>
-              {typeChartHeaders}
-            </tr>
-          </thead>
-          <tbody>
-            {typeChart}
-          </tbody>
-        </table>
-      </div>
       <div style={{overflowY: "scroll", overflowX: "scroll", backgroundColor: "#fff"}}>
         <button onClick={handleAddType}>Add Type</button>
         <table>
@@ -144,6 +123,19 @@ function TypesTab(){
           </thead>
           <tbody>
             {typeList}
+          </tbody>
+        </table>
+      </div>
+      <div className="type-table">
+        <table >
+          <thead>
+            <tr>
+              <th></th>
+              {typeChartHeaders}
+            </tr>
+          </thead>
+          <tbody>
+            {typeChart}
           </tbody>
         </table>
       </div>

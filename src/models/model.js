@@ -16,6 +16,7 @@ export default {
   selectedZone: 0,
   selectedTrainer: 0,
   selectedShop: 0,
+  selectedTypeMatchup: 0,
   pokemonTypes: [{typeIsUsed: 'true', typeName: 'NORMAL', typeIndex: 0}],
   moves: [{}],
   tms: [{}],
@@ -45,6 +46,9 @@ export default {
   }),
   setTypeMatchups: action((state, payload) => {
     state.typeMatchups = payload;
+  }),
+  setSelectedTypeMatchup: action((state, payload) => {
+    state.selectedTypeMatchup = payload;
   }),
   setEncounterZones: action((state, payload) => {
     state.encounterZones = payload;
@@ -120,7 +124,7 @@ export default {
     state.pokemonTypes.splice(payload, 1);
   }),
   addTypeMatchup: action((state, payload) => {
-    state.typeMatchups.push({attackType: 1, defenseType: 1, effectiveness: 10});
+    state.typeMatchups.push({attackType: payload.attackType, defenseType: payload.defenseType, effectiveness: 5, foresight: false});
   }),
   removeTypeMatchup: action((state, payload) => {
     state.typeMatchups.splice(payload, 1);

@@ -679,6 +679,7 @@ export default {
           typeMatchupToAdd.attackType = getState().rawBinArray[typeChartByte + (i * 3)]; //first byte is the attacking type
           typeMatchupToAdd.defenseType = getState().rawBinArray[typeChartByte + (i * 3) + 1]; //second byte is the defending type
           typeMatchupToAdd.effectiveness = getState().rawBinArray[typeChartByte + (i * 3) + 2]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
+          typeMatchupToAdd.foresight = false;
           typeMatchups.push(typeMatchupToAdd);
         }
         else

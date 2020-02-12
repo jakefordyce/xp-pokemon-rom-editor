@@ -83,6 +83,10 @@ td {
   background-color: lightslategray;
 }
 
+.type-foresight {
+  border: 2px dotted purple;
+}
+
 .zones-tab-container {
   display: grid;
   grid-template-columns: auto auto;
