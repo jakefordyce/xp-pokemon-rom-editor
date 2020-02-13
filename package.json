@@ -2,6 +2,26 @@
   "name": "xp-pokemon-rom-editor",
   "version": "0.1.0",
   "private": true,
+  "author": {
+    "name": "Jake Fordyce",
+    "email": "jakefordyce78@gmail.com",
+    "url": "https://github.com/jakefordyce"
+  },
+  "build": {
+    "appId": "com.jakefordyce.xp-pokemon-rom-editor",
+    "productName": "Pokemon ROM Editor",
+    "copyright": "Copyright © 2019 ${author}",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    }
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -15,12 +35,16 @@
     "react-scripts": "3.3.0"
   },
   "main": "public/electron.js",
+  "homepage": "./",
   "scripts": {
     "start": "rescripts start",
     "build": "rescripts build",
     "test": "rescripts test",
     "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"yarn start\" \"wait-on http://localhost:3000 && electron .\""
+    "electron-dev": "concurrently \"yarn start\" \"wait-on http://localhost:3000 && electron .\"",
+    "postinstall": "electron-builder install-app-deps",
+    "preelectron-pack": "yarn build",
+    "electron-pack": "electron-builder build -w"
   },
   "eslintConfig": {
     "extends": "react-app"
