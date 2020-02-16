@@ -1195,6 +1195,7 @@ const gsZoneNames = [
   "VERMILION_PORT"
 ];
 
+//These are the chances of an encounter for each slot in a wild pokemon zone.
 const rbyGrassEncChances = [20,20,15,10,10,10,5,5,4,1];
 
 const gscGrassEncChances = [30, 30, 20, 10, 5, 4, 1];
@@ -1254,10 +1255,9 @@ const rbTrainerNames = [
 //this is the number of trainers in each group. This lets us know when to switch to the next group name.
 const rbTrainerCounts = [13, 14, 18, 8, 9, 24, 7, 12, 14, 15, 9, 3, 0, 11, 15, 9, 7, 15, 4, 2, 8, 6, 17, 9, 9, 3, 0, 13, 3, 41, 10, 8, 1, 1, 1, 1, 1, 1, 1, 1, 5, 12, 3, 1, 24, 1, 1];
 
-//these trainers aren't in the game. We will mark them as unused so the user knows they can remove pokemon from their rosters to free up extra space.
+//these trainers aren't used in the game. We will mark them as unused so the user knows they can remove pokemon from their rosters to free up extra space.
 const rbUnusedTrainers = [12, 24, 58, 65, 98, 99, 100, 134, 135, 136, 143, 186, 198, 214, 222, 234, 235, 258, 259, 260, 261, 298, 321, 323, 324, 325, 331, 333, 334, 335, 347, 365, 366, 367, 368, 371, 375, 377, 379];
 
-//
 const gsTrainerGroups = ["Falkner",
 "Whitney",
 "Bugsy",
@@ -1325,8 +1325,11 @@ const gsTrainerGroups = ["Falkner",
 "Officer",
 "GruntF"];
 
+//the number of trainers in each group. When loading this lets us know when to move to the next name.
 const gsTrainerCounts = [1,1,1,1,1,1,1,1,15,0,1,3,1,1,1,1,1,1,1,5,1,12,18,19,15,1,19,20,16,13,31,5,2,3,1,14,22,21,19,12,12,6,2,20,9,1,3,8,5,9,4,12,21,19,2,9,7,3,12,6,8,5,1,1,2,5];
 
+//Each trainer has a unique name in addition to their group name but for some trainers the names are the same i.e "Red Red".
+//This is a list of trainers where it wouldn't make sense to display both names.
 const gsUniqueGroupNameIds = [0,1,2,3,4,5,6,7,10,12,13,14,15,16,17,18,20,25,34,45,62,63];
 
 const gsTrainerTypes = [

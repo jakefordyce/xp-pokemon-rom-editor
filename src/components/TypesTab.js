@@ -1,14 +1,11 @@
 import React from 'react';
 import {useStoreState, useStoreActions} from 'easy-peasy';
-import ArraySelect from './ArraySelect';
-import EnumSelect from './EnumSelect';
 
 function TypesTab(){
     
   const dataLoaded = useStoreState(state => state.dataLoaded);
   const types = useStoreState(state => state.pokemonTypes);
   const typeMatchups = useStoreState(state => state.typeMatchups);
-  const damageModifiers = useStoreState(state => state.romModelState.damageModifiers);
   const updateType = useStoreActions(actions => actions.updateTypeProperty);
   const updateTypeMatchup = useStoreActions(actions => actions.updateTypeMatchupProperty);
   const addType = useStoreActions(actions => actions.addType);
@@ -16,8 +13,6 @@ function TypesTab(){
   const addTypeMatchup = useStoreActions(actions => actions.addTypeMatchup);
   const removeTypeMatchup = useStoreActions(actions => actions.removeTypeMatchup);
   const generation = useStoreState(state => state.romModelState.generation);
-  const selectedTypeMatchup = useStoreState(state => state.selectedTypeMatchup);
-  const setSelectedTypeMatchup = useStoreActions(actions => actions.setSelectedTypeMatchup);
   
   const usedTypes = types.filter((type) => type.typeIsUsed);
   
@@ -38,8 +33,6 @@ function TypesTab(){
 
   const typeChart = usedTypes.map((type, index) => {
     let matchups = typeMatchups.filter((matchup) => matchup.attackType === type.typeIndex);
-    //console.log(type);
-    //console.log(matchups);
     let cells = usedTypes.map((defType, defIndex) => {
       let effectiveCSS = "";
       let cellText = "";
@@ -80,7 +73,7 @@ function TypesTab(){
   function handleTypeMatchupChange(event, attType, defType){
     let matchup = typeMatchups.find((match) => match.defenseType === defType.typeIndex && match.attackType === attType.typeIndex);
     
-    if(event.button === 0){ //left click
+    if(event.button === 0){ //left click cycle through damage modifiers
       if(matchup !== undefined){
         if(matchup.effectiveness === 0){
           updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 5});
@@ -90,10 +83,9 @@ function TypesTab(){
           removeTypeMatchup(typeMatchups.indexOf(matchup));
         }
       }else{
-        console.log(`att: ${ attType.typeIndex}  def: ${defType.typeIndex}`)
         addTypeMatchup({attackType: attType.typeIndex, defenseType: defType.typeIndex});
       }
-    }else if(event.button === 2){ //right click
+    }else if(event.button === 2){ //right click toggle foresight
       if(matchup !== undefined){
         updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "foresight", propValue: !matchup.foresight});
       }

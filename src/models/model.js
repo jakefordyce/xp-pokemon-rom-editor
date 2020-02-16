@@ -10,7 +10,7 @@ const pokemonDefault = [{name: 'not loaded', hp: 0, attack: 0, defense: 0, speed
                         learnedMoves: [], evolutions: [], tms: []}];
 
 export default {
-  //data we want to edit and actions which edit
+  //data we want to edit.
   pokemon: pokemonDefault,
   selectedPokemon: 0,
   selectedZone: 0,
@@ -26,6 +26,9 @@ export default {
   trainers: [{uniqueName: '', pokemon: []}],
   shops: [{items: []}],
   starters: [],
+
+  //actions for setting the above data. These are called from the ROM specific models after loading data from the ROM file.
+  //I might refactor these into 1 method at some point.
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
   }),
@@ -71,19 +74,22 @@ export default {
   setStarters: action((state, payload) => {
     state.starters = payload;
   }),
+
+  //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.index][payload.propName].constructor(payload.propValue);
     state.pokemon[payload.index][payload.propName] = newValue;
     state.pokemon[payload.index].totalStats = state.pokemon[payload.index].hp + state.pokemon[payload.index].attack + state.pokemon[payload.index].defense + state.pokemon[payload.index].speed + state.pokemon[payload.index].specialAttack + state.pokemon[payload.index].specialDefense;
   }),
   updateMoveProperty: action((state, payload) => {
-    state.moves[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.moves[payload.index][payload.propName].constructor(payload.propValue);
+    state.moves[payload.index][payload.propName] = newValue;
   }),
   updatePokemonMoveProperty: action((state, payload) => {
-    //this sets the new value to be the same type as the property being updated.
     let newValue = state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName].constructor(payload.propValue);
     state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName] = newValue;
   }),
+  //this is called automatically to keep pokemon moves sorted by level
   sortPokemonMoves: action((state, payload) => {
     state.pokemon[payload].learnedMoves.sort((a, b) => {return a.level - b.level});
   }),
@@ -115,7 +121,8 @@ export default {
     state.typeMatchups[payload.index][payload.propName] = newValue;
   }),
   updateTypeProperty: action((state, payload) => {
-    state.pokemonTypes[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.pokemonTypes[payload.index][payload.propName].constructor(payload.propValue)
+    state.pokemonTypes[payload.index][payload.propName] = newValue;
   }),
   addType: action((state, payload) => {
     state.pokemonTypes.push({typeName: "", typeIsUsed: true, typeIndex: state.pokemonTypes.length});
@@ -130,7 +137,8 @@ export default {
     state.typeMatchups.splice(payload, 1);
   }),
   updateZoneProperty: action((state, payload) => {
-    state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = payload.propValue;
+    let newValue = state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName].constructor(payload.propValue);
+    state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = newValue;
   }),
   updateTrainerPokemonProperty: action((state, payload) => {
     let newValue = state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName].constructor(payload.propValue);
@@ -161,6 +169,7 @@ export default {
     state.starters[payload.index][payload.propName] = newValue;
   }),
 
+  //sorting data and actions for the pokemon grid and moves grid
   pokemonSortColumn: "id",
   updatePokemonSortColumn: action((state, payload) => {
     state.pokemonSortColumn = payload;
@@ -205,7 +214,6 @@ export default {
     state.movesSortOrder = payload;
   }),
   updateMovesSorting: thunk(async (actions, payload, {getState, getStoreActions}) => {
-    //console.log(`sorting changed ${column}`);
     if(payload !== getState().movesSortColumn){
       actions.updateMovesSortColumn(payload);
       actions.updateMovesSortOrder(1);
@@ -328,7 +336,7 @@ export default {
   dataLoaded: false,
   redBlueModel: redBlue,
   goldSilverModel: goldSilver,
-  selectedROM: 0, 
+  selectedROM: 0,
   romModelSelected: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     getState().dataLoaded = false;
     const romFound = getState().supportedROMs.find(rom => rom.text === payload);
@@ -349,10 +357,10 @@ export default {
     let modelActions;
     switch(getState().selectedROM){
       case 0:
-        modelActions = actions.redBlueModel
+        modelActions = actions.goldSilverModel
         break;
       case 1:
-        modelActions = actions.goldSilverModel
+        modelActions = actions.redBlueModel
         break;
       default:
         break;
@@ -363,10 +371,10 @@ export default {
     let modelState;
     switch(state.selectedROM){
       case 0:
-        modelState = state.redBlueModel
+        modelState = state.goldSilverModel        
         break;
       case 1:
-        modelState = state.goldSilverModel
+        modelState = state.redBlueModel
         break;
       default:
         break;
@@ -379,8 +387,8 @@ export default {
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
   }),
-  supportedROMs: [{text: 'red/blue', select: 0}, {text: 'gold/silver', select: 1}],
-  defaultSupportedROM: 'red/blue',
+  supportedROMs: [{text: 'gold/silver', select: 0}, {text: 'red/blue', select: 1}],
+  defaultSupportedROM: 'gold/silver',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
     getState().dataLoaded = false;
     let filedata;

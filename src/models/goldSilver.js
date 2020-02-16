@@ -8,7 +8,7 @@ const fs = remote.require('fs');
 
 const pokemonNameStartByte = 1772404; //Pokemon names start at byte 0x1c21e and also run in Index order.
 const pokemonEvosMovesByte = 0x429B3; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x429B3.
-const pokemonStartByte = 334603; //Pokemon data starts at byte 0x51B0B. It goes in Pokedex order, Bulbasaur through Mewtwo.
+const pokemonStartByte = 334603; //Pokemon data starts at byte 0x51B0B. It goes in Pokedex order, Bulbasaur through Celebi.
 const pokemonEvosPointersByte = 0x427BD;
 const pointerBase = 0x3C000;
 
@@ -53,6 +53,7 @@ export default {
   growthRates: gscGrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
+  //these are limitations due to space.
   maxEvosMovesBytes: 5709,
   maxTrainerBytes: 9791,
   maxShopItems: 229,
