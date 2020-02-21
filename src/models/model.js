@@ -82,8 +82,9 @@ export default {
     state.pokemon[payload.index].totalStats = state.pokemon[payload.index].hp + state.pokemon[payload.index].attack + state.pokemon[payload.index].defense + state.pokemon[payload.index].speed + state.pokemon[payload.index].specialAttack + state.pokemon[payload.index].specialDefense;
   }),
   updateMoveProperty: action((state, payload) => {
-    let newValue = state.moves[payload.index][payload.propName].constructor(payload.propValue);
-    state.moves[payload.index][payload.propName] = newValue;
+    let moveIndex = state.moves.findIndex((move) => move.id === payload.index);
+    let newValue = state.moves[moveIndex][payload.propName].constructor(payload.propValue);
+    state.moves[moveIndex][payload.propName] = newValue;
   }),
   updatePokemonMoveProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName].constructor(payload.propValue);

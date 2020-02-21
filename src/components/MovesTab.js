@@ -22,14 +22,14 @@ function MovesTab(){
       <table>
         <thead>
           <tr className="sticky-header">
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "id")}>Move</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "animationID")}>Animation</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "effect")}>Effect</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "power")}>Power</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "moveType")}>Type</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
-            <th><button class="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
-            {generation === 2 && <th><button class="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "id")}>Move</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "animationID")}>Animation</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "effect")}>Effect</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "power")}>Power</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "moveType")}>Type</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
+            <th><button className="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
+            {generation === 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
           </tr>
         </thead>
         <tbody>
