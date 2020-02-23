@@ -190,6 +190,11 @@ export default {
     }
     actions.sortPokemon();
   }),
+  resetPokemonSorting: thunk(async (actions, payload, {getState, getStoreActions}) => {
+    actions.updatePokemonSortColumn("id");
+    actions.updatePokemonSortOrder(1);
+    actions.sortPokemon();
+  }),
   sortPokemon: action((state, payload) => {
     state.pokemon.sort((a, b) => { 
       if( a[state.pokemonSortColumn] < b[state.pokemonSortColumn] ){
@@ -222,6 +227,11 @@ export default {
       let newValue = getState().movesSortOrder * -1;
       actions.updateMovesSortOrder(newValue);
     }
+    actions.sortMoves();
+  }),
+  resetMovesSorting: thunk(async (actions, payload, {getState, getStoreActions}) => {
+    actions.updateMovesSortColumn("id");
+    actions.updateMovesSortOrder(1);
     actions.sortMoves();
   }),
   sortMoves: action((state, payload) => {
@@ -408,13 +418,9 @@ export default {
   }),
   saveFileAs: thunk(async (actions, payload) => {
     //return the pokemon to their original order before saving.
-    actions.updatePokemonSortColumn("id");
-    actions.updatePokemonSortOrder(1);
-    actions.sortPokemon();
+    actions.resetPokemonSorting();
     //return the moves to their original order before saving.
-    actions.updateMovesSortColumn("id");
-    actions.updateMovesSortOrder(1);
-    actions.sortMoves();
+    actions.resetMovesSorting();
     actions.getRomModelActions()
     .then(res => {
       res.saveFileAs();
