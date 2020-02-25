@@ -105,6 +105,10 @@ export default {
     let newValue = state.tms[payload.index][payload.propName].constructor(payload.propValue);
     state.tms[payload.index][payload.propName] = newValue;
   }),
+  updateItemProperty: action((state, payload) => {
+    let newValue = state.items[payload.index][payload.propName].constructor(payload.propValue);
+    state.items[payload.index][payload.propName] = newValue;
+  }),
   addPokemonEvolution: action((state, payload) => {
     state.pokemon[state.selectedPokemon].evolutions.push(state.romModelState.defaultEvolution);
   }),
