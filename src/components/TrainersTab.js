@@ -20,7 +20,7 @@ function TrainersTab(){
   const currentTrainerBytes = useStoreState(state => state.currentTrainerBytes);
   const maxTrainerBytes = useStoreState(state => state.romModelState.maxTrainerBytes);
 
-  const trainersList = trainers.map((trainer, index) => 
+  const trainersList = trainers.sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0)).map((trainer, index) => 
     <li key={index} className={"list-group-item" + (selectedTrainer === index ? " active" : "")} style={{maxWidth: "300px"}} onClick={()=> setSelectedTrainer(index)}>{trainer.name}</li>
   );
 

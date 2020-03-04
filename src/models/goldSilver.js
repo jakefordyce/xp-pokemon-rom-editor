@@ -822,6 +822,7 @@ export default {
     let trainers = [];
     let currentPointerByte = trainerPointersByte;
     let numOfTrainersInGroup = 0;
+    let trainerID = 0;
 
     // 66 trainer groups
     for(let groupNum = 0; groupNum < 66; groupNum++){
@@ -834,6 +835,7 @@ export default {
       //while we haven't reached the last trainer in the group keep loading trainers
       while(numOfTrainersInGroup < gsTrainerCounts[groupNum]){
         let newTrainer = {};
+        newTrainer.id = trainerID++;
         let trainerName = "";
 
         //first thing is the name. Each trainer has an individual name and a group name. 
@@ -847,6 +849,10 @@ export default {
         while(getState().rawBinArray[currentTrainerByte] !== 0x50){
           uniqueName += rbygsLetters.get(getState().rawBinArray[currentTrainerByte++]);
         }
+        if(uniqueName === "?"){
+          uniqueName = `fight #${Math.floor(numOfTrainersInGroup/3)+1}`;
+        }
+
         trainerName += uniqueName;
         newTrainer.name = trainerName;
         newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process and calculating remaining space.
@@ -897,8 +903,7 @@ export default {
   }),
   saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
-    let trainers = getStoreState().trainers;
-    
+    let trainers = getStoreState().trainers.sort((a,b) => a.id < b.id ? -1 : 1); // sort the trainers by ID so they get saved in the correct order.
     let numOfTrainersInGroup = 0;
     let currentPointerByte = trainerPointersByte;
     let currentTrainerByte = trainerDataByte;

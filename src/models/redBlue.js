@@ -779,10 +779,12 @@ export default {
     let currentByte = trainerStartByte;
     let trainerGroupTracker = 0; // tells which name to pull from the dictionary
     let numOfTrainersInGroup = 0;
+    let trainerID = 0;
 
     while (trainers.length < 391)
     {
         let trainerToAdd = {};
+        trainerToAdd.id = trainerID++;
         trainerToAdd.pokemon = [];
         if(getState().rawBinArray[currentByte] === 255) // trainers who have pokemon of different levels are marked with 0xFF as the 1st byte
         {
@@ -835,7 +837,7 @@ export default {
   }),
   saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
-    let trainers = getStoreState().trainers;
+    let trainers = getStoreState().trainers.sort((a,b) => a.id < b.id ? -1 : 1); // sort the trainers by ID so they get saved in the correct order.
 
     let currentByte = trainerStartByte;
     let currentTrainerGroup = 0;
