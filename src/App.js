@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import {useStoreState} from 'easy-peasy';
 import './App.css';
 import MenuButtons from './components/MenuButtons';
 import PokemonTab from './components/PokemonTab';
@@ -13,7 +14,8 @@ import MiscTab from './components/MiscTab';
 
 function App() {
 
-  const [tab, setTab] = useState(0);  
+  const [tab, setTab] = useState(0);
+  const currentFile = useStoreState(state => state.currentFile);
 
   function handleTabClicked(event, tabNum){
     setTab(tabNum);
@@ -26,6 +28,14 @@ function App() {
     }
     return className;
   }
+
+  useEffect(() => {
+    let docTitle = "Pokemon Rom Editor";
+    if(currentFile !== ""){
+      docTitle += ` - ${currentFile}`;
+    }
+    document.title = docTitle;
+  })
 
   return (
     <div className="app-container">
