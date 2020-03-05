@@ -942,26 +942,15 @@ export default {
         romData[currentByte++] = 0xFF; //mark end of shop
     }
   }),
-  saveFileAs: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    dialog.showSaveDialog({
-      title: 'Save ROM',
-      filters: getState().fileFilters
-    }).then((res) => {
-      //console.log("file path: " + res.filePath);
-      getStoreActions().setCurrentFile(res.filePath);
-      actions.savePokemonData();
-      actions.savePokemonMoves();
-      actions.saveTMs();
-      actions.saveItems();
-      actions.savePokemonTypes();
-      actions.saveTypeMatchups();
-      actions.saveEncounters();
-      actions.saveTrainers();
-      actions.saveShops();
-
-      fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');      
-    }).catch((err) => {
-      console.log(err);
-    });
+  prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {    
+    actions.savePokemonData();
+    actions.savePokemonMoves();
+    actions.saveTMs();
+    actions.saveItems();
+    actions.savePokemonTypes();
+    actions.saveTypeMatchups();
+    actions.saveEncounters();
+    actions.saveTrainers();
+    actions.saveShops();      
   })
 }

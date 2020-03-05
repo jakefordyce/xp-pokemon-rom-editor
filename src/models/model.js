@@ -420,14 +420,44 @@ export default {
       //TODO
     });
   }),
-  saveFileAs: thunk(async (actions, payload) => {
+  saveFileAs: thunk(async (actions, payload, {getState}) => {
     //return the pokemon to their original order before saving.
     actions.resetPokemonSorting();
     //return the moves to their original order before saving.
     actions.resetMovesSorting();
     actions.getRomModelActions()
     .then(res => {
-      res.saveFileAs();
+      // the rom model will prepare its rawBinArray to be saved.
+      return res.prepareDataForSaving();
     })
-  })
+    .then(() => {
+      return dialog.showSaveDialog({
+        title: 'Save ROM',
+        filters: getState().romModelState.fileFilters
+      })
+    })
+    .then((res) => {
+      fs.writeFileSync(res.filePath, getState().romModelState.rawBinArray, 'base64');  
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
+  saveFile: thunk(async (actions, payload, {getState}) => {
+    //return the pokemon to their original order before saving.
+    actions.resetPokemonSorting();
+    //return the moves to their original order before saving.
+    actions.resetMovesSorting();
+    actions.getRomModelActions()
+    .then(res => {
+      // the rom model will prepare its rawBinArray to be saved.
+      return res.prepareDataForSaving();
+    })
+    .then(() => {
+      fs.writeFileSync(getState().currentFile, getState().romModelState.rawBinArray, 'base64');
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
 }
