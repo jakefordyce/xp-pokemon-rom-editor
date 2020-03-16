@@ -26,6 +26,7 @@ export default {
   trainers: [{uniqueName: '', pokemon: []}],
   shops: [{items: []}],
   starters: [],
+  moveDescriptions: [],
 
   //actions for setting the above data. These are called from the ROM specific models after loading data from the ROM file.
   //I might refactor these into 1 method at some point.
@@ -74,6 +75,9 @@ export default {
   setStarters: action((state, payload) => {
     state.starters = payload;
   }),
+  setMoveDescriptions: action((state, payload) => {
+    state.moveDescriptions = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -85,6 +89,11 @@ export default {
     let moveIndex = state.moves.findIndex((move) => move.id === payload.index);
     let newValue = state.moves[moveIndex][payload.propName].constructor(payload.propValue);
     state.moves[moveIndex][payload.propName] = newValue;
+  }),
+  updateMoveDescriptionProperty: action((state, payload) => {
+    let moveIndex = state.moves.findIndex((move) => move.id === payload.index);
+    let newValue = state.moveDescriptions[moveIndex][payload.propName].constructor(payload.propValue);
+    state.moveDescriptions[moveIndex][payload.propName] = newValue;
   }),
   updatePokemonMoveProperty: action((state, payload) => {
     let newValue = state.pokemon[payload.pokeIndex].learnedMoves[payload.moveIndex][payload.propName].constructor(payload.propValue);

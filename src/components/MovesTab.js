@@ -1,43 +1,28 @@
-import React, {memo} from 'react';
+import React, {useState} from 'react';
 import {useStoreState, useStoreActions} from 'easy-peasy';
-import MovesGridRow from './MovesGridRow';
+import MoveData from './MoveData';
+import MoveDescriptions from './MoveDescriptions';
 
 function MovesTab(){
 
+  const [dataView, setDataView] = useState(true);
   const dataLoaded = useStoreState(state => state.dataLoaded);
-  const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
-  const updateMovesSorting = useStoreActions(actions => actions.updateMovesSorting);
-  
-  const movesList = moves.map((move, index) => 
-    <MovesGridRow key={index} move={move} />
-  );
+  const resetMovesSorting = useStoreActions(actions => actions.resetMovesSorting);
 
-  function changeSorting(event, column){
-    updateMovesSorting(column);
+
+  function handleViewToggle(){
+    resetMovesSorting();
+    setDataView(!dataView);
   }
 
   return( dataLoaded &&
     <div>
-      <table>
-        <thead>
-          <tr className="sticky-header">
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "id")}>Move</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "animationID")}>Animation</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "effect")}>Effect</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "power")}>Power</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "moveType")}>Type</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
-            <th><button className="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
-            {generation === 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
-          </tr>
-        </thead>
-        <tbody>
-          {movesList}
-        </tbody>
-      </table>
+      {generation !== 1 && <button onClick={handleViewToggle}>Toggle View</button>}
+      {!dataView && <MoveDescriptions />}
+      {dataView && <MoveData />}
     </div>
   )
 }
 
-export default memo(MovesTab);
+export default MovesTab;
