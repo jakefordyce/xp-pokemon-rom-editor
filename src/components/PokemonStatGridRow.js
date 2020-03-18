@@ -21,18 +21,18 @@ function PokemonStatGridRow(props){
   return(
     <tr>
       <td>{props.stats.name}</td>
-      <td><input value={props.stats.hp} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'hp')} onBlur={sortPokemon} /></td>
-      <td><input value={props.stats.attack} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'attack')} onBlur={sortPokemon} /></td>
-      <td><input value={props.stats.defense} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'defense')} onBlur={sortPokemon} /></td>
-      <td><input value={props.stats.speed} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'speed')} onBlur={sortPokemon} /></td>
-      <td><input value={props.stats.specialAttack} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'specialAttack')} onBlur={sortPokemon}/></td>
-      {props.gen === 2 && <td><input value={props.stats.specialDefense} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'specialDefense')} onBlur={sortPokemon}/></td>}
+      <td><input value={props.stats.hp} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'hp')} onBlur={sortPokemon} /></td>
+      <td><input value={props.stats.attack} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'attack')} onBlur={sortPokemon} /></td>
+      <td><input value={props.stats.defense} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'defense')} onBlur={sortPokemon} /></td>
+      <td><input value={props.stats.speed} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'speed')} onBlur={sortPokemon} /></td>
+      <td><input value={props.stats.specialAttack} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'specialAttack')} onBlur={sortPokemon}/></td>
+      {props.gen === 2 && <td><input value={props.stats.specialDefense} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'specialDefense')} onBlur={sortPokemon}/></td>}
       <td>{props.stats.totalStats}</td>
-      <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type1} handleOptionChange={handleStatChange} arrayIndex={props.pokeIndex} propName={'type1'} /></td>
-      <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type2} handleOptionChange={handleStatChange} arrayIndex={props.pokeIndex} propName={'type2'} /></td>
-      <td><input value={props.stats.catchRate} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'catchRate')} onBlur={sortPokemon}/></td>
-      <td><input value={props.stats.expYield} className="number-input" onChange={(e) => handleStatChange(e, props.pokeIndex, 'expYield')} onBlur={sortPokemon}/></td>
-      <td><EnumSelect enum={growthRates} selectedValue={props.stats.growthRate} handleOptionChange={handleStatChange} arrayIndex={props.pokeIndex} propName={'growthRate'}/></td>
+      <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type1} handleOptionChange={handleStatChange} arrayIndex={props.stats.id} propName={'type1'} /></td>
+      <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type2} handleOptionChange={handleStatChange} arrayIndex={props.stats.id} propName={'type2'} /></td>
+      <td><input value={props.stats.catchRate} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'catchRate')} onBlur={sortPokemon}/></td>
+      <td><input value={props.stats.expYield} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'expYield')} onBlur={sortPokemon}/></td>
+      <td><EnumSelect enum={growthRates} selectedValue={props.stats.growthRate} handleOptionChange={handleStatChange} arrayIndex={props.stats.id} propName={'growthRate'}/></td>
     </tr>
   );
 }

@@ -81,9 +81,10 @@ export default {
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
-    let newValue = state.pokemon[payload.index][payload.propName].constructor(payload.propValue);
-    state.pokemon[payload.index][payload.propName] = newValue;
-    state.pokemon[payload.index].totalStats = state.pokemon[payload.index].hp + state.pokemon[payload.index].attack + state.pokemon[payload.index].defense + state.pokemon[payload.index].speed + state.pokemon[payload.index].specialAttack + state.pokemon[payload.index].specialDefense;
+    let pokeIndex = state.pokemon.findIndex((poke) => poke.id === payload.index);
+    let newValue = state.pokemon[pokeIndex][payload.propName].constructor(payload.propValue);
+    state.pokemon[pokeIndex][payload.propName] = newValue;
+    state.pokemon[pokeIndex].totalStats = state.pokemon[pokeIndex].hp + state.pokemon[pokeIndex].attack + state.pokemon[pokeIndex].defense + state.pokemon[pokeIndex].speed + state.pokemon[pokeIndex].specialAttack + state.pokemon[pokeIndex].specialDefense;
   }),
   updateMoveProperty: action((state, payload) => {
     let moveIndex = state.moves.findIndex((move) => move.id === payload.index);

@@ -1,21 +1,37 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { useStoreState, useStoreActions} from 'easy-peasy';
 import PokemonStatGridRow from './PokemonStatGridRow';
 
 function PokemonStatGrid(){
 
-  const pokemon = useStoreState(state => state.pokemon);
+  const [pokeFilter, setPokeFilter] = useState(0);
+  const filteredPokemon = useStoreState(state => state.pokemon).filter((poke) => 
+    {
+      if(pokeFilter === 1){ //fully evolved
+        return poke.evolutions.length === 0; // return true if the pokemon has no evolutions
+      }else{
+        return true;
+      }
+    });
   const generation = useStoreState(state => state.romModelState.generation);
   const pokemonTypes = useStoreState(state => state.pokemonTypes);
   const updatePokemonSorting = useStoreActions(actions => actions.updatePokemonSorting);
-  const pokemonStats = pokemon.map((poke,index) => <PokemonStatGridRow key={index} pokeIndex={index} stats={poke} gen={generation} types={pokemonTypes}/>);
+  const pokemonStats = filteredPokemon.map((poke,index) => <PokemonStatGridRow key={index} stats={poke} gen={generation} types={pokemonTypes}/>);  
 
   function changeSorting(event, column){
     updatePokemonSorting(column);
-  }  
+  }
+
+  function handleFilterChange(event){
+    setPokeFilter(parseInt(event.target.value));
+  }
 
   return(
     <div>
+      <div style={{padding: 5}}>Filter: <select value={pokeFilter} onChange={(e) => handleFilterChange(e)}>
+          <option value={0}>No Filter</option>
+          <option value={1}>Fully Evolved</option>
+        </select></div>
       <table>
         <thead>
           <tr className="sticky-header">
