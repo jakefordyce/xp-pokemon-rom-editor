@@ -2,11 +2,15 @@
 
 This is a rewrite of my original Pokemon ROM editor [link here](https://github.com/jakefordyce/PokemonROMEditor)
 
-***This program is not yet functional!***
+## Supported ROMS
 
-I hope to have it partially working soon but for now I'm just storing my code here so I don't lose it.
+Red (.gb)
 
+Blue (.gb)
 
+Gold (.gbc)
+
+Silver (.gbc)
 
 I got tons of my info from:
 
