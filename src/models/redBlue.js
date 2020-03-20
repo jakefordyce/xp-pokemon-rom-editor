@@ -319,7 +319,7 @@ export default {
     workingArray[mewStartByte + 2] = pokemon[150].attack;
     workingArray[mewStartByte + 3] = pokemon[150].defense;
     workingArray[mewStartByte + 4] = pokemon[150].speed;
-    workingArray[mewStartByte + 5] = pokemon[150].special;
+    workingArray[mewStartByte + 5] = pokemon[150].specialAttack;
     workingArray[mewStartByte + 6] = pokemon[150].type1;
     workingArray[mewStartByte + 7] = pokemon[150].type2;
     workingArray[mewStartByte + 8] = pokemon[150].catchRate;
