@@ -19,7 +19,8 @@ const typeChartByte = 0x34D01;
 //values used to load the moves
 const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 bytes into the file.
 const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
-const moveDescPointer = 0x1B4000; //this is also the value used as the bank for move descriptions.
+const moveDescPointer = 0x1B4000;
+const moveDescBank = 0x1B0000;
 const moveDescStartByte = 0x1B4202;
 //values used to load the TMs and HMs
 const tmStartByte = 0x11A66; //The TM info.
@@ -494,8 +495,8 @@ export default {
 
     for(let i = 0; i < 251; i++)
     {
-      secondPointerByte = Math.floor((currentMoveDescByte - moveDescPointer) / 256);
-      firstPointerByte = (currentMoveDescByte - moveDescPointer) - (secondPointerByte * 256);
+      secondPointerByte = Math.floor((currentMoveDescByte - moveDescBank) / 256);
+      firstPointerByte = (currentMoveDescByte - moveDescBank) - (secondPointerByte * 256);
       // write the pointer to the desc
       romData[currentPointerByte++] = firstPointerByte;
       romData[currentPointerByte++] = secondPointerByte;
