@@ -61,7 +61,7 @@ const rbygsLetters = new Map([
             [ 0xB8, "y" ],
             [ 0xB9, "z" ],
             [ 0xBA, "‚" ],
-            [ 0xD1, "\`" ],
+            [ 0xD1, "`" ],
             [ 0xD4, "\"" ],
             [ 0xE0, "'" ],
             [ 0xE3, "-" ],

@@ -3,9 +3,6 @@ import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveType
   rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
   getKeyByValue} from './utils';
 import RomBank from './romBank';
-const remote = require('electron').remote;
-const dialog = remote.dialog;
-const fs = remote.require('fs');
 
 //values used to load pokemon stats and moves.
 const mewStartByte = 16987; // Mew's stats start at byte 0x425B
@@ -35,7 +32,7 @@ const wildEncountersEndByte = 54727;
 //values used to load trainers
 const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
 const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
-const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
+//const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
 
 const shopsStartByte = 9282; //The data for the pokemarts inventories starts at byte 0x2442
 const shopPointerBytes = [0x1D4EA, 0x74CB6, 0x5C898, 0x00, 0x5C9E4, 0x5C92F, 0x560F8, 0x560FA, 0x48359, 0x49070, 0x49072, 0x1DD8B, 0x00, 0x75E81, 0x5D40C, 0x19C85];
@@ -457,8 +454,8 @@ export default {
     let romData = getState().rawBinArray;
     let pokemonTypes = getStoreState().pokemonTypes;
 
-    let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
-    let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
+    //let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
+    //let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
     //int endOfBank = 0x28000; // this is the first byte of the next bank. We can't write on this byte or any after it.
     let firstPointerByte;
     let secondPointerByte;
@@ -467,14 +464,14 @@ export default {
     let romBank = new RomBank(typesPointer + typesBankByte, 0x27fff);
 
     //get a reference to the block of data that we don't want to overwrite.
-    let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
+    //let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
 
     let numOfPointerBytes = pokemonTypes.length * 2; // there are 2 bytes for each pointer and we need a pointer for each type even if it is not used.
     let currentPointerByte = typesBankByte + typesPointer; // this is the beginning of the pointers.
     let currentNamesByte = currentPointerByte + numOfPointerBytes; //this is where we will start writing the names.
 
     //get a reference to the block of data that has the pointers.
-    let pointersBlock = romBank.addDataBlock(currentPointerByte, currentNamesByte - 1);
+    //let pointersBlock = romBank.addDataBlock(currentPointerByte, currentNamesByte - 1);
 
     let firstNamesByte = currentNamesByte; // save the first name location for the types that aren't used.
     
