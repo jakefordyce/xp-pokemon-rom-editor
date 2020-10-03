@@ -2,9 +2,7 @@ import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, rbygsLetters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
   getKeyByValue} from './utils';
-const remote = require('electron').remote;
-const dialog = remote.dialog;
-const fs = remote.require('fs');
+//const remote = require('electron').remote;
 
 const pokemonNameStartByte = 1772404; //Pokemon names start at byte 0x1c21e and also run in Index order.
 const pokemonEvosMovesByte = 0x429B3; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x429B3.
@@ -229,7 +227,6 @@ export default {
         }
         tmArray.push(tmByte);
       }
-      //console.log(tmArray);
       
       workingArray[pokemonStartByte + (i * 32) + 24] = tmArray[0];
       workingArray[pokemonStartByte + (i * 32) + 25] = tmArray[1];
