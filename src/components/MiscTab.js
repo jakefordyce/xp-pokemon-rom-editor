@@ -11,6 +11,8 @@ function MiscTab(){
   const pokemon = useStoreState(state => state.pokemon);
   //const generation = useStoreState(state => state.romModelState.generation);
   const items = useStoreState(state => state.items);
+  const increaseShinyOdds = useStoreState(state => state.increaseShinyOdds);
+  const updateIncreaseShinyOdds = useStoreActions(actions => actions.updateIncreaseShinyOdds);
 
   const startersList = starters.map((starter, index) => 
     <tr key={index}>
@@ -25,6 +27,11 @@ function MiscTab(){
     updateStarterProperty({index: starterIndex, propName: propName, propValue: newValue});
   }
 
+  function handleShinyChange(event){
+    let newValue = event.target.checked;
+    updateIncreaseShinyOdds({value: newValue});
+  };
+
   return ( dataLoaded &&
     <div className="misc-tab-container">
       <table>
@@ -37,6 +44,10 @@ function MiscTab(){
           {startersList}
         </tbody>
       </table>
+      <div>
+        <input type="checkbox" checked={increaseShinyOdds} onChange={(e) => handleShinyChange(e)} />
+        <span title="This increases the chance to about 1/3">Increase Shiny Odds</span>
+      </div>
     </div>
   );
 }

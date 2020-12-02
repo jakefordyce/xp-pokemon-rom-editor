@@ -72,6 +72,7 @@ export default {
     actions.loadShops();
     actions.loadStarters();
     actions.loadMoveDescriptions();
+    actions.loadShinyOdds();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1127,7 +1128,36 @@ export default {
       }
 
 
-    }    
+    }
+
+  }),
+  loadShinyOdds: thunk (async (actions, payload, {getState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    const DVCompareBytes = [0x905E, 0x9065, 0x906C];
+
+    let valuesUnchanged = true;
+
+    for(let i = 0; i < 3; i++){
+      if(romData[DVCompareBytes[i]] != 0x20){
+        valuesUnchanged = false;
+        break;
+      }
+    }
+
+    getStoreActions().setIncreaseShinyOdds(!valuesUnchanged);
+  }),
+  saveShinyOdds: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let increaseShinyOdds = getStoreState().increaseShinyOdds;
+    const DVCompareBytes = [0x905E, 0x9065, 0x906C];
+    
+    for(let i = 0; i < 3; i++){
+      if(increaseShinyOdds){
+        romData[DVCompareBytes[i]] = 0x28
+      }else{
+        romData[DVCompareBytes[i]] = 0x20
+      }
+    }
 
   }),
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {    
@@ -1142,5 +1172,6 @@ export default {
     actions.saveShops();
     actions.saveStarters();
     actions.saveMoveDescriptions();
+    actions.saveShinyOdds();
   })
 }

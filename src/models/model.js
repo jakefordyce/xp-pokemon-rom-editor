@@ -27,6 +27,7 @@ export default {
   shops: [{items: []}],
   starters: [],
   moveDescriptions: [],
+  increaseShinyOdds: false,
 
   //actions for setting the above data. These are called from the ROM specific models after loading data from the ROM file.
   //I might refactor these into 1 method at some point.
@@ -77,6 +78,9 @@ export default {
   }),
   setMoveDescriptions: action((state, payload) => {
     state.moveDescriptions = payload;
+  }),
+  setIncreaseShinyOdds: action((state, payload) => {
+    state.increaseShinyOdds = payload;
   }),
 
   //actions for updating the data.
@@ -183,6 +187,11 @@ export default {
     let newValue = state.starters[payload.index][payload.propName].constructor(payload.propValue);
     state.starters[payload.index][payload.propName] = newValue;
   }),
+  updateIncreaseShinyOdds: action((state, payload) => {
+    let newValue = state.increaseShinyOdds.constructor(payload.value);
+    state.increaseShinyOdds = newValue;
+  }),
+
 
   //sorting data and actions for the pokemon grid and moves grid
   pokemonSortColumn: "id",
