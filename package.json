@@ -14,9 +14,13 @@
     "mac": {
       "category": "public.app-category.utilities"
     },
+    "win": {
+      "icon": "./public/icon.png"
+    },
     "files": [
       "build/**/*",
-      "node_modules/**/*"
+      "node_modules/**/*",
+      "build/icon.*"
     ],
     "directories": {
       "buildResources": "assets"
