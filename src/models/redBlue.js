@@ -351,7 +351,7 @@ export default {
       //update pointers so the game knows where to find the updated pokemon evos/learned moves.
       // The data in the pointers is how many bytes to move past byte 0x34000 in order to find the start of that pokemon data.
       // 2 bytes per pokemon.
-      let secondPointerByte = (currentEvosMovesByte - pointerBase) / 256;
+      let secondPointerByte = Math.floor((currentEvosMovesByte - pointerBase) / 256);
       let firstPointerByte = (currentEvosMovesByte - pointerBase) - (secondPointerByte * 256);
       workingArray[currentPointerByte++] = firstPointerByte;
       workingArray[currentPointerByte++] = secondPointerByte;
@@ -455,8 +455,8 @@ export default {
     let romData = getState().rawBinArray;
     let pokemonTypes = getStoreState().pokemonTypes;
 
-    //let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
-    //let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
+    let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
+    let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
     //int endOfBank = 0x28000; // this is the first byte of the next bank. We can't write on this byte or any after it.
     let firstPointerByte;
     let secondPointerByte;
@@ -465,14 +465,14 @@ export default {
     let romBank = new RomBank(typesPointer + typesBankByte, 0x27fff);
 
     //get a reference to the block of data that we don't want to overwrite.
-    //let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
+    let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
 
     let numOfPointerBytes = pokemonTypes.length * 2; // there are 2 bytes for each pointer and we need a pointer for each type even if it is not used.
     let currentPointerByte = typesBankByte + typesPointer; // this is the beginning of the pointers.
     let currentNamesByte = currentPointerByte + numOfPointerBytes; //this is where we will start writing the names.
 
     //get a reference to the block of data that has the pointers.
-    //let pointersBlock = romBank.addDataBlock(currentPointerByte, currentNamesByte - 1);
+    let pointersBlock = romBank.addDataBlock(currentPointerByte, currentNamesByte - 1);
 
     let firstNamesByte = currentNamesByte; // save the first name location for the types that aren't used.
 
