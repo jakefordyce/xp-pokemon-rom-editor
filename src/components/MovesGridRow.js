@@ -11,12 +11,22 @@ function MovesGridRow(props){
   const moveAnimations = useStoreState(state => state.romModelState.moveAnimations);
   const moveEffects = useStoreState(state => state.romModelState.moveEffects);
   const sortMoves = useStoreActions(actions => actions.sortMoves);
+  const numHighCritMoves = useStoreState(state => state.romModelState.numHighCritMoves);
+  const currentHighCritMoves = useStoreState(state => state.currentHighCritMoves);
 
   function handleMoveChange(event, moveIndex, propName){
     let newValue = event.target.value;
+    console.log(`new value: ${newValue}`);
     updateMoveProperty({index: moveIndex, propName: propName, propValue: newValue});
   }
-  
+
+  function handleCritChange(event, moveIndex, propName){
+    let newValue = event.target.checked;
+    if(newValue === false || currentHighCritMoves < numHighCritMoves){
+      updateMoveProperty({index: moveIndex, propName: propName, propValue: newValue});
+    }
+  }
+
   return(
     <tr>
       <td><input value={props.move.name} onChange={(e) => handleMoveChange(e, props.move.id, 'name')} /></td>
@@ -27,6 +37,7 @@ function MovesGridRow(props){
       <td><input value={props.move.accuracy} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'accuracy')} onBlur={sortMoves}/></td>
       <td><input value={props.move.pp} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'pp')} onBlur={sortMoves}/></td>
       {generation === 2 && <td><input value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
+      <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>
     </tr>
   );
 }
