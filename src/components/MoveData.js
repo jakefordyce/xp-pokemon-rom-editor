@@ -9,8 +9,8 @@ function MoveData(){
   const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
   const updateMovesSorting = useStoreActions(actions => actions.updateMovesSorting);
-  
-  const movesList = moves.map((move, index) => 
+
+  const movesList = moves.map((move, index) =>
     <MovesGridRow key={index} move={move} />
   );
 
@@ -31,6 +31,7 @@ function MoveData(){
             <th><button className="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
             {generation === 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
+            <th>High Crit Chance</th>
           </tr>
         </thead>
         <tbody>

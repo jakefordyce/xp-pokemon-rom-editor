@@ -5,8 +5,8 @@ const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
 
-const pokemonDefault = [{name: 'not loaded', hp: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0, 
-                        type1: 0, type2: 0, catchRate: 0, expYield: 0, move1: 0, move2: 0, move3: 0, move4: 0, 
+const pokemonDefault = [{name: 'not loaded', hp: 0, attack: 0, defense: 0, speed: 0, specialAttack: 0, specialDefense: 0,
+                        type1: 0, type2: 0, catchRate: 0, expYield: 0, move1: 0, move2: 0, move3: 0, move4: 0,
                         learnedMoves: [], evolutions: [], tms: []}];
 
 export default {
@@ -219,7 +219,7 @@ export default {
     actions.sortPokemon();
   }),
   sortPokemon: action((state, payload) => {
-    state.pokemon.sort((a, b) => { 
+    state.pokemon.sort((a, b) => {
       if( a[state.pokemonSortColumn] < b[state.pokemonSortColumn] ){
         return (-1 * state.pokemonSortOrder)
       }
@@ -258,7 +258,7 @@ export default {
     actions.sortMoves();
   }),
   sortMoves: action((state, payload) => {
-    state.moves.sort((a, b) => { 
+    state.moves.sort((a, b) => {
       if( a[state.movesSortColumn] < b[state.movesSortColumn] ){
         return (-1 * state.movesSortOrder)
       }
@@ -277,12 +277,12 @@ export default {
   //computed data that will be used in the UI
   currentEvosMovesBytes: computed((state) => {
       let count = 0;
-      
-      state.pokemon.forEach((poke) => 
+
+      state.pokemon.forEach((poke) =>
       {
         count += 2; //every pokemon has at least 2 bytes of data. 1 to mark the end of the evolutions and 1 to mark the end of the learned moves.
 
-        poke.evolutions.forEach((evo) => 
+        poke.evolutions.forEach((evo) =>
         {
           if(state.romModelState.generation === 1)
           {
@@ -308,13 +308,13 @@ export default {
           }
         });
 
-        poke.learnedMoves.forEach((move) => 
+        poke.learnedMoves.forEach((move) =>
         {
           count += 2;
         });
       });
-      
-      return count;    
+
+      return count;
   }),
   currentTrainerBytes: computed((state) => {
     let count = 0;
@@ -332,12 +332,12 @@ export default {
     }
     else if(state.romModelState.generation === 2){
       state.trainers.forEach((trainer) => {
-        //every trainer has at least 3 bytes. 
+        //every trainer has at least 3 bytes.
         //The first is the 0x50 to mark the end of the trainer's unique name.
         //The second is the trainer's type: normal, items, moves, or items and moves.
         //The third is the 0 to mark the end of the trainer's data.
         count += trainer.uniqueName.length + 3;
-        
+
         switch(trainer.type){
           case 0:
             count += (trainer.pokemon.length * 2)
@@ -364,6 +364,10 @@ export default {
       count += shop.items.length;
     });
     return count;
+  }),
+
+  currentHighCritMoves: computed((state) => {
+    return state.moves.filter(m => m.highCrit === true).length;
   }),
 
   //accessing data from the correct ROM
@@ -405,7 +409,7 @@ export default {
     let modelState;
     switch(state.selectedROM){
       case 0:
-        modelState = state.goldSilverModel        
+        modelState = state.goldSilverModel
         break;
       case 1:
         modelState = state.redBlueModel
@@ -416,7 +420,7 @@ export default {
     return modelState;
   }),
 
-  //file io  
+  //file io
   currentFile: '',
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
@@ -456,7 +460,7 @@ export default {
       })
     })
     .then((res) => {
-      fs.writeFileSync(res.filePath, getState().romModelState.rawBinArray, 'base64');  
+      fs.writeFileSync(res.filePath, getState().romModelState.rawBinArray, 'base64');
     })
     .catch((err) => {
       console.log(err);
