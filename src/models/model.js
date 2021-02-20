@@ -1,6 +1,7 @@
 import { thunk, action, computed } from "easy-peasy";
 import redBlue from './redBlue';
 import goldSilver from './goldSilver';
+import fireredLeafgreen from './fireredLeafgreen';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -374,6 +375,7 @@ export default {
   dataLoaded: false,
   redBlueModel: redBlue,
   goldSilverModel: goldSilver,
+  fireredLeafgreenModel: fireredLeafgreen,
   selectedROM: 0,
   romModelSelected: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     getState().dataLoaded = false;
@@ -400,6 +402,9 @@ export default {
       case 1:
         modelActions = actions.redBlueModel
         break;
+      case 2:
+        modelActions = actions.fireredLeafgreenModel
+        break;
       default:
         break;
     }
@@ -414,6 +419,9 @@ export default {
       case 1:
         modelState = state.redBlueModel
         break;
+      case 2:
+        modelState = state.fireredLeafgreenModel
+        break;
       default:
         break;
     }
@@ -425,7 +433,7 @@ export default {
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
   }),
-  supportedROMs: [{text: 'gold/silver', select: 0}, {text: 'red/blue', select: 1}],
+  supportedROMs: [{text: 'gold/silver', select: 0}, {text: 'red/blue', select: 1},{text: "firered/leafgreen", select: 2}],
   defaultSupportedROM: 'gold/silver',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
     getState().dataLoaded = false;
