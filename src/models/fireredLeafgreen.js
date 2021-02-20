@@ -11,9 +11,9 @@ const pokemonEvosPointersByte = 0x427BD;
 const pointerBase = 0x3C000;
 
 //values used to load the pokemon types
-const typesBankByte = 0x4C000; // bank 9
-const typesPointer = 0x49AE; // this is a pointer within a bank, not the full address
+const typesByte = 0x24F210; //
 const typeChartByte = 0x34D01;
+
 //values used to load the moves
 const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 bytes into the file.
 const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
@@ -62,7 +62,7 @@ export default {
   defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
-    //actions.loadPokemonTypes();
+    actions.loadPokemonTypes();
     //actions.loadPokemonMoves();
     //actions.loadTMs();
     actions.loadPokemonData();
@@ -80,7 +80,7 @@ export default {
   }),
   loadPokemonData: thunk(async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
-    let currentEvosMovesByte = pokemonEvosMovesByte;
+    //let currentEvosMovesByte = pokemonEvosMovesByte;
     for(let i = 0; i < 411; i++){
       var currentPokemon = {};
       currentPokemon.id = i;
@@ -296,58 +296,40 @@ export default {
   loadPokemonTypes: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let types = [];
     let newType;
-    let currentPointerByte = typesBankByte + typesPointer;
-    let namesStartByte;
-    let currentNamesByte;
+    let currentTypesByte = typesByte;
     let typeName;
     let typeIndex = 0;
 
-    let namePointer1 = getState().rawBinArray[currentPointerByte++];
-    let namePointer2 = getState().rawBinArray[currentPointerByte++] * 256;
 
-    currentPointerByte -= 2; //reset position because it will be read again in the loop
-
-    //to know that we've reached the end of pointers we will stop at location of the first name
-    namesStartByte = typesBankByte + namePointer1 + namePointer2;
-
-    while (currentPointerByte < namesStartByte)
+    while (typeIndex < 18)
     {
-      newType = {};
+      newType = {
+        typeIsUsed: true
+      };
       typeName = "";
 
-      //get the location of the type's name
-      namePointer1 = getState().rawBinArray[currentPointerByte++];
-      namePointer2 = getState().rawBinArray[currentPointerByte++] * 256;
-      currentNamesByte = typesBankByte + namePointer1 + namePointer2;
-
-      // the unused types all point to the first name: "NORMAL". There is also a pointer to a pokemon type of "???". I skip it with the Or statement.
-      if ((currentNamesByte === namesStartByte && types.length !== 0) || getState().rawBinArray[currentNamesByte] === 0xE6)
-      {
-          newType.typeIsUsed = false;
-      }
-      else
-      {
-          newType.typeIsUsed = true;
-      }
-
       // read the name of each type
-      while (getState().rawBinArray[currentNamesByte] !== 0x50) //0x50 is the deliminator for the end of a name.
+      while (getState().rawBinArray[currentTypesByte] !== 0xFF) //0xFF is the deliminator for the end of a name.
       {
-          typeName += gen3Letters.get(getState().rawBinArray[currentNamesByte++]);
+        if(getState().rawBinArray[currentTypesByte] !== 0x00){
+          typeName += gen3Letters.get(getState().rawBinArray[currentTypesByte++]);
+        }else{
+          currentTypesByte++;
+        }
       }
-      if (!newType.typeIsUsed)
-      {
-          typeName = "(unused)";
-      }
+      currentTypesByte++;
+      //console.log(typeName);
+      
       newType.typeName = typeName;
       newType.typeIndex = typeIndex++;
 
       types.push(newType);
     }
-    //console.log(types);
+    console.log(types);
     getStoreActions().setPokemonTypes(types);
   }),
   savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    /*
     let romData = getState().rawBinArray;
     let pokemonTypes = getStoreState().pokemonTypes;
 
@@ -384,6 +366,7 @@ export default {
         romData[currentPointerByte++] = secondPointerByte;
       }
     }
+    */
   }),
   loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let moves = [];
