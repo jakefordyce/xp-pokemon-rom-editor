@@ -66,7 +66,7 @@ function PokemonFullData(){
   );
   
   
-  const pokemonTMs = pokemon[selectedPokemon].tms.map((tm, index) => 
+  const pokemonTMs = pokemon[selectedPokemon].tms?.map((tm, index) => 
       <div key={index}>
         <input type="checkbox" checked={tm} onChange={(e) => handleTMChange(e, index)} />
         {moves[tms[index].move].name}

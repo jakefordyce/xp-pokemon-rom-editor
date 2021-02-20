@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, gen3Letters, gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
+import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, g3GrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
   getKeyByValue} from './utils';
 
@@ -15,8 +15,8 @@ const typesByte = 0x24F210; //
 const typeChartByte = 0x34D01;
 
 //values used to load the moves
-const moveNamesByte = 0x1B1574; //The data for move names starts at 0x1B1574 bytes into the file.
-const movesStartingByte = 0x41AFE; //The move data starts 0x41AFE bytes into the file.
+const moveNamesByte = 0x247111;
+const movesStartingByte = 0x250C80; //The move data starts.
 const moveDescPointer = 0x1B4000;
 const moveDescBank = 0x1B0000;
 const moveDescStartByte = 0x1B4202;
@@ -45,13 +45,13 @@ export default {
     ],
   generation: 3,
   moveAnimations: gscMoveAnimations,
-  moveEffects: gscMoveEffects,
+  moveEffects: g3MoveEffects,
   evolveTypes: gscEvolveTypes,
   evolveStones: gscStones,
   evolveHappiness: gscHappiness,
   evolveStats: gscStats,
   tradeItems: gscTradeItems,
-  growthRates: gscGrowthRates,
+  growthRates: g3GrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
   //these are limitations due to space.
@@ -63,7 +63,7 @@ export default {
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
     actions.loadPokemonTypes();
-    //actions.loadPokemonMoves();
+    actions.loadPokemonMoves();
     //actions.loadTMs();
     actions.loadPokemonData();
     //actions.loadItems();
@@ -96,7 +96,7 @@ export default {
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 9];
       currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 28) + 10];
 
-      currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 32) + 20];
+      currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 20];
 
       /*
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
@@ -373,16 +373,9 @@ export default {
     let currentMoveNameByte = moveNamesByte;
     let moveToAdd;
     let moveName;
-    const highCritMovesStartByte = 0x347F3;
 
-    let highCritMoves = [];
 
-    // In Gens I & II the data for high crit chance moves is stored separately. It is just a list of move IDs followed by 0xFF
-    for (let i = 0; i < getState().numHighCritMoves; i++){
-      highCritMoves.push(getState().rawBinArray[highCritMovesStartByte + i]);
-    }
-
-    moveToAdd = {}; //The Red/blue ROM uses 0x00 for blank starter moves in the pokemon base stats section. Maybe not needed in Gold?
+    moveToAdd = {}; //uses 0x00 for blank starter move
     moveToAdd.id = 0;
     moveToAdd.name = "nothing";
     moveToAdd.power = 0;
@@ -390,35 +383,32 @@ export default {
     moveToAdd.pp = 0;
     moves.push(moveToAdd);
 
-    for (let i = 0; i < 251; i++) //251 because there are 251 moves in the game.
+    for (let i = 0; i < 354; i++) //354 because there are 354 moves in the game.
     {
         moveName = "";
 
         //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
-        while (getState().rawBinArray[currentMoveNameByte] !== 0x50) //0x50 is the deliminator for the end of a name.
-        {
+        while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
+          if(getState().rawBinArray[currentMoveNameByte] !== 0x00){
             moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
-            currentMoveNameByte++;
+          }            
+          currentMoveNameByte++;
         }
         currentMoveNameByte++;
 
         moveToAdd = {};
         moveToAdd.id = i + 1;
         moveToAdd.name = moveName;
-        //Each Move uses 7 bytes. i = the current move so we take the starting point and add 7 for each move
-        // that we have already read and then add 0-6 as we read through the data fields for that move.
-        moveToAdd.animationID = getState().rawBinArray[movesStartingByte + (i * 7)];
-        moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 7) + 1];
-        moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 7) + 2];
-        moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 7) + 3];
-        moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 7) + 4];
-        moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 7) + 5];
-        moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 7) + 6];
+        //Each Move uses 12 bytes. i = the current move so we take the starting point and add 12 for each move
+        // that we have already read and then add 0-11 as we read through the data fields for that move.
+        moveToAdd.animationID = i+1;
+        moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 12)];
+        moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 12) + 1];
+        moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 12) + 2];
+        moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 12) + 3];
+        moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 12) + 4];
+        moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 12) + 5];
         moveToAdd.highCrit = false;
-
-        if(highCritMoves.includes(moveToAdd.id)){
-          moveToAdd.highCrit = true;
-        }
 
         moves.push(moveToAdd);
     }

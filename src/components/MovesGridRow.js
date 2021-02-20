@@ -36,7 +36,7 @@ function MovesGridRow(props){
       <td><ArraySelect collection={pokemonTypes} value='typeIndex' display='typeName' selectedValue={props.move.moveType} handleOptionChange={handleMoveChange} arrayIndex={props.move.id} propName={'moveType'} /></td>
       <td><input value={props.move.accuracy} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'accuracy')} onBlur={sortMoves}/></td>
       <td><input value={props.move.pp} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'pp')} onBlur={sortMoves}/></td>
-      {generation === 2 && <td><input value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
+      {generation !== 1 && <td><input value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
       <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>
     </tr>
   );
