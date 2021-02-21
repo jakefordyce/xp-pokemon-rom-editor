@@ -31,7 +31,9 @@ function MoveData(){
             <th><button className="header-button" onClick={(e) => changeSorting(e, "accuracy")}>Accuracy</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "pp")}>PP</button></th>
             {generation !== 1 && <th><button className="header-button" onClick={(e) => changeSorting(e, "effectChance")}>Effect Chance</button></th>}
-            <th>High Crit Chance</th>
+            {generation > 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "target")}>Target</button></th>}
+            {generation > 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "priority")}>Priority</button></th>}
+            {generation < 3 && <th>High Crit Chance</th>}
           </tr>
         </thead>
         <tbody>

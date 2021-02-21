@@ -1699,6 +1699,18 @@ export const g3MoveEffects = [
   "CAMOUFLAGE"
 ];
 
+export const g3MoveTargets = {
+  SELECTED: 0,
+  DEPENDS: 1,
+  USER_OR_SELECTED: 2,
+  RANDOM: 4,
+  BOTH: 8,
+  USER: 16,
+  FOES_AND_ALLY: 32,
+  OPPONENT_FIELD: 64
+}
+
+
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,

@@ -1,6 +1,7 @@
 import React, {memo} from 'react';
 import {useStoreState, useStoreActions} from 'easy-peasy';
 import ArraySelect from './ArraySelect';
+import EnumSelect from './EnumSelect';
 
 
 function MovesGridRow(props){
@@ -13,6 +14,7 @@ function MovesGridRow(props){
   const sortMoves = useStoreActions(actions => actions.sortMoves);
   const numHighCritMoves = useStoreState(state => state.romModelState.numHighCritMoves);
   const currentHighCritMoves = useStoreState(state => state.currentHighCritMoves);
+  const targets = useStoreState(state => state.romModelState.moveTargets);
 
   function handleMoveChange(event, moveIndex, propName){
     let newValue = event.target.value;
@@ -36,8 +38,10 @@ function MovesGridRow(props){
       <td><ArraySelect collection={pokemonTypes} value='typeIndex' display='typeName' selectedValue={props.move.moveType} handleOptionChange={handleMoveChange} arrayIndex={props.move.id} propName={'moveType'} /></td>
       <td><input value={props.move.accuracy} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'accuracy')} onBlur={sortMoves}/></td>
       <td><input value={props.move.pp} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'pp')} onBlur={sortMoves}/></td>
-      {generation !== 1 && <td><input value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
-      <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>
+      {generation > 1 && <td><input className="number-input" value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
+      {generation > 2 && <td><EnumSelect enum={targets} selectedValue={props.move.target} handleOptionChange={handleMoveChange} arrayIndex={props.move.id} onBlur={sortMoves}/></td>}
+      {generation > 2 && <td><input className="number-input" value={props.move.priority} onChange={(e) => handleMoveChange(e, props.move.id, 'priority')} onBlur={sortMoves}/></td>}
+      {generation < 3 && <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>}
     </tr>
   );
 }

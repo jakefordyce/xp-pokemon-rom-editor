@@ -1,7 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, g3GrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
-  getKeyByValue} from './utils';
+  getKeyByValue, g3MoveTargets} from './utils';
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
@@ -54,6 +54,7 @@ export default {
   growthRates: g3GrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
+  moveTargets: g3MoveTargets,
   //these are limitations due to space.
   maxEvosMovesBytes: 5709,
   maxTrainerBytes: 9791,
@@ -408,6 +409,8 @@ export default {
         moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 12) + 3];
         moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 12) + 4];
         moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 12) + 5];
+        moveToAdd.target = getState().rawBinArray[movesStartingByte + (i * 12) + 6];
+        moveToAdd.priority = getState().rawBinArray[movesStartingByte + (i * 12) + 7];
         moveToAdd.highCrit = false;
 
         moves.push(moveToAdd);
