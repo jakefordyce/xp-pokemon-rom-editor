@@ -12,7 +12,7 @@ const pointerBase = 0x3C000;
 
 //values used to load the pokemon types
 const typesByte = 0x24F210; //
-const typeChartByte = 0x34D01;
+const typeChartByte = 0x24F0C0;
 
 //values used to load the moves
 const moveNamesByte = 0x247111;
@@ -68,7 +68,7 @@ export default {
     //actions.loadTMs();
     actions.loadPokemonData();
     //actions.loadItems();
-    //actions.loadTypeMatchups();
+    actions.loadTypeMatchups();
     //actions.loadEncounters();
     //actions.loadTrainers();
     //actions.loadShops();
@@ -604,7 +604,7 @@ export default {
       // The type matchups are split into 2 groups. The first group ends with FE.
       // The 2nd group is the ghost immunes that are cancelled by using the Foresight move.
       if(getState().rawBinArray[currentByte] === 0xFE){
-        currentByte++;
+        currentByte += 3;
         foresightTypes = true;
       }
       else{
