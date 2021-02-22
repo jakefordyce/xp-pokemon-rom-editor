@@ -5,8 +5,9 @@ import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, gscEv
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
-const pokemonEvosMovesByte = 0x429B3; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x429B3.
+const pokemonMovesStart = 0x257504; //In Firered the learned moves are stored separately from evolutions.
 const pokemonStartByte = 0x25480F; //Pokemon base stats data starts here. It goes in Pokedex order, Bulbasaur through Deoxys. Chimecho is at the end, out of order.
+const pokemonMovesPointers = 0x25D824;
 const pokemonEvosPointersByte = 0x427BD;
 const pointerBase = 0x3C000;
 
@@ -81,7 +82,7 @@ export default {
   }),
   loadPokemonData: thunk(async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
-    //let currentEvosMovesByte = pokemonEvosMovesByte;
+    let currentMovesPosition = pokemonMovesStart;
     for(let i = 0; i < 411; i++){
       var currentPokemon = {};
       currentPokemon.id = i;
@@ -175,20 +176,25 @@ export default {
       currentEvosMovesByte++;//Move to the next byte after reading all of the evolution data.
       */
 
-      /*
-      //Moves learned while leveling up.
-      while (getState().rawBinArray[currentEvosMovesByte] !== 0) //0 marks the end of move data
+      //Moves learned while leveling up. They are deliminated with 0xFFFF
+      while ((getState().rawBinArray[currentMovesPosition] !== 0xFF) || (getState().rawBinArray[currentMovesPosition+1] !== 0xFF))
       {
           let moveToAdd = {};
-          moveToAdd.level = getState().rawBinArray[currentEvosMovesByte++]; //for each move the level learned is the first byte.
-          moveToAdd.moveID = getState().rawBinArray[currentEvosMovesByte++]; //move ID is 2nd byte.
+          //the moves are stored in 2 bytes, little endian.
+          // it is (level << 9 | move). We have to reverse the left shifting and ORing to get the values.
+          let moveValue = getState().rawBinArray[currentMovesPosition++];
+          moveValue += getState().rawBinArray[currentMovesPosition++] * 256;
+
+          // right shift 9 to get the level
+          moveToAdd.level = moveValue >> 9;
+          // xor the left shifted level to get the move.
+          moveToAdd.moveID = moveValue ^ (moveToAdd.level << 9);
           currentPokemon.learnedMoves.push(moveToAdd);
       }
-      currentEvosMovesByte++;
-      */
+      currentMovesPosition+=2;
 
       let pokemonName = "";
-      
+
       //Each name is 11 bytes
       for (let j = 0; j < 11; j++) {
         //The end of a name is marked with FF
@@ -206,7 +212,7 @@ export default {
   }),
   savePokemonData: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let workingArray = getState().rawBinArray;
-    let currentEvosMovesByte = pokemonEvosMovesByte;
+    let currentEvosMovesByte = pokemonMovesStart;
     let currentPointerByte = pokemonEvosPointersByte;
     let pokemon = getStoreState().pokemon;
 
@@ -320,7 +326,7 @@ export default {
       }
       currentTypesByte++;
       //console.log(typeName);
-      
+
       newType.typeName = typeName;
       newType.typeIndex = typeIndex++;
 
@@ -392,7 +398,7 @@ export default {
         while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
           if(getState().rawBinArray[currentMoveNameByte] !== 0x00){
             moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
-          }            
+          }
           currentMoveNameByte++;
         }
         currentMoveNameByte++;
