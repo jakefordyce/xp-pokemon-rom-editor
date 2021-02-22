@@ -1,5 +1,5 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, g3GrowthRates,
+import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, gscHappiness, gscStats, g3TradeItems, g3GrowthRates,
   gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
   getKeyByValue, g3MoveTargets} from './utils';
 
@@ -8,7 +8,7 @@ const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokede
 const pokemonMovesStart = 0x257504; //In Firered the learned moves are stored separately from evolutions.
 const pokemonStartByte = 0x25480F; //Pokemon base stats data starts here. It goes in Pokedex order, Bulbasaur through Deoxys. Chimecho is at the end, out of order.
 const pokemonMovesPointers = 0x25D824;
-const pokemonEvosPointersByte = 0x427BD;
+const pokemonEvolutionsStart = 0x2597EC;
 const pointerBase = 0x3C000;
 
 //values used to load the pokemon types
@@ -47,11 +47,10 @@ export default {
   generation: 3,
   moveAnimations: gscMoveAnimations,
   moveEffects: g3MoveEffects,
-  evolveTypes: gscEvolveTypes,
-  evolveStones: gscStones,
+  evolveTypes: g3EvolveTypes,
+  evolveStones: g3Stones,
   evolveHappiness: gscHappiness,
-  evolveStats: gscStats,
-  tradeItems: gscTradeItems,
+  tradeItems: g3TradeItems,
   growthRates: g3GrowthRates,
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
@@ -83,6 +82,7 @@ export default {
   loadPokemonData: thunk(async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
     let currentMovesPosition = pokemonMovesStart;
+    let currentEvolutionsPosition = pokemonEvolutionsStart;
     for(let i = 0; i < 411; i++){
       var currentPokemon = {};
       currentPokemon.id = i;
@@ -132,49 +132,29 @@ export default {
       currentPokemon.evolutions = [];
       currentPokemon.learnedMoves = [];
 
-      /*
       //Evolutions.
-      while(getState().rawBinArray[currentEvosMovesByte] !== 0)
+      while(getState().rawBinArray[currentEvolutionsPosition] !== 0)
       {
-          let evo = {evolveLevel: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1}; //initialize with some default values.
-          evo.evolve = getState().rawBinArray[currentEvosMovesByte];
+          let evo = {param: 1}; //initialize with some default values.
+          evo.evolve = getState().rawBinArray[currentEvolutionsPosition];
+          currentEvolutionsPosition += 2;
 
-          if (getState().rawBinArray[currentEvosMovesByte] === 1) //Level up
-          {
-              evo.evolveLevel = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
-              currentEvosMovesByte++;
-          }
-          else if (getState().rawBinArray[currentEvosMovesByte] === 2) //Stone
-          {
-              evo.evolveStone = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
-              currentEvosMovesByte++;
-          }
-          else if (getState().rawBinArray[currentEvosMovesByte] === 3) //Trade
-          {
-              evo.tradeItem = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
-              currentEvosMovesByte++;
-          }
-          else if (getState().rawBinArray[currentEvosMovesByte] === 4) //Happiness
-          {
-              evo.evolveHappiness = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
-              currentEvosMovesByte++;
-          }
-          else if (getState().rawBinArray[currentEvosMovesByte] === 5) //Stats
-          {
-              evo.evolveLevel = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveStats = getState().rawBinArray[++currentEvosMovesByte];
-              evo.evolveTo = getState().rawBinArray[++currentEvosMovesByte]-1;
-              currentEvosMovesByte++;
-          }
+          let evoParam = getState().rawBinArray[currentEvolutionsPosition++];
+          evoParam += getState().rawBinArray[currentEvolutionsPosition++] * 256;
+
+          evo.param = evoParam;
+
+          let targetPokemon = getState().rawBinArray[currentEvolutionsPosition++];
+          targetPokemon += getState().rawBinArray[currentEvolutionsPosition++] * 256;
+
+          evo.evolveTo = targetPokemon-1;
+
           //console.log(evo);
           currentPokemon.evolutions.push(evo);
+          currentEvolutionsPosition += 2;
       }
-      currentEvosMovesByte++;//Move to the next byte after reading all of the evolution data.
-      */
+      currentEvolutionsPosition += (40 - (currentPokemon.evolutions.length*8));
+
 
       //Moves learned while leveling up. They are deliminated with 0xFFFF
       while ((getState().rawBinArray[currentMovesPosition] !== 0xFF) || (getState().rawBinArray[currentMovesPosition+1] !== 0xFF))
@@ -213,7 +193,7 @@ export default {
   savePokemonData: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let workingArray = getState().rawBinArray;
     let currentEvosMovesByte = pokemonMovesStart;
-    let currentPointerByte = pokemonEvosPointersByte;
+    let currentPointerByte = pokemonMovesPointers;
     let pokemon = getStoreState().pokemon;
 
     for (let i = 0; i < 251; i++) //There are 251 pokemon in the game

@@ -66,7 +66,7 @@ const rbygsLetters = new Map([
             [ 0xE0, "'" ],
             [ 0xE3, "-" ],
             [ 0xE6, "?" ],
-            [ 0xE8, "." ],            
+            [ 0xE8, "." ],
             [ 0xE9, "&" ],
             [ 0xEF, "M" ],
             [ 0xF3, "/" ],
@@ -158,7 +158,7 @@ export const gen3Letters = new Map([
 ]);
 
 function getKeyByValue(mapObject, searchValue) {
-  
+
   for (let [key, value] of mapObject.entries()) {
     if (value === searchValue)
       return key;
@@ -1052,7 +1052,7 @@ const rbyDamageModifiers = {
 //the actual number is 1/10th what is listed here.
 const gscDamageModifiers = {
   Zero: 0,
-  Half: 5,  
+  Half: 5,
   Double: 20
 };
 
@@ -1077,7 +1077,7 @@ const rbyZoneNames = [
   "Route 10",
   "Route 12",
   "Route 8",
-  "Route 7",            
+  "Route 7",
   "Pokemon Tower 3",
   "Pokemon Tower 4",
   "Pokemon Tower 5",
@@ -1194,7 +1194,7 @@ const gsZoneNames = [
   "SILVER_CAVE_ROOM_2",
   "DARK_CAVE_VIOLET_ENTRANCE",
   "DARK_CAVE_BLACKTHORN_ENTRANCE",
-  "DRAGONS_DEN_B1F",  
+  "DRAGONS_DEN_B1F",
   "ROUTE_30",
   "ROUTE_31",
   "ROUTE_32",
@@ -1710,9 +1710,45 @@ export const g3MoveTargets = {
   OPPONENT_FIELD: 64
 }
 
+export const g3EvolveTypes = {
+  FRIENDSHIP: 1,
+  FRIENDSHIP_DAY: 2,
+  FRIENDSHIP_NIGHT: 3,
+  LEVEL: 4,
+  TRADE: 5,
+  TRADE_ITEM: 6,
+  ITEM: 7,
+  LEVEL_ATK_GT_DEF: 8,
+  LEVEL_ATK_EQ_DEF: 9,
+  LEVEL_ATK_LT_DEF: 10,
+  LEVEL_SILCOON: 11,
+  LEVEL_CASCOON: 12,
+  LEVEL_NINJASK: 13,
+  LEVEL_SHEDINJA: 14,
+  BEAUTY: 15
+}
+
+export const g3Stones = {
+  SUN_STONE: 93,
+  MOON_STONE: 94,
+  FIRE_STONE: 95,
+  THUNDER_STONE: 96,
+  WATER_STONE: 97,
+  LEAF_STONE: 98
+}
+
+export const g3TradeItems = {
+  KINGS_ROCK: 187,
+  DEEP_SEA_TOOTH: 192,
+  DEEP_SEA_SCALE: 193,
+  METAL_COAT: 199,
+  DRAGON_SCALE: 201,
+  UP_GRADE: 218
+}
+
 
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
-  rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames, 
+  rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames,
   getKeyByValue};

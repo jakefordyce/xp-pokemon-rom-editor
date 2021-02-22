@@ -4,7 +4,7 @@ import ArraySelect from './ArraySelect';
 import EnumSelect from './EnumSelect';
 
 function PokemonFullData(){
-    
+
   const selectedPokemon = useStoreState(state => state.selectedPokemon);
   const setSelectedPokemon = useStoreActions(actions => actions.setSelectedPokemon);
   const pokemon = useStoreState(state => state.pokemon);
@@ -30,11 +30,11 @@ function PokemonFullData(){
   const maxEvosMovesBytes = useStoreState(state => state.romModelState.maxEvosMovesBytes);
   const currentEvosMovesBytes = useStoreState(state => state.currentEvosMovesBytes);
 
-  const pokemonList = pokemon.map((pokemon, index) => 
+  const pokemonList = pokemon.map((pokemon, index) =>
     <li key={index} className={"list-group-item" + (selectedPokemon === index ? " active" : "")} style={{maxWidth: "150px"}} onClick={()=> setSelectedPokemon(index)}>{pokemon.name}</li>
   );
-  
-  const levelupMoves = pokemon[selectedPokemon].learnedMoves.map((move, index)=> 
+
+  const levelupMoves = pokemon[selectedPokemon].learnedMoves.map((move, index)=>
     <li key={index} className={"list-group-item"}>
       <input value={move.level} className="number-input" onChange={(e) => handleLevelUpMoveChange(e, index, 'level')} onBlur={(e) => handlePokemonMoveBlur(e, selectedPokemon)} />
       <ArraySelect collection={moves} value='id' display='name' selectedValue={move.moveID} handleOptionChange={handleLevelUpMoveChange} arrayIndex={index} propName={'moveID'} />
@@ -42,43 +42,66 @@ function PokemonFullData(){
     </li>
   );
 
-  const evolutions = pokemon[selectedPokemon].evolutions.map((evol, index) =>   
+  const evolutions = pokemon[selectedPokemon].evolutions.map((evol, index) =>
     <li key={index} className={"list-group-item"}>
       <EnumSelect enum={evolveTypes} selectedValue={evol.evolve} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolve'}/>
-      {(evol.evolve === 1 || evol.evolve === 5) && 
-        <input value={evol.evolveLevel} className="number-input" onChange={(e) => handleEvolutionChange(e, index, 'evolveLevel')}/>
-      }
-      {evol.evolve === 2 &&  
-        <EnumSelect enum={evolveStones} selectedValue={evol.evolveStone} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStone'} />
-      }
-      {evol.evolve === 3 && gen !== 1 &&
-        <EnumSelect enum={tradeItems} selectedValue={evol.tradeItem} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'tradeItem'} />
-      }
-      {evol.evolve === 4 &&  
-        <EnumSelect enum={evolveHappiness} selectedValue={evol.evolveHappiness} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveHappiness'} />
-      }
-      {evol.evolve === 5 &&        
-        <EnumSelect enum={evolveStats} selectedValue={evol.evolveStats} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStats'} />
-      }
+
+      {gen < 3 && gen1EvolutionOptions(evol, index)}
+      {gen >= 3 && gen3EvolutionOptions(evol, index)}
+
       <ArraySelect collection={pokemon} display='name' selectedValue={evol.evolveTo} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveTo'} />
       <button onClick={(e) => handleRemoveEvolution(e, index)}>X</button>
     </li>
   );
-  
-  
-  const pokemonTMs = pokemon[selectedPokemon].tms?.map((tm, index) => 
+
+  const pokemonTMs = pokemon[selectedPokemon].tms?.map((tm, index) =>
       <div key={index}>
         <input type="checkbox" checked={tm} onChange={(e) => handleTMChange(e, index)} />
         {moves[tms[index].move].name}
       </div>
   );
 
+  function gen1EvolutionOptions(evol, index){
+    return <span>
+      {(evol.evolve === 1 || evol.evolve === 5) &&
+        <input value={evol.evolveLevel} className="number-input" onChange={(e) => handleEvolutionChange(e, index, 'evolveLevel')}/>
+      }
+      {evol.evolve === 2 &&
+        <EnumSelect enum={evolveStones} selectedValue={evol.evolveStone} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStone'} />
+      }
+      {evol.evolve === 3 && gen !== 1 &&
+        <EnumSelect enum={tradeItems} selectedValue={evol.tradeItem} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'tradeItem'} />
+      }
+      {evol.evolve === 4 &&
+        <EnumSelect enum={evolveHappiness} selectedValue={evol.evolveHappiness} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveHappiness'} />
+      }
+      {evol.evolve === 5 &&
+        <EnumSelect enum={evolveStats} selectedValue={evol.evolveStats} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStats'} />
+      }
+    </span>
+  }
+
+  function gen3EvolutionOptions(evol, index){
+    return <span>
+      {(evol.evolve !== 1 && evol.evolve !== 2 && evol.evolve !== 3 && evol.evolve !== 5 && evol.evolve !== 6 && evol.evolve !== 7) &&
+        <input value={evol.param} className="number-input" onChange={(e) => handleEvolutionChange(e, index, 'evolveLevel')}/>
+      }
+      {evol.evolve === 6 &&
+        <EnumSelect enum={tradeItems} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'tradeItem'} />
+      }
+      {evol.evolve === 7 &&
+        <EnumSelect enum={evolveStones} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStone'} />
+      }
+
+    </span>
+  }
+
   function handleLevelUpMoveChange(event, levelupMoveIndex, propName){
     let newValue = event.target.value;
     updateMove({pokeIndex: selectedPokemon, moveIndex: levelupMoveIndex, propName: propName, propValue: newValue});
   };
 
-  
+
   function handleEvolutionChange(event, evolutionIndex, propName){
     let newValue = event.target.value;
     updateEvolution({pokeIndex: selectedPokemon, evolveIndex: evolutionIndex, propName: propName, propValue: newValue});
@@ -134,34 +157,34 @@ function PokemonFullData(){
             <tr><td>Catch Rate: </td><td><input value={pokemon[selectedPokemon].catchRate} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'catchRate')} /></td></tr>
             <tr><td>EXP Yield: </td><td><input value={pokemon[selectedPokemon].expYield} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'expYield')} /></td></tr>
             <tr><td>Growth Rate: </td><td><EnumSelect enum={growthRates} selectedValue={pokemon[selectedPokemon].growthRate} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'growthRate'}/></td></tr>
-            {gen === 1 && 
+            {gen === 1 &&
               <tr><td>Start Move 1: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move1} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move1'} /></td>
               </tr>
             }
-            {gen === 1 && 
+            {gen === 1 &&
               <tr><td>Start Move 2: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move2} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move2'} /></td>
               </tr>
             }
-            {gen === 1 && 
+            {gen === 1 &&
               <tr><td>Start Move 3: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move3} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move3'} /></td>
               </tr>
             }
-            {gen === 1 && 
+            {gen === 1 &&
               <tr><td>Start Move 4: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move4} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move4'} /></td>
               </tr>
             }
             {pokemon[selectedPokemon].evolutions.length > 0 &&
-              <tr><td colSpan="2">Evolutions</td></tr>              
+              <tr><td colSpan="2">Evolutions</td></tr>
             }
             {pokemon[selectedPokemon].evolutions.length > 0 &&
               <tr><td colSpan="2"><ul className="list-group">{evolutions}</ul></td></tr>
             }
             <tr><td colSpan="2"><button onClick={handleAddEvolution}>Add Evolution</button></td></tr>
-            
+
           </tbody>
         </table>
       </div>
