@@ -1,7 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, gscHappiness, gscStats, g3TradeItems, g3GrowthRates,
-  gsZoneNames, gscGrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, gscWaterEncChances,
-  getKeyByValue, g3MoveTargets} from './utils';
+  g3ZoneNames, g3GrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, g3WaterEncChances,
+  getKeyByValue, g3MoveTargets, g3FishingEncChances} from './utils';
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
@@ -26,10 +26,8 @@ const tmStartByte = 0x11A66; //The TM info.
 const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
 const itemNamesByte = 0x1B0000  // could be useful later.
 //values used to load wild encounters
-const johtoGrassWildEncountersByte = 0x2AB35;
-const johtoWaterWildEncountersByte = 0x2B669;
-const kantoGrassWildEncountersByte = 0x2B7C0;
-const kantoWaterWildEncountersByte = 0x2BD43;
+const wildEncountersStart = 0x3C7410;
+
 //values used to load trainers
 const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
 const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
@@ -69,7 +67,7 @@ export default {
     actions.loadPokemonData();
     //actions.loadItems();
     actions.loadTypeMatchups();
-    //actions.loadEncounters();
+    actions.loadEncounters();
     //actions.loadTrainers();
     //actions.loadShops();
     //actions.loadStarters();
@@ -643,162 +641,129 @@ export default {
   loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
     let zones = [];
 
-    //johto grass pokemon
-    let currentByte = johtoGrassWildEncountersByte;
-    let nameCounter = 0;
+    let currentPosition = wildEncountersStart;
 
-    while (getState().rawBinArray[currentByte] !== 0xFF)
+    const rockSmashZones = [24,25,26,28,40,42,44,45,46,47,48,49,70,75];
+    const waterZones = [11,20,21,22,23,24,26,32,33,50,51,54,70,71,72,73,75,76,77,78,79,80,81,82,83,86,90,
+                        92,96,97,98,99,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,
+                        120,121,122];
+    const noLandZones = [11,75,76,79,80,83,86,105,106,113,114,115,116,117,118,119,120,121,122,123];
+
+    // 132 maps/zones
+    for(let z = 0; z < 132; z++)
     {
-      currentByte += 2; // map id
-      let newZone = {};
-      newZone.encounterRate = getState().rawBinArray[currentByte++];
-      let dayEncounterRate = getState().rawBinArray[currentByte++];
-      let nightEncounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[nameCounter]} morning`;
-      newZone.encounters = [];
-      // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
-      // The first byte is the pokemon's level and the 2nd is the pokemon id.
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
+
+      //It's important to keep the order of the 4 if statements below unless a
+      // way of checking the zones is changed to a way that looks at each map.
+
+      // no land zones contain the zones that don't have land pokemon.
+      // it's easier to find zones that don't have land than those that do.
+      // Land in this context includes tall grass and walking in caves.
+      if(!noLandZones.includes(z))
+      {
+        let newZone = {};
+
+        newZone.name =  `${g3ZoneNames[z]} land`;
+        newZone.encounters = [];
+
+        for(let i = 0; i < 12; i++){
+          let encounter = {};
+          encounter.minLevel = getState().rawBinArray[currentPosition++];
+          encounter.maxLevel = getState().rawBinArray[currentPosition++];
+          let pokeValue = getState().rawBinArray[currentPosition++];
+          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+
+          encounter.pokemon = pokeValue - 1;
+          encounter.chance = g3GrassEncChances[i];
+          newZone.encounters.push(encounter);
+        }
+        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
+
+        zones.push(newZone);
       }
-      zones.push(newZone);
 
-      newZone = {};
-      newZone.encounterRate = dayEncounterRate;
-      newZone.name =  `${gsZoneNames[nameCounter]} day`;
-      newZone.encounters = [];
+      // See if the current zone is included in the list of zones with water.
+      if(waterZones.includes(z))
+      {
+        let newZone = {};
 
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
+        newZone.name =  `${g3ZoneNames[z]} water`;
+        newZone.encounters = [];
+
+        for(let i = 0; i < 5; i++){
+          let encounter = {};
+          encounter.minLevel = getState().rawBinArray[currentPosition++];
+          encounter.maxLevel = getState().rawBinArray[currentPosition++];
+          let pokeValue = getState().rawBinArray[currentPosition++];
+          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+
+          encounter.pokemon = pokeValue - 1;
+          encounter.chance = g3WaterEncChances[i];
+          newZone.encounters.push(encounter);
+        }
+        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
+
+        zones.push(newZone);
       }
-      zones.push(newZone);
 
-      newZone = {};
-      newZone.encounterRate = nightEncounterRate;
-      newZone.name =  `${gsZoneNames[nameCounter]} night`;
-      newZone.encounters = [];
+      // See if the current zone is included in the list of zones with rocks to smash.
+      if(rockSmashZones.includes(z))
+      {
+        let newZone = {};
 
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
+        newZone.name =  `${g3ZoneNames[z]} rocks`;
+        newZone.encounters = [];
+
+        for(let i = 0; i < 5; i++){
+          let encounter = {};
+          encounter.minLevel = getState().rawBinArray[currentPosition++];
+          encounter.maxLevel = getState().rawBinArray[currentPosition++];
+          let pokeValue = getState().rawBinArray[currentPosition++];
+          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+
+          encounter.pokemon = pokeValue - 1;
+          encounter.chance = g3WaterEncChances[i]; // rocksmash uses the same enc chances as water
+          newZone.encounters.push(encounter);
+        }
+        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
+
+        zones.push(newZone);
       }
-      zones.push(newZone);
-      nameCounter++;
-    }
 
-    //johto water pokemon
-    currentByte = johtoWaterWildEncountersByte;
+      // See if the current zone is included in the list of zones with water.
+      if(waterZones.includes(z))
+      {
+        let newZone = {};
 
-    while (getState().rawBinArray[currentByte] !== 0xFF)
-    {
-      currentByte += 2; // map id
-      let newZone = {};
-      newZone.encounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[nameCounter]} water`;
-      newZone.encounters = [];
-      // Each water zone has 3 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
-      // The first byte is the pokemon's level and the 2nd is the pokemon id.
-      for(let i = 0; i < 3; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscWaterEncChances[i];
-        newZone.encounters.push(encounter);
+        newZone.name =  `${g3ZoneNames[z]} fishing`;
+        newZone.encounters = [];
+
+        for(let i = 0; i < 10; i++){
+          let encounter = {};
+          encounter.minLevel = getState().rawBinArray[currentPosition++];
+          encounter.maxLevel = getState().rawBinArray[currentPosition++];
+          let pokeValue = getState().rawBinArray[currentPosition++];
+          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+
+          encounter.pokemon = pokeValue - 1;
+          encounter.chance = g3FishingEncChances[i];
+          newZone.encounters.push(encounter);
+        }
+        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
+
+        zones.push(newZone);
       }
-      zones.push(newZone);
-      nameCounter++;
-    }
 
-    //kanto grass pokemon
-    currentByte = kantoGrassWildEncountersByte;
-
-    while (getState().rawBinArray[currentByte] !== 0xFF)
-    {
-      currentByte += 2; // map id
-      let newZone = {};
-      newZone.encounterRate = getState().rawBinArray[currentByte++];
-      let dayEncounterRate = getState().rawBinArray[currentByte++];
-      let nightEncounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[nameCounter]} morning`;
-      newZone.encounters = [];
-      // Each zone has encounters it has 7 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
-      // The first byte is the pokemon's level and the 2nd is the pokemon id.
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
-      }
-      zones.push(newZone);
-
-      newZone = {};
-      newZone.encounterRate = dayEncounterRate;
-      newZone.name =  `${gsZoneNames[nameCounter]} day`;
-      newZone.encounters = [];
-
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
-      }
-      zones.push(newZone);
-
-      newZone = {};
-      newZone.encounterRate = nightEncounterRate;
-      newZone.name =  `${gsZoneNames[nameCounter]} night`;
-      newZone.encounters = [];
-
-      for(let i = 0; i < 7; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscGrassEncChances[i];
-        newZone.encounters.push(encounter);
-      }
-      zones.push(newZone);
-      nameCounter++;
-    }
-
-    //kanto water pokemon
-    currentByte = kantoWaterWildEncountersByte;
-
-    while (getState().rawBinArray[currentByte] !== 0xFF)
-    {
-      currentByte += 2; // map id
-      let newZone = {};
-      newZone.encounterRate = getState().rawBinArray[currentByte++];
-      newZone.name =  `${gsZoneNames[nameCounter]} water`;
-      newZone.encounters = [];
-      // Each water zone has 3 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
-      // The first byte is the pokemon's level and the 2nd is the pokemon id.
-      for(let i = 0; i < 3; i++){
-        let encounter = {};
-        encounter.level = getState().rawBinArray[currentByte++];
-        encounter.pokemon = getState().rawBinArray[currentByte++]-1;
-        encounter.chance = gscWaterEncChances[i];
-        newZone.encounters.push(encounter);
-      }
-      zones.push(newZone);
-      nameCounter++;
     }
 
     //console.log(zones.length);
     getStoreActions().setEncounterZones(zones);
   }),
+  /*
   saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let zones = getStoreState().encounterZones;
@@ -875,6 +840,7 @@ export default {
     }
 
   }),
+  //*/
   loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
     let trainers = [];
     let currentPointerByte = trainerPointersByte;
