@@ -86,6 +86,11 @@ const rbygsLetters = new Map([
 
 export const gen3Letters = new Map([
   [0x00, " "],
+  [0x55, "Po"],
+  [0x56, "ke"],
+  [0x57, "Bl"],
+  [0x58, "o"],
+  [0x59, "ck"],
   [0xA1, "0"],
   [0xA2, "1"],
   [0xA3, "2"],
@@ -155,6 +160,7 @@ export const gen3Letters = new Map([
   [0xEE, "z"],
   [0xB5, "M"],
   [0xB6, "F"],
+  [0x1B, "e"]
 ]);
 
 function getKeyByValue(mapObject, searchValue) {

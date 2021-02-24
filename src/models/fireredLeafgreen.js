@@ -22,9 +22,9 @@ const moveDescPointer = 0x1B4000;
 const moveDescBank = 0x1B0000;
 const moveDescStartByte = 0x1B4202;
 //values used to load the TMs and HMs
-const tmStartByte = 0x11A66; //The TM info.
-const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
-const itemNamesByte = 0x1B0000  // could be useful later.
+const tmStart = 0x45A604; //The TM info.
+const itemPropertiesStart = 0x3DB098; // The item properties start here. 44 bytes per item.
+
 //values used to load wild encounters
 const wildEncountersStart = 0x3C7410;
 
@@ -63,9 +63,9 @@ export default {
     actions.loadBinaryData(payload);
     actions.loadPokemonTypes();
     actions.loadPokemonMoves();
-    //actions.loadTMs();
+    actions.loadTMs();
     actions.loadPokemonData();
-    //actions.loadItems();
+    actions.loadItems();
     actions.loadTypeMatchups();
     actions.loadEncounters();
     //actions.loadTrainers();
@@ -310,7 +310,7 @@ export default {
 
       types.push(newType);
     }
-    console.log(types);
+    //console.log(types);
     getStoreActions().setPokemonTypes(types);
   }),
   savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -505,11 +505,12 @@ export default {
 
     let tms = [];
 
-    for (let i = 0; i < 57; i++) //There are 50 TMs and 7 HMs. Each is 1 byte which is the moveID
+    for (let i = 0; i < 58; i++) //There are 50 TMs and 8 HMs. Each is 2 bytes which is the moveID
     {
         let newTM = {};
-        //newTM.TMNumber = i; this is just the index, not sure why it was needed in C#
-        newTM.move = getState().rawBinArray[tmStartByte + i];
+        
+        newTM.move = getState().rawBinArray[tmStart + i*2];
+        newTM.move += getState().rawBinArray[tmStart + i*2 + 1] * 256;
         if (i < 50)
         {
             newTM.name = `TM${i + 1}`;
@@ -519,9 +520,7 @@ export default {
             newTM.name = `HM${i - 49}`;
         }
         tms.push(newTM);
-    }
-
-    //for gold/silver/crystal the tm/hm prices are stored with the other items.
+    }    
 
     //console.log(tms);
     getStoreActions().setTMs(tms);
@@ -530,32 +529,25 @@ export default {
     let romData = getState().rawBinArray;
     let tms = getStoreState().tms;
 
-    for (let i = 0; i < 57; i++) //There are 50 TMs and 7 HMs. Each is 1 byte which is the moveID
+    for (let i = 0; i < 58; i++) //There are 50 TMs and 7 HMs. Each is 1 byte which is the moveID
     {
-        romData[tmStartByte + i] = tms[i].move;
+        romData[tmStart + i] = tms[i].move;
     }
   }),
   loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let items = [];
-    let currentNamesByte = itemNamesByte;
-    for(let i = 0; i < 249; i++){
+    
+    for(let i = 0; i < 375; i++){
       let newItem = {};
 
-      //The price is stored in 2 bytes stored little endian so we need to multiply the 2nd byte by 256 and add it to the first byte.
-      newItem.price = (getState().rawBinArray[itemPropertiesStartByte + i*7 + 1] * 256) + getState().rawBinArray[itemPropertiesStartByte + i*7];
-      newItem.holdEffect = getState().rawBinArray[itemPropertiesStartByte + i*7 +2];
-      newItem.parameter = getState().rawBinArray[itemPropertiesStartByte + i*7 +3];
-      newItem.property = getState().rawBinArray[itemPropertiesStartByte + i*7 +4];
-      newItem.pocket = getState().rawBinArray[itemPropertiesStartByte + i*7 +5];
-      newItem.menus = getState().rawBinArray[itemPropertiesStartByte + i*7 +6];
-
+      //The price is stored in 2 bytes little endian.
+      newItem.price = (getState().rawBinArray[itemPropertiesStart + i*44 + 17] * 256) + getState().rawBinArray[itemPropertiesStart + i*44 + 16];
 
       let itemName = "";
-      while(getState().rawBinArray[currentNamesByte] !== 0x50){
-
-        itemName += gen3Letters.get(getState().rawBinArray[currentNamesByte++]);
+      let currentPosition = itemPropertiesStart + i*44;
+      while(getState().rawBinArray[currentPosition] !== 0xFF){
+        itemName += gen3Letters.get(getState().rawBinArray[currentPosition++]);
       }
-      currentNamesByte++;
       newItem.name = itemName;
 
       items.push(newItem);
@@ -568,13 +560,8 @@ export default {
     let items = getStoreState().items;
 
     for(let i = 0; i < 249; i++){
-      romData[itemPropertiesStartByte + i*7] = items[i].price % 256;
-      romData[itemPropertiesStartByte + i*7  +1] = Math.floor(items[i].price / 256);
-      romData[itemPropertiesStartByte + i*7  +2] = items[i].holdEffect;
-      romData[itemPropertiesStartByte + i*7  +3] = items[i].parameter;
-      romData[itemPropertiesStartByte + i*7  +4] = items[i].property;
-      romData[itemPropertiesStartByte + i*7  +5] = items[i].pocket;
-      romData[itemPropertiesStartByte + i*7  +6] = items[i].menus;
+      romData[itemPropertiesStart + i*7] = items[i].price % 256;
+      romData[itemPropertiesStart + i*7  +1] = Math.floor(items[i].price / 256);
     }
 
   }),
