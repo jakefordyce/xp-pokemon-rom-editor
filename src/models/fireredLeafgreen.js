@@ -1017,7 +1017,7 @@ export default {
 
     getStoreActions().setShops(shops);
   }),
-  /*
+  /* saveShops
   saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let shops = getStoreState().shops;
