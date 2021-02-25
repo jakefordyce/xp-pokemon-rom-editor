@@ -27,22 +27,22 @@ function TrainersTab(){
   const pokemonList = trainers[selectedTrainer].pokemon.map((poke, index) =>
     <tr key={index}>
       <td><ArraySelect collection={pokemon} display='name' selectedValue={poke.pokemon} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'pokemon'} /></td>
-      {((generation === 1 && !trainers[selectedTrainer].allSameLevel) || generation === 2 )&&
+      {((generation === 1 && !trainers[selectedTrainer].allSameLevel) || generation > 1 )&&
         <td><input value={poke.level} onChange={(e) => handleTrainerPokemonChange(e, index, 'level')} /></td>
       }
-      {generation === 2 && (trainers[selectedTrainer].type === 2 || trainers[selectedTrainer].type === 3) &&
+      {generation > 1 && (trainers[selectedTrainer].type === 2 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={items} display='name' selectedValue={poke.item} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'item'} /></td>
       }
-      {generation === 2 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
+      {generation > 1 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={moves} value='id' display='name' selectedValue={poke.move1} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'move1'} /></td>
       }
-      {generation === 2 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
+      {generation > 1 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={moves} value='id' display='name' selectedValue={poke.move2} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'move2'} /></td>
       }
-      {generation === 2 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
+      {generation > 1 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={moves} value='id' display='name' selectedValue={poke.move3} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'move3'} /></td>
       }
-      {generation === 2 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
+      {generation > 1 && (trainers[selectedTrainer].type === 1 || trainers[selectedTrainer].type === 3) &&
         <td><ArraySelect collection={moves} value='id' display='name' selectedValue={poke.move4} handleOptionChange={handleTrainerPokemonChange} arrayIndex={index} propName={'move4'} /></td>
       }
       <td><button onClick={(e) => handleRemovePokemon(e, index)}>X</button></td>
@@ -81,7 +81,7 @@ function TrainersTab(){
             <tbody>
               {generation === 1 && <tr><td>All Same Level: </td><td><input type="checkbox" checked={trainers[selectedTrainer].allSameLevel} onChange={(e) => handleTrainerCheckbox(e, selectedTrainer, 'allSameLevel')} /></td></tr>}
               {generation === 1 && trainers[selectedTrainer].allSameLevel && <tr><td>Party Level: </td><td><input value={trainers[selectedTrainer].partyLevel} onChange={(e) => handleTrainerChange(e, selectedTrainer, 'partyLevel')} /></td></tr>}
-              {generation === 2 && <tr><td>Trainer Type: </td><td><ArraySelect collection={trainerTypes} selectedValue={trainers[selectedTrainer].type} handleOptionChange={handleTrainerChange} arrayIndex={selectedTrainer} propName={'type'} /></td></tr>}
+              {generation > 1 && <tr><td>Trainer Type: </td><td><ArraySelect collection={trainerTypes} selectedValue={trainers[selectedTrainer].type} handleOptionChange={handleTrainerChange} arrayIndex={selectedTrainer} propName={'type'} /></td></tr>}
               {pokemonList}
             </tbody>
           </table>

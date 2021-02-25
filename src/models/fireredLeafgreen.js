@@ -29,9 +29,9 @@ const itemPropertiesStart = 0x3DB098; // The item properties start here. 44 byte
 const wildEncountersStart = 0x3C7410;
 
 //values used to load trainers
-const trainerPointersByte = 0x3993E; // this is the start of the pointers to the trainer data.
-const trainerBankByte = 0x34000; // the pointers are added to this value to find the trainer data.
-const trainerDataByte = 0x399C2;
+const trainerDataStart = 0x23EB38; // this is the start of the trainer data.
+const trainerClassesStart = 0x23E5C8; // the names of the different types of trainers.
+
 //values used to load shops
 const shopsStartByte = 0x16342;
 const shopsPointerStartByte = 0x162FE;
@@ -68,7 +68,7 @@ export default {
     actions.loadItems();
     actions.loadTypeMatchups();
     actions.loadEncounters();
-    //actions.loadTrainers();
+    actions.loadTrainers();
     //actions.loadShops();
     //actions.loadStarters();
     //actions.loadMoveDescriptions();
@@ -750,7 +750,7 @@ export default {
     //console.log(zones.length);
     getStoreActions().setEncounterZones(zones);
   }),
-  /*
+  /* saveEncounters
   saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let zones = getStoreState().encounterZones;
@@ -830,87 +830,104 @@ export default {
   //*/
   loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
     let trainers = [];
-    let currentPointerByte = trainerPointersByte;
-    let numOfTrainersInGroup = 0;
-    let trainerID = 0;
+    let trainerClasses = [];
+    let currentClassPosition = trainerClassesStart;
 
-    // 66 trainer groups
-    for(let groupNum = 0; groupNum < 66; groupNum++){
-
-      //get the starting point for the group's data
-      let pointerByte1 = getState().rawBinArray[currentPointerByte++];
-      let pointerByte2 = getState().rawBinArray[currentPointerByte++] * 256;
-      let currentTrainerByte = trainerBankByte + pointerByte1 + pointerByte2;
-
-      //while we haven't reached the last trainer in the group keep loading trainers
-      while(numOfTrainersInGroup < gsTrainerCounts[groupNum]){
-        let newTrainer = {};
-        newTrainer.id = trainerID++;
-        let trainerName = "";
-
-        //first thing is the name. Each trainer has an individual name and a group name.
-        // For some groups it doesn't make sense to use both e.g. "Lance Lance".
-        if(!gsUniqueGroupNameIds.includes(groupNum)){
-          trainerName += `${gsTrainerGroups[groupNum]} `;
+    for(let i = 0; i < 107; i++){
+      let trainerClassName = "";
+      while(getState().rawBinArray[currentClassPosition] !== 0xFF){
+        if(getState().rawBinArray[currentClassPosition] !== 0x00 || trainerClassName.length > 0){
+          trainerClassName += gen3Letters.get(getState().rawBinArray[currentClassPosition++]);
+        }else{
+          currentClassPosition++;
         }
-
-        let uniqueName = "";
-        //reads the name. The ending is marked with 0x50
-        while(getState().rawBinArray[currentTrainerByte] !== 0x50){
-          uniqueName += gen3Letters.get(getState().rawBinArray[currentTrainerByte++]);
-        }
-        if(uniqueName === "?"){
-          uniqueName = `fight #${Math.floor(numOfTrainersInGroup/3)+1}`;
-        }
-
-        trainerName += uniqueName;
-        newTrainer.name = trainerName;
-        newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process and calculating remaining space.
-        currentTrainerByte++;
-
-        //the type determines if the trainer has an item to use and if their pokemon have custom movesets.
-        newTrainer.type = getState().rawBinArray[currentTrainerByte++];
-
-        newTrainer.pokemon = [];
-        //the end of each trainer's data is marked with 0xFF
-        while(getState().rawBinArray[currentTrainerByte] !== 0xFF){
-          let newPokemon = {};
-          newPokemon.level = getState().rawBinArray[currentTrainerByte++];
-          newPokemon.pokemon = getState().rawBinArray[currentTrainerByte++]-1; // -1 because the pokemon array is 0 based. We will add 1 when saving.
-
-          //if the type is 2 or 3 the next byte is the pokemon's item
-          if(newTrainer.type === 2 || newTrainer.type === 3){
-            newPokemon.item = getState().rawBinArray[currentTrainerByte++]-1;
-          }else{ // setting default value in case the user switches the trainer's type to one that uses items.
-            newPokemon.item = 0;
-          }
-
-          //if the type is 1 or 3 the next 4 bytes will be the pokemon's moves.
-          if(newTrainer.type === 1 || newTrainer.type === 3){
-            newPokemon.move1 = getState().rawBinArray[currentTrainerByte++];
-            newPokemon.move2 = getState().rawBinArray[currentTrainerByte++];
-            newPokemon.move3 = getState().rawBinArray[currentTrainerByte++];
-            newPokemon.move4 = getState().rawBinArray[currentTrainerByte++];
-          }else{ // setting some default values in case the user switches the trainer's type to one that uses moves.
-            newPokemon.move1 = 0;
-            newPokemon.move2 = 0;
-            newPokemon.move3 = 0;
-            newPokemon.move4 = 0;
-          }
-          newTrainer.pokemon.push(newPokemon);
-        }
-
-        trainers.push(newTrainer);
-        currentTrainerByte++;
-        numOfTrainersInGroup++;
       }
-      numOfTrainersInGroup = 0;
-
+      trainerClasses.push(trainerClassName);
+      currentClassPosition++;
     }
+
+
+    //*
+    for(let t = 0; t < 743; t++){
+      let newTrainer = {};
+
+      //this value determines if the trainers pokemon hold items and/or have custom movesets.
+      newTrainer.type = getState().rawBinArray[trainerDataStart + t*40 + 0];
+
+      let trainerName = "";
+      trainerName += trainerClasses[getState().rawBinArray[trainerDataStart + t*40 + 1]];
+      
+      let uniqueName = "";
+      let currentNamePosition = trainerDataStart + t*40 + 4;
+      //reads the name. The ending is marked with 0xFF
+      while(getState().rawBinArray[currentNamePosition] !== 0xFF){
+        uniqueName += gen3Letters.get(getState().rawBinArray[currentNamePosition++]);
+      }
+      trainerName += " " + uniqueName;
+      newTrainer.name = trainerName;
+      newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
+
+      let numOfPokemon = getState().rawBinArray[trainerDataStart + t*40 + 32];
+      
+      //get the starting point for the trainer's pokemon
+      let pokemonPointer = getState().rawBinArray[trainerDataStart + t*40 + 36];
+      pokemonPointer += getState().rawBinArray[trainerDataStart + t*40 + 37] * 256;
+      pokemonPointer += getState().rawBinArray[trainerDataStart + t*40 + 38] * 65536;
+
+      let currentPokemonPosition = pokemonPointer;
+      newTrainer.pokemon = [];
+      //The trainer data tells us how many pokemon to load.
+      for(let p = 0; p < numOfPokemon; p++){
+        let newPokemon = {};
+        
+        newPokemon.ivs = getState().rawBinArray[currentPokemonPosition++];          
+        currentPokemonPosition++;
+
+        newPokemon.level = getState().rawBinArray[currentPokemonPosition++];
+        currentPokemonPosition++;
+
+        newPokemon.pokemon = getState().rawBinArray[currentPokemonPosition++]-1; // -1 because the pokemon array is 0 based. We will add 1 when saving.
+        newPokemon.pokemon += getState().rawBinArray[currentPokemonPosition++] * 256;
+
+        //if the trainer type is 2 or 3 the next 2 bytes are the pokemon's item
+        if(newTrainer.type === 2 || newTrainer.type === 3){
+          newPokemon.item = getState().rawBinArray[currentPokemonPosition++];
+          newPokemon.item += getState().rawBinArray[currentPokemonPosition++] * 256;
+        }else{ // setting default value in case the user switches the trainer's type to one that uses items.
+          newPokemon.item = 0;
+        }
+
+        //if the trainer type is 1 or 3 the next 8 bytes will be the pokemon's moves.
+        if(newTrainer.type === 1 || newTrainer.type === 3){
+          newPokemon.move1 = getState().rawBinArray[currentPokemonPosition++];
+          newPokemon.move1 += getState().rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move2 = getState().rawBinArray[currentPokemonPosition++];
+          newPokemon.move2 += getState().rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move3 = getState().rawBinArray[currentPokemonPosition++];
+          newPokemon.move3 += getState().rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move4 = getState().rawBinArray[currentPokemonPosition++];
+          newPokemon.move4 += getState().rawBinArray[currentPokemonPosition++] * 256;
+        }else{ // setting some default values in case the user switches the trainer's type to one that uses moves.
+          newPokemon.move1 = 0;
+          newPokemon.move2 = 0;
+          newPokemon.move3 = 0;
+          newPokemon.move4 = 0;
+        }
+
+        if(newTrainer.type === 0 || newTrainer.type === 1){
+          currentPokemonPosition += 2;
+        }
+        newTrainer.pokemon.push(newPokemon);
+      }
+
+      trainers.push(newTrainer);
+    }
+    //*/
 
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
   }),
+  /* saveTrainers
   saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let trainers = getStoreState().trainers.sort((a,b) => a.id < b.id ? -1 : 1); // sort the trainers by ID so they get saved in the correct order.
@@ -962,6 +979,7 @@ export default {
     }
 
   }),
+  //*/
   loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
     let shops = [];
     let currentByte = shopsStartByte;
