@@ -45,7 +45,7 @@ const shopsStarts = [
   {shopName: "Celadon 5F Items", pointer: 0x16BCFC},
   {shopName: "Celadon 5F Vitamins", pointer: 0x16BD34},
   {shopName: "Saffron", pointer: 0x16F054},
-  {shopName: "Fuchsia", pointer: 0x169590},
+  {shopName: "Fuchsia", pointer: 0x16D590},
   {shopName: "Cinnabar", pointer: 0x16EAC0},
   {shopName: "Indigo Plateau", pointer: 0x16EB6C},
   {shopName: "Two Island Initial", pointer: 0x16775C},
@@ -79,7 +79,7 @@ export default {
   maxTrainerBytes: 9791,
   maxShopItems: 229,
   numHighCritMoves: 7,
-  defaultEvolution: {evolve: 1, evolveLevel: 1, evolveTo: 1, evolveStone: 8, evolveHappiness: 1, evolveStats: 1},
+  defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
     actions.loadPokemonTypes();
@@ -90,7 +90,7 @@ export default {
     actions.loadTypeMatchups();
     actions.loadEncounters();
     actions.loadTrainers();
-    //actions.loadShops();
+    actions.loadShops();
     //actions.loadStarters();
     //actions.loadMoveDescriptions();
     //actions.loadShinyOdds();
@@ -529,7 +529,7 @@ export default {
     for (let i = 0; i < 58; i++) //There are 50 TMs and 8 HMs. Each is 2 bytes which is the moveID
     {
         let newTM = {};
-        
+
         newTM.move = getState().rawBinArray[tmStart + i*2];
         newTM.move += getState().rawBinArray[tmStart + i*2 + 1] * 256;
         if (i < 50)
@@ -541,7 +541,7 @@ export default {
             newTM.name = `HM${i - 49}`;
         }
         tms.push(newTM);
-    }    
+    }
 
     //console.log(tms);
     getStoreActions().setTMs(tms);
@@ -557,7 +557,7 @@ export default {
   }),
   loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let items = [];
-    
+
     for(let i = 0; i < 375; i++){
       let newItem = {};
 
@@ -875,7 +875,7 @@ export default {
 
       let trainerName = "";
       trainerName += trainerClasses[getState().rawBinArray[trainerDataStart + t*40 + 1]];
-      
+
       let uniqueName = "";
       let currentNamePosition = trainerDataStart + t*40 + 4;
       //reads the name. The ending is marked with 0xFF
@@ -887,7 +887,7 @@ export default {
       newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
 
       let numOfPokemon = getState().rawBinArray[trainerDataStart + t*40 + 32];
-      
+
       //get the starting point for the trainer's pokemon
       let pokemonPointer = getState().rawBinArray[trainerDataStart + t*40 + 36];
       pokemonPointer += getState().rawBinArray[trainerDataStart + t*40 + 37] * 256;
@@ -898,8 +898,8 @@ export default {
       //The trainer data tells us how many pokemon to load.
       for(let p = 0; p < numOfPokemon; p++){
         let newPokemon = {};
-        
-        newPokemon.ivs = getState().rawBinArray[currentPokemonPosition++];          
+
+        newPokemon.ivs = getState().rawBinArray[currentPokemonPosition++];
         currentPokemonPosition++;
 
         newPokemon.level = getState().rawBinArray[currentPokemonPosition++];
@@ -1000,24 +1000,24 @@ export default {
   //*/
   loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
     let shops = [];
-    let currentByte = shopsStartByte;
 
-    for (let i = 0; i < 35; i++)
-    {
-        let newShop = {};
-        newShop.name = gscShopNames[i];
-        newShop.items = [];
-        currentByte += 1; //Skip the first byte. The first byte is the number of items for sale.
-        while(getState().rawBinArray[currentByte] !== 0xFF) //the end of the shop is marked by 0xFF
-        {
-            newShop.items.push({item: getState().rawBinArray[currentByte++] -1}); // -1 because it is using the index of the items collection.
-        }
-        shops.push(newShop);
-        currentByte++;
-    }
+    shopsStarts.forEach(s => {
+      let newShop = {};
+      newShop.name = s.shopName;
+      let currentItemPosition = s.pointer;
+      newShop.items = [];
+      while(getState().rawBinArray[currentItemPosition] !== 0x00 || getState().rawBinArray[currentItemPosition + 1] !== 0x00) //the end of the shop is marked by 0x0000
+      {
+        let newItem = getState().rawBinArray[currentItemPosition++];
+        newItem += getState().rawBinArray[currentItemPosition++] * 256;
+        newShop.items.push({item: newItem });
+      }
+      shops.push(newShop);
+    });
 
     getStoreActions().setShops(shops);
   }),
+  /*
   saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let shops = getStoreState().shops;
@@ -1047,6 +1047,7 @@ export default {
         romData[currentByte++] = 0xFF; //mark end of shop
     }
   }),
+  //*/
   loadStarters: thunk (async (actions, payload, {getState, getStoreActions}) => {
     const starterBytes = [0x1800F6, 0x180138, 0x180174];
     let starters = [];
