@@ -33,8 +33,29 @@ const trainerDataStart = 0x23EB38; // this is the start of the trainer data.
 const trainerClassesStart = 0x23E5C8; // the names of the different types of trainers.
 
 //values used to load shops
-const shopsStartByte = 0x16342;
-const shopsPointerStartByte = 0x162FE;
+const shopsStarts = [
+  {shopName: "Viridian", pointer: 0x16A310},
+  {shopName: "Pewter", pointer: 0x16A780},
+  {shopName: "Cerulean", pointer: 0x16AD50},
+  {shopName: "Vermillion", pointer: 0x16B704},
+  {shopName: "Lavender", pointer: 0x16B408},
+  {shopName: "Celadon 2F Items", pointer: 0x16BBB0},
+  {shopName: "Celadon 2F TMs", pointer: 0x16BBEC},
+  {shopName: "Celadon 4F", pointer: 0x16BCA8},
+  {shopName: "Celadon 5F Items", pointer: 0x16BCFC},
+  {shopName: "Celadon 5F Vitamins", pointer: 0x16BD34},
+  {shopName: "Saffron", pointer: 0x16F054},
+  {shopName: "Fuchsia", pointer: 0x169590},
+  {shopName: "Cinnabar", pointer: 0x16EAC0},
+  {shopName: "Indigo Plateau", pointer: 0x16EB6C},
+  {shopName: "Two Island Initial", pointer: 0x16775C},
+  {shopName: "Two Island Exp 1", pointer: 0x167774},
+  {shopName: "Two Island Exp 2", pointer: 0x167790},
+  {shopName: "Two Island Exp 3", pointer: 0x1677B0},
+  {shopName: "Three Island", pointer: 0x17192C},
+  {shopName: "Four Island", pointer: 0x171D4C},
+  {shopName: "Seven Island", pointer: 0x170BD0}
+]
 
 export default {
   version: "FIRERED/LEAFGREEN",
@@ -846,8 +867,6 @@ export default {
       currentClassPosition++;
     }
 
-
-    //*
     for(let t = 0; t < 743; t++){
       let newTrainer = {};
 
@@ -922,7 +941,6 @@ export default {
 
       trainers.push(newTrainer);
     }
-    //*/
 
     //console.log(trainers);
     getStoreActions().setTrainers(trainers);
