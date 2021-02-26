@@ -576,22 +576,25 @@ export default {
     let currentPointerByte = pokemonMovesPointers;
     let pokemon = getStoreState().pokemon;
 
-    for (let i = 0; i < 251; i++) //There are 251 pokemon in the game
+    for (let i = 0; i < 411; i++) //There are 411 pokemon in the game
     {
       //basically just write all of the modify-able data back into its location in the binary array.
-      workingArray[pokemonStartByte + (i * 32) + 1] = pokemon[i].hp;
-      workingArray[pokemonStartByte + (i * 32) + 2] = pokemon[i].attack;
-      workingArray[pokemonStartByte + (i * 32) + 3] = pokemon[i].defense;
-      workingArray[pokemonStartByte + (i * 32) + 4] = pokemon[i].speed;
-      workingArray[pokemonStartByte + (i * 32) + 5] = pokemon[i].specialAttack;
-      workingArray[pokemonStartByte + (i * 32) + 6] = pokemon[i].specialDefense;
-      workingArray[pokemonStartByte + (i * 32) + 7] = pokemon[i].type1;
-      workingArray[pokemonStartByte + (i * 32) + 8] = pokemon[i].type2;
-      workingArray[pokemonStartByte + (i * 32) + 9] = pokemon[i].catchRate;
-      workingArray[pokemonStartByte + (i * 32) + 10] = pokemon[i].expYield;
-      workingArray[pokemonStartByte + (i * 32) + 22] = pokemon[i].growthRate;
+      workingArray[pokemonStartByte + (i * 28) + 1] = pokemon[i].hp;
+      workingArray[pokemonStartByte + (i * 28) + 2] = pokemon[i].attack;
+      workingArray[pokemonStartByte + (i * 28) + 3] = pokemon[i].defense;
+      workingArray[pokemonStartByte + (i * 28) + 4] = pokemon[i].speed;
+      workingArray[pokemonStartByte + (i * 28) + 5] = pokemon[i].specialAttack;
+      workingArray[pokemonStartByte + (i * 28) + 6] = pokemon[i].specialDefense;
+      workingArray[pokemonStartByte + (i * 28) + 7] = pokemon[i].type1;
+      workingArray[pokemonStartByte + (i * 28) + 8] = pokemon[i].type2;
+      workingArray[pokemonStartByte + (i * 28) + 9] = pokemon[i].catchRate;
+      workingArray[pokemonStartByte + (i * 28) + 10] = pokemon[i].expYield;
+      workingArray[pokemonStartByte + (i * 28) + 20] = pokemon[i].growthRate;
+      workingArray[pokemonStartByte + (i * 28) + 23] = pokemon[i].ability1;
+      workingArray[pokemonStartByte + (i * 28) + 24] = pokemon[i].ability2;
       let tmArray = [];
 
+      //*
       for(let j = 0; j < 8; j++){ //each byte
         let tmByte = 0;
         for(let b = 0; b < 8; b++){ //each bit
@@ -602,61 +605,41 @@ export default {
         tmArray.push(tmByte);
       }
 
-      workingArray[pokemonStartByte + (i * 32) + 24] = tmArray[0];
-      workingArray[pokemonStartByte + (i * 32) + 25] = tmArray[1];
-      workingArray[pokemonStartByte + (i * 32) + 26] = tmArray[2];
-      workingArray[pokemonStartByte + (i * 32) + 27] = tmArray[3];
-      workingArray[pokemonStartByte + (i * 32) + 28] = tmArray[4];
-      workingArray[pokemonStartByte + (i * 32) + 29] = tmArray[5];
-      workingArray[pokemonStartByte + (i * 32) + 30] = tmArray[6];
-      workingArray[pokemonStartByte + (i * 32) + 31] = tmArray[7];
+      workingArray[pokemonTMStart + (i * 8) + 0] = tmArray[0];
+      workingArray[pokemonTMStart + (i * 8) + 1] = tmArray[1];
+      workingArray[pokemonTMStart + (i * 8) + 2] = tmArray[2];
+      workingArray[pokemonTMStart + (i * 8) + 3] = tmArray[3];
+      workingArray[pokemonTMStart + (i * 8) + 4] = tmArray[4];
+      workingArray[pokemonTMStart + (i * 8) + 5] = tmArray[5];
+      workingArray[pokemonTMStart + (i * 8) + 6] = tmArray[6];
+      workingArray[pokemonTMStart + (i * 8) + 7] = tmArray[7];
+      
+      
+      for(let e = 0; e < 5; e++){
+        if(pokemon[i].evolutions[e] !== undefined){
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8)] = pokemon[i].evolutions[e].evolve & 0xFF;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 1] = pokemon[i].evolutions[e].evolve >> 8;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 2] = pokemon[i].evolutions[e].param & 0xFF;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 3] = pokemon[i].evolutions[e].param >> 8;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 4] = (pokemon[i].evolutions[e].evolveTo + 1) & 0xFF;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 5] = (pokemon[i].evolutions[e].evolveTo + 1) >> 8;
+        }else{
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8)] = 0x00;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 1] = 0x00;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 2] = 0x00;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 3] = 0x00;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 4] = 0x00;
+          workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8) + 5] = 0x00;
+        }
+      }
 
-
-      let secondPointerByte = Math.floor((currentEvosMovesByte - pointerBase) / 256);
-      let firstPointerByte = (currentEvosMovesByte - pointerBase) - (secondPointerByte * 256);
-      workingArray[currentPointerByte++] = firstPointerByte;
-      workingArray[currentPointerByte++] = secondPointerByte;
-
-      pokemon[i].evolutions.forEach((e) => {
-        if (e.evolve === 1)
-          {
-            workingArray[currentEvosMovesByte++] = 1;
-            workingArray[currentEvosMovesByte++] = e.evolveLevel;
-            workingArray[currentEvosMovesByte++] = e.evolveTo +1;
-          }
-          else if (e.evolve === 2)
-          {
-            workingArray[currentEvosMovesByte++] = 2;
-            workingArray[currentEvosMovesByte++] = e.evolveStone;
-            workingArray[currentEvosMovesByte++] = e.evolveTo +1;
-          }
-          else if (e.evolve === 3)
-          {
-            workingArray[currentEvosMovesByte++] = 3;
-            workingArray[currentEvosMovesByte++] = e.tradeItem;
-            workingArray[currentEvosMovesByte++] = e.evolveTo +1;
-          }
-          else if (e.evolve === 4)
-          {
-            workingArray[currentEvosMovesByte++] = 4;
-            workingArray[currentEvosMovesByte++] = e.evolveHappiness;
-            workingArray[currentEvosMovesByte++] = e.evolveTo +1;
-          }
-          else if (e.evolve === 5)
-          {
-            workingArray[currentEvosMovesByte++] = 5;
-            workingArray[currentEvosMovesByte++] = e.evolveLevel;
-            workingArray[currentEvosMovesByte++] = e.evolveStats;
-            workingArray[currentEvosMovesByte++] = e.evolveTo +1;
-          }
-      });
-      workingArray[currentEvosMovesByte++] = 0;
-
+      /*
       pokemon[i].learnedMoves.forEach((m) => {
         workingArray[currentEvosMovesByte++] = m.level;
         workingArray[currentEvosMovesByte++] = m.moveID;
       });
       workingArray[currentEvosMovesByte++] = 0;
+      //*/
     }
 
   }),
@@ -1414,113 +1397,19 @@ export default {
     }
   }),
   //*/
-  loadStarters: thunk (async (actions, payload, {getState, getStoreActions}) => {
-    const starterBytes = [0x1800F6, 0x180138, 0x180174];
-    let starters = [];
 
-    for(let i = 0; i < 3; i++){
-      let newStarter = {};
-      newStarter.pokemon = getState().rawBinArray[starterBytes[i]] - 1;
-      newStarter.level = getState().rawBinArray[starterBytes[i]+1];
-      newStarter.item = getState().rawBinArray[starterBytes[i]+2] - 1;
-      starters.push(newStarter);
-    }
-
-    getStoreActions().setStarters(starters);
-  }),
-  saveStarters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
-    let starters = getStoreState().starters;
-    let pokemon = getStoreState().pokemon;
-    const starterBytes = [0x1800D2, 0x180114, 0x180150];
-    const starterMessageBytes = [0x1805E4, 0x18060F, 0x18063B];
-    const originalStarters = [0x9B, 0x9E, 0x98];
-    const starterOriginalMessages = [[0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x98, 0xae, 0xb4, 0xd1, 0xab, 0x7f, 0xb3, 0xa0, 0xaa, 0xa4, 0x4f, 0x82, 0x98, 0x8d, 0x83, 0x80, 0x90, 0x94, 0x88, 0x8b, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xa5, 0xa8, 0xb1, 0xa4, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00],
-     [0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x83, 0xae, 0x7f, 0xb8, 0xae, 0xb4, 0x7f, 0xb6, 0xa0, 0xad, 0xb3, 0x4f, 0x93, 0x8e, 0x93, 0x8e, 0x83, 0x88, 0x8b, 0x84, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xb6, 0xa0, 0xb3, 0xa4, 0xb1, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00],
-     [0x84, 0x8b, 0x8c, 0x9c, 0x7f, 0x92, 0xae, 0xf4, 0x7f, 0xb8, 0xae, 0xb4, 0x7f, 0xab, 0xa8, 0xaa, 0xa4, 0x4f, 0x82, 0x87, 0x88, 0x8a, 0x8e, 0x91, 0x88, 0x93, 0x80, 0xf4, 0x7f, 0xb3, 0xa7, 0xa4, 0x55, 0xa6, 0xb1, 0xa0, 0xb2, 0xb2, 0x7f, 0x54, 0x8c, 0x8e, 0x8d, 0xe6, 0x57, 0x00]];
-
-    for(let i = 0; i < 3; i++){
-      //pokemon image to display
-      romData[starterBytes[i]] = starters[i].pokemon +1;
-      //pokemon cry
-      romData[starterBytes[i]+2] = starters[i].pokemon +1;
-      //pokemon name for receive message
-      romData[starterBytes[i]+25] = starters[i].pokemon +1;
-      //pokemon to receive
-      romData[starterBytes[i]+36] = starters[i].pokemon +1;
-      //pokemon's level
-      romData[starterBytes[i]+37] = starters[i].level;
-      //pokemon's held item
-      romData[starterBytes[i]+38] = starters[i].item +1;
-
-      //if the starter hasn't changed then use the original message;
-      if(starters[i].pokemon+1 === originalStarters[i]){
-        for(let k = 0; k < starterOriginalMessages[i].length; k++ ){
-          romData[starterMessageBytes + k] = starterOriginalMessages[i][k];
-        }
-      }
-      else{ //if the user changed the starters then we need to update the "so you want..." question
-        let messageIndex = 0;
-        let currentMessageByte = starterMessageBytes[i];
-        while(starterOriginalMessages[i][messageIndex] !== 0x4F){
-          romData[currentMessageByte++] = starterOriginalMessages[i][messageIndex++];
-        }
-        romData[currentMessageByte++] = 0x4F;
-        //console.log(pokemon);
-        //console.log(starters);
-        //console.log(pokemon[starters[i].pokemon + 1]);
-        pokemon[starters[i].pokemon].name.split("").forEach((c) => {
-          romData[currentMessageByte++] = getKeyByValue(gen3Letters, c);
-        });
-        romData[currentMessageByte++] = 0xE6;
-        romData[currentMessageByte++] = 0x57;
-      }
-
-
-    }
-
-  }),
-  loadShinyOdds: thunk (async (actions, payload, {getState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
-    const DVCompareBytes = [0x905E, 0x9065, 0x906C];
-
-    let valuesUnchanged = true;
-
-    for(let i = 0; i < 3; i++){
-      if(romData[DVCompareBytes[i]] != 0x20){
-        valuesUnchanged = false;
-        break;
-      }
-    }
-
-    getStoreActions().setIncreaseShinyOdds(!valuesUnchanged);
-  }),
-  saveShinyOdds: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
-    let increaseShinyOdds = getStoreState().increaseShinyOdds;
-    const DVCompareBytes = [0x905E, 0x9065, 0x906C];
-
-    for(let i = 0; i < 3; i++){
-      if(increaseShinyOdds){
-        romData[DVCompareBytes[i]] = 0x28
-      }else{
-        romData[DVCompareBytes[i]] = 0x20
-      }
-    }
-
-  }),
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();
-    actions.savePokemonMoves();
-    actions.saveTMs();
-    actions.saveItems();
-    actions.savePokemonTypes();
-    actions.saveTypeMatchups();
-    actions.saveEncounters();
-    actions.saveTrainers();
-    actions.saveShops();
-    actions.saveStarters();
-    actions.saveMoveDescriptions();
-    actions.saveShinyOdds();
+    //actions.savePokemonMoves();
+    //actions.saveTMs();
+    //actions.saveItems();
+    //actions.savePokemonTypes();
+    //actions.saveTypeMatchups();
+    //actions.saveEncounters();
+    //actions.saveTrainers();
+    //actions.saveShops();
+    //actions.saveStarters();
+    //actions.saveMoveDescriptions();
+    //actions.saveShinyOdds();
   })
 }
