@@ -1,6 +1,6 @@
 import { thunk, action } from "easy-peasy";
-import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, gscHappiness, gscStats, g3TradeItems, g3GrowthRates,
-  g3ZoneNames, g3GrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, g3WaterEncChances,
+import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, g3TradeItems, g3GrowthRates,
+  g3ZoneNames, g3GrassEncChances, gsTrainerTypes, g3WaterEncChances,
   getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities} from './utils';
 
 
@@ -19,6 +19,7 @@ const typeChartByte = 0x24F0C0;
 //values used to load the moves
 const moveNamesByte = 0x247111;
 const movesStartingByte = 0x250C80; //The move data starts.
+const moveAnimationsStart = 0x1C6968;
 const moveDescPointer = 0x1B4000;
 const moveDescBank = 0x1B0000;
 const moveDescStartByte = 0x1B4202;
@@ -58,6 +59,364 @@ const shopsStarts = [
   {shopName: "Seven Island", pointer: 0x170BD0}
 ]
 
+const animationPointers = [  
+  0x081C6FA4,
+  0x081C6FA4,
+  0x081CFD5A,
+  0x081C6FD5,
+  0x081C7ED3,
+  0x081C7D5D,
+  0x081C94C5,
+  0x081D0925,
+  0x081CD350,
+  0x081CD73A,
+  0x081CD9EA,
+  0x081C93F1,
+  0x081C9439,
+  0x081D1629,
+  0x081C86B4,
+  0x081C839A,
+  0x081CF6B8,
+  0x081CF709,
+  0x081C99F9,
+  0x081CFC8D,
+  0x081D0D70,
+  0x081C8B19,
+  0x081C8BA1,
+  0x081C833A,
+  0x081CFF08,
+  0x081C7E37,
+  0x081CFE15,
+  0x081CA24A,
+  0x081CDF92,
+  0x081CA2CD,
+  0x081CA32A,
+  0x081CA397,
+  0x081CA414,
+  0x081C7502,
+  0x081C7540,
+  0x081D0DAA,
+  0x081C78F6,
+  0x081CA591,
+  0x081C798A,
+  0x081C8381,
+  0x081C7A9D,
+  0x081C7AF2,
+  0x081C776C,
+  0x081D0A38,
+  0x081CE200,
+  0x081CDBC7,
+  0x081CDB30,
+  0x081CA610,
+  0x081C75CD,
+  0x081C7F4B,
+  0x081D170F,
+  0x081CF378,
+  0x081C7CE9,
+  0x081CFA85,
+  0x081D0891,
+  0x081CF8EA,
+  0x081CEA5E,
+  0x081CFA71,
+  0x081CE36B,
+  0x081CE7D8,
+  0x081D0DC0,
+  0x081C9D83,
+  0x081CE4AF,
+  0x081D2A17,
+  0x081CF7A6,
+  0x081C8BD8,
+  0x081D030C,
+  0x081CA6E4,
+  0x081D00CA,
+  0x081D479C,
+  0x081C746E,
+  0x081CEC45,
+  0x081CED5D,
+  0x081C7C93,
+  0x081C99C3,
+  0x081D05FC,
+  0x081CE583,
+  0x081C7028,
+  0x081C7159,
+  0x081C7287,
+  0x081D04C4,
+  0x081D14B6,
+  0x081CE0D8,
+  0x081C88A6,
+  0x081C7FAC,
+  0x081C801A,
+  0x081C81D0,
+  0x081CD5E0,
+  0x081C9B6F,
+  0x081CA741,
+  0x081CA78E,
+  0x081CA8B1,
+  0x081CF1A1,
+  0x081CD47B,
+  0x081CD4DC,
+  0x081D0E5A,
+  0x081CA9CD,
+  0x081CA9EA,
+  0x081CAA34,
+  0x081CAA8C,
+  0x081CAB02,
+  0x081D122B,
+  0x081D17E7,
+  0x081C7625,
+  0x081CAB1B,
+  0x081D173D,
+  0x081CD11B,
+  0x081CAB62,
+  0x081C9F20,
+  0x081C9AA1,
+  0x081CE4A2,
+  0x081C8F8C,
+  0x081CDD9D,
+  0x081CDC98,
+  0x081D08F2,
+  0x081CDD4A,
+  0x081D1377,
+  0x081D13B7,
+  0x081CAB75,
+  0x081C6FA4,
+  0x081C8A29,
+  0x081D1273,
+  0x081D1350,
+  0x081CDE90,
+  0x081CF210,
+  0x081CF4C6,
+  0x081C7B65,
+  0x081C8C31,
+  0x081CE30E,
+  0x081C73B5,
+  0x081CAB9F,
+  0x081C8601,
+  0x081D1831,
+  0x081CAC65,
+  0x081CAC89,
+  0x081D1959,
+  0x081CFE72,
+  0x081CACDA,
+  0x081D0A8F,
+  0x081D0C92,
+  0x081CAD43,
+  0x081CF0F5,
+  0x081D1CDC,
+  0x081CAD8B,
+  0x081D2881,
+  0x081CDDBA,
+  0x081C876C,
+  0x081D045F,
+  0x081CAF23,
+  0x081D0EBA,
+  0x081CAF30,
+  0x081CAF45,
+  0x081CF977,
+  0x081C8E85,
+  0x081D1D23,
+  0x081CF472,
+  0x081CD43B,
+  0x081C9BFB,
+  0x081D21D5,
+  0x081CAF5E,
+  0x081CA019,
+  0x081D223C,
+  0x081CAF6A,
+  0x081CAFEB,
+  0x081D34A3,
+  0x081CB025,
+  0x081CB08B,
+  0x081CFF3B,
+  0x081C9D3C,
+  0x081D1588,
+  0x081CD218,
+  0x081CB0B3,
+  0x081C7672,
+  0x081CDC08,
+  0x081D1899,
+  0x081CB109,
+  0x081CA12E,
+  0x081CF7CD,
+  0x081D0405,
+  0x081C84B5,
+  0x081CB146,
+  0x081CE964,
+  0x081C8FC5,
+  0x081CB175,
+  0x081D1C10,
+  0x081CDF0B,
+  0x081D1C73,
+  0x081CD130,
+  0x081CF252,
+  0x081CE03A,
+  0x081D082B,
+  0x081CF573,
+  0x081D0F40,
+  0x081CB1FD,
+  0x081CB23C,
+  0x081D1FB1,
+  0x081C9E60,
+  0x081C8FE2,
+  0x081CF528,
+  0x081C9AF4,
+  0x081C9518,
+  0x081CFB22,
+  0x081CEEED,
+  0x081CB297,
+  0x081CB32B,
+  0x081CB36E,
+  0x081CB3AF,
+  0x081CB436,
+  0x081CB47E,
+  0x081C96B3,
+  0x081C895A,
+  0x081D1025,
+  0x081C9B2A,
+  0x081C98CA,
+  0x081D211A,
+  0x081D19DB,
+  0x081D376A,
+  0x081D1E38,
+  0x081C9040,
+  0x081C9307,
+  0x081C9349,
+  0x081CD803,
+  0x081CB4C0,
+  0x081D0002,
+  0x081CF5CA,
+  0x081CDA1C,
+  0x081D1F8F,
+  0x081D246E,
+  0x081C8590,
+  0x081CB551,
+  0x081D292D,
+  0x081D10D4,
+  0x081D1198,
+  0x081D0199,
+  0x081D2899,
+  0x081CF177,
+  0x081CB5BE,
+  0x081C83CC,
+  0x081CFDAC,
+  0x081D4D7E,
+  0x081CE1B5,
+  0x081D03AF,
+  0x081CE25E,
+  0x081CDD24,
+  0x081C86FA,
+  0x081CB64E,
+  0x081D0703,
+  0x081D130D,
+  0x081CD53F,
+  0x081D0214,
+  0x081CFBAA,
+  0x081C823F,
+  0x081D1BD5,
+  0x081CB70C,
+  0x081D25DB,
+  0x081D2692,
+  0x081D27D5,
+  0x081CB7D6,
+  0x081CB886,
+  0x081CB8BE,
+  0x081D2B59,
+  0x081D23B0,
+  0x081CB902,
+  0x081CB946,
+  0x081D36A3,
+  0x081CB966,
+  0x081CB9C1,
+  0x081D0703,
+  0x081CB9E0,
+  0x081CBA7B,
+  0x081CBACF,
+  0x081D2515,
+  0x081D2C55,
+  0x081D2593,
+  0x081CBB42,
+  0x081D1D87,
+  0x081CBBB3,
+  0x081D48F9,
+  0x081CBC6E,
+  0x081D33CD,
+  0x081CBCA2,
+  0x081CBEA7,
+  0x081D4A7F,
+  0x081CBEEA,
+  0x081CBF5F,
+  0x081CC02C,
+  0x081CC077,
+  0x081D2CB2,
+  0x081CC0BA,
+  0x081D41BF,
+  0x081D4D2A,
+  0x081D41D9,
+  0x081D2F03,
+  0x081CC0E2,
+  0x081CC128,
+  0x081CC16B,
+  0x081CC282,
+  0x081CC311,
+  0x081CC3E1,
+  0x081D2CF5,
+  0x081CC44C,
+  0x081D4FFE,
+  0x081CC583,
+  0x081CC733,
+  0x081D2D7D,
+  0x081D3464,
+  0x081CC74B,
+  0x081D3C7E,
+  0x081D4622,
+  0x081D3346,
+  0x081D4754,
+  0x081D51CD,
+  0x081CC7BB,
+  0x081CC91D,
+  0x081CC9AD,
+  0x081D4330,
+  0x081CCA0F,
+  0x081D3EC0,
+  0x081D3FA7,
+  0x081D3653,
+  0x081CCA59,
+  0x081CCB4C,
+  0x081D3BF9,
+  0x081CCBB8,
+  0x081CEB5D,
+  0x081CCBE6,
+  0x081CCC41,
+  0x081D4C31,
+  0x081D2E06,
+  0x081D2EDE,
+  0x081D2F98,
+  0x081D2FAA,
+  0x081CCCA9,
+  0x081C7831,
+  0x081CCD13,
+  0x081CCD3D,
+  0x081CCD4C,
+  0x081D3040,
+  0x081D34AF,
+  0x081CCD6E,
+  0x081CFCF7,
+  0x081D32A9,
+  0x081D1132,
+  0x081CCD8C,
+  0x081CCDE9,
+  0x081D4EDD,
+  0x081CCEE1,
+  0x081CCF07,
+  0x081CCF87,
+  0x081CD00A,
+  0x081D4293,
+  0x081CD079,
+  0x081D4916,
+  0x081D4B0F,
+  0x081D4A0B
+]
+
 export default {
   version: "FIRERED/LEAFGREEN",
   rawBinArray: [],
@@ -65,11 +424,10 @@ export default {
     { name: 'Gameboy Advance ROM', extensions: ['gba'] }
     ],
   generation: 3,
-  moveAnimations: gscMoveAnimations,
+  moveAnimations: g3MoveAnimations,
   moveEffects: g3MoveEffects,
   evolveTypes: g3EvolveTypes,
   evolveStones: g3Stones,
-  evolveHappiness: gscHappiness,
   tradeItems: g3TradeItems,
   growthRates: g3GrowthRates,
   damageModifiers: gscDamageModifiers,
@@ -390,42 +748,47 @@ export default {
     moveToAdd.power = 0;
     moveToAdd.accuracy = 0;
     moveToAdd.pp = 0;
-    moves.push(moveToAdd);
+    moves.push(moveToAdd);    
 
     for (let i = 0; i < 354; i++) //354 because there are 354 moves in the game.
     {
-        moveName = "";
+      moveName = "";
 
-        //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
-        while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
-          if(getState().rawBinArray[currentMoveNameByte] !== 0x00){
-            moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
-          }
-          currentMoveNameByte++;
+      //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
+      while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
+        if(getState().rawBinArray[currentMoveNameByte] !== 0x00){
+          moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
         }
         currentMoveNameByte++;
+      }
+      currentMoveNameByte++;
 
-        moveToAdd = {};
-        moveToAdd.id = i + 1;
-        moveToAdd.name = moveName;
-        //Each Move uses 12 bytes. i = the current move so we take the starting point and add 12 for each move
-        // that we have already read and then add 0-11 as we read through the data fields for that move.
-        moveToAdd.animationID = i+1;
-        moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 12)];
-        moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 12) + 1];
-        moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 12) + 2];
-        moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 12) + 3];
-        moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 12) + 4];
-        moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 12) + 5];
-        moveToAdd.target = getState().rawBinArray[movesStartingByte + (i * 12) + 6];
-        moveToAdd.priority = getState().rawBinArray[movesStartingByte + (i * 12) + 7];
-        moveToAdd.highCrit = false;
+      moveToAdd = {};
+      moveToAdd.id = i + 1;
+      moveToAdd.name = moveName;
+      //Each Move uses 12 bytes. i = the current move so we take the starting point and add 12 for each move
+      // that we have already read and then add 0-11 as we read through the data fields for that move.
+      moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 12)];
+      moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 12) + 1];
+      moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 12) + 2];
+      moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 12) + 3];
+      moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 12) + 4];
+      moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 12) + 5];
+      moveToAdd.target = getState().rawBinArray[movesStartingByte + (i * 12) + 6];
+      moveToAdd.priority = getState().rawBinArray[movesStartingByte + (i * 12) + 7];
+      moveToAdd.highCrit = false;
 
-        moves.push(moveToAdd);
+      let animationPointer = getState().rawBinArray[moveAnimationsStart + i*4];
+      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 1] * 0x100;
+      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 2] * 0x10000;
+      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 3] * 0x1000000;
+
+      moveToAdd.animationID = animationPointers.indexOf(animationPointer);
+
+      moves.push(moveToAdd);
     }
-    //console.log(moves);
+
     getStoreActions().setMovesArray(moves);
-    //return moves;
   }),
   savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let currentMoveNameByte = moveNamesByte;
