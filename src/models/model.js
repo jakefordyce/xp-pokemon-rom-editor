@@ -397,13 +397,13 @@ export default {
     let modelActions;
     switch(getState().selectedROM){
       case 0:
-        modelActions = actions.goldSilverModel
+        modelActions = actions.fireredLeafgreenModel        
         break;
       case 1:
         modelActions = actions.redBlueModel
         break;
       case 2:
-        modelActions = actions.fireredLeafgreenModel
+        modelActions = actions.goldSilverModel
         break;
       default:
         break;
@@ -414,13 +414,13 @@ export default {
     let modelState;
     switch(state.selectedROM){
       case 0:
-        modelState = state.goldSilverModel
+        modelState = state.fireredLeafgreenModel
         break;
       case 1:
         modelState = state.redBlueModel
         break;
       case 2:
-        modelState = state.fireredLeafgreenModel
+        modelState = state.goldSilverModel
         break;
       default:
         break;
@@ -433,8 +433,8 @@ export default {
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
   }),
-  supportedROMs: [{text: 'gold/silver', select: 0}, {text: 'red/blue', select: 1},{text: "firered/leafgreen", select: 2}],
-  defaultSupportedROM: 'gold/silver',
+  supportedROMs: [{text: "firered/leafgreen", select: 0}, {text: 'red/blue', select: 1}, {text: 'gold/silver', select: 2}],
+  defaultSupportedROM: 'firered/leafgreen',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
     getState().dataLoaded = false;
     let filedata;
