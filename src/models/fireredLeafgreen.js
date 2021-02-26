@@ -10,6 +10,7 @@ const pokemonStartByte = 0x25480F; //Pokemon base stats data starts here. It goe
 const pokemonMovesPointers = 0x25D824;
 const pokemonEvolutionsStart = 0x2597EC;
 const pointerBase = 0x3C000;
+const pokemonTMStart = 0x252C40;
 
 //values used to load the pokemon types
 const typesByte = 0x24F210; //
@@ -119,18 +120,18 @@ export default {
 
       currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 20];
 
-      /*
+      //*
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
       //first we grab the 8 bytes in an array.
       let tmIntArray = [];
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 24]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 25]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 26]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 27]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 28]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 29]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 30]);
-      tmIntArray.push(getState().rawBinArray[pokemonStartByte + (i * 32) + 31]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 0]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 1]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 2]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 3]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 4]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 5]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 6]);
+      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 7]);
 
       let tmBoolArray = [];
 
@@ -139,7 +140,7 @@ export default {
         let bitArray = tm.toString(2).padStart(8, '0').split("").reverse().join("");
         //go through each character of the string, convert it to a boolean, and add it to our bool array.
         for(let i = 0; i < 8; i++){
-          if(tmBoolArray.length < 57){
+          if(tmBoolArray.length < 58){
             tmBoolArray.push(Boolean(Number(bitArray[i])));
           }
         }
@@ -147,7 +148,7 @@ export default {
 
       currentPokemon.tms = tmBoolArray;
 
-      */
+      //*/
       currentPokemon.evolutions = [];
       currentPokemon.learnedMoves = [];
 
