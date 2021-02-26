@@ -27,6 +27,7 @@ function PokemonFullData(){
   const evolveStats = useStoreState(state => state.romModelState.evolveStats);
   const tradeItems = useStoreState(state => state.romModelState.tradeItems);
   const growthRates = useStoreState(state => state.romModelState.growthRates);
+  const abilities = useStoreState(state => state.romModelState.abilities);
   const maxEvosMovesBytes = useStoreState(state => state.romModelState.maxEvosMovesBytes);
   const currentEvosMovesBytes = useStoreState(state => state.currentEvosMovesBytes);
 
@@ -175,6 +176,16 @@ function PokemonFullData(){
             {gen === 1 &&
               <tr><td>Start Move 4: </td>
               <td><ArraySelect collection={moves} value='id' display='name' selectedValue={pokemon[selectedPokemon].move4} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'move4'} /></td>
+              </tr>
+            }
+            {gen > 2 &&
+              <tr><td>Ability: </td>
+              <td><ArraySelect collection={abilities} selectedValue={pokemon[selectedPokemon].ability1} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'ability1'} /></td>
+              </tr>
+            }
+            {gen > 2 &&
+              <tr><td>Ability: </td>
+              <td><ArraySelect collection={abilities}  selectedValue={pokemon[selectedPokemon].ability2} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'ability2'} /></td>
               </tr>
             }
             {pokemon[selectedPokemon].evolutions.length > 0 &&

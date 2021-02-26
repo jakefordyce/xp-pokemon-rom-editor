@@ -1,7 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, gscMoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, gscHappiness, gscStats, g3TradeItems, g3GrowthRates,
   g3ZoneNames, g3GrassEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames, g3WaterEncChances,
-  getKeyByValue, g3MoveTargets, g3FishingEncChances} from './utils';
+  getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities} from './utils';
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
@@ -75,6 +75,7 @@ export default {
   damageModifiers: gscDamageModifiers,
   trainerTypes: gsTrainerTypes,
   moveTargets: g3MoveTargets,
+  abilities: g3Abilities,
   //these are limitations due to space.
   maxEvosMovesBytes: 5709,
   maxTrainerBytes: 9791,
@@ -117,8 +118,9 @@ export default {
       currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 28) +8];
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 9];
       currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 28) + 10];
-
       currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 20];
+      currentPokemon.ability1 = getState().rawBinArray[pokemonStartByte + (i * 28) + 23];
+      currentPokemon.ability2 = getState().rawBinArray[pokemonStartByte + (i * 28) + 24];
 
       //*
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
