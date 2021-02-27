@@ -786,8 +786,6 @@ export default {
     let currentMoveNameByte = moveNamesByte;
     let romData = getState().rawBinArray;
     let moves = getStoreState().moves;
-    const highCritMovesStartByte = 0x347F3;
-    let highCritMoves = [];
 
     for(let i = 0; i < 251; i++)
     {
@@ -806,15 +804,6 @@ export default {
 
         romData[currentMoveNameByte] = 0x50;
         currentMoveNameByte++;
-
-        if(moves[i+1].highCrit === true){
-          highCritMoves.push(moves[i+1].id);
-        }
-    }
-
-    // In Gens I & II the data for high crit chance moves is stored separately. It is just a list of move IDs followed by 0xFF
-    for(let i = 0; i < getState().numHighCritMoves; i++){
-      romData[highCritMovesStartByte + i] = highCritMoves[i];
     }
 
   }),
