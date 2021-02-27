@@ -7,7 +7,7 @@ import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3Evol
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
 const pokemonMovesStart = 0x257504; //In Firered the learned moves are stored separately from evolutions.
 const pokemonStartByte = 0x25480F; //Pokemon base stats data starts here. It goes in Pokedex order, Bulbasaur through Deoxys. Chimecho is at the end, out of order.
-const pokemonMovesPointers = 0x25D824;
+const pokemonMovesPointers = 0x25D828;//The first pointer is a dup pointer to bulbasaur's moves so I skipped it.
 const pokemonEvolutionsStart = 0x2597EC;
 const pointerBase = 0x3C000;
 const pokemonTMStart = 0x252C40;
@@ -572,8 +572,8 @@ export default {
   }),
   savePokemonData: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let workingArray = getState().rawBinArray;
-    let currentEvosMovesByte = pokemonMovesStart;
-    let currentPointerByte = pokemonMovesPointers;
+    let currentMovesPosition = pokemonMovesStart;
+    let currentPointerPosition = pokemonMovesPointers;
     let pokemon = getStoreState().pokemon;
 
     for (let i = 0; i < 411; i++) //There are 411 pokemon in the game
@@ -633,12 +633,21 @@ export default {
         }
       }
 
-      /*
+      //mark the current moves position as this pokemon's pointer
+      workingArray[currentPointerPosition++] = currentMovesPosition & 0xFF;
+      workingArray[currentPointerPosition++] = (currentMovesPosition >> 8) & 0xFF;
+      workingArray[currentPointerPosition++] = (currentMovesPosition >> 16) & 0xFF;
+      workingArray[currentPointerPosition++] = 0x08; //they always end with 0x08
+
+      //save the pokemon's moves. Once they are all done we mark the end with 0xFFFF
+      //*
       pokemon[i].learnedMoves.forEach((m) => {
-        workingArray[currentEvosMovesByte++] = m.level;
-        workingArray[currentEvosMovesByte++] = m.moveID;
+        let moveValue = (m.level << 9 | m.moveID);
+        workingArray[currentMovesPosition++] = moveValue & 0xFF;
+        workingArray[currentMovesPosition++] = moveValue >> 8;
       });
-      workingArray[currentEvosMovesByte++] = 0;
+      workingArray[currentMovesPosition++] = 0xFF;
+      workingArray[currentMovesPosition++] = 0xFF;
       //*/
     }
 
