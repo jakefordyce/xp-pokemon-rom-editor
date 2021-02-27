@@ -59,7 +59,7 @@ const shopsStarts = [
   {shopName: "Seven Island", pointer: 0x170BD0}
 ]
 
-const animationPointers = [  
+const animationPointers = [
   0x081C6FA4,
   0x081C6FA4,
   0x081CFD5A,
@@ -613,8 +613,8 @@ export default {
       workingArray[pokemonTMStart + (i * 8) + 5] = tmArray[5];
       workingArray[pokemonTMStart + (i * 8) + 6] = tmArray[6];
       workingArray[pokemonTMStart + (i * 8) + 7] = tmArray[7];
-      
-      
+
+
       for(let e = 0; e < 5; e++){
         if(pokemon[i].evolutions[e] !== undefined){
           workingArray[pokemonEvolutionsStart + (i * 40) + (e * 8)] = pokemon[i].evolutions[e].evolve & 0xFF;
@@ -740,7 +740,7 @@ export default {
     moveToAdd.power = 0;
     moveToAdd.accuracy = 0;
     moveToAdd.pp = 0;
-    moves.push(moveToAdd);    
+    moves.push(moveToAdd);
 
     for (let i = 0; i < 354; i++) //354 because there are 354 moves in the game.
     {
@@ -784,6 +784,7 @@ export default {
   }),
   savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let currentMoveNameByte = moveNamesByte;
+    let currentAnimationPosition = moveAnimationsStart;
     let romData = getState().rawBinArray;
     let moves = getStoreState().moves;
 
@@ -798,9 +799,12 @@ export default {
       romData[movesStartingByte + (i * 12) + 6] = moves[i + 1].target;
       romData[movesStartingByte + (i * 12) + 7] = moves[i + 1].priority;
 
-      /*
-      romData[movesStartingByte + (i * 12)] = moves[i + 1].animationID;
-      //*/
+      //the the value we save is a pointer to the function that performs the move's animation.
+      let animationValue = animationPointers[moves[i + 1].animationID];
+      romData[currentAnimationPosition++] = animationValue & 0xFF;
+      romData[currentAnimationPosition++] = (animationValue >> 8) & 0xFF;
+      romData[currentAnimationPosition++] = (animationValue >> 16) & 0xFF;
+      currentAnimationPosition++; // skip the last byte because it is always 08;
 
       /*
       moves[i + 1].name.split("").forEach((c) => {
