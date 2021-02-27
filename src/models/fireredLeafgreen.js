@@ -787,23 +787,28 @@ export default {
     let romData = getState().rawBinArray;
     let moves = getStoreState().moves;
 
-    for(let i = 0; i < 251; i++)
+    for(let i = 0; i < 354; i++)
     {
-        romData[movesStartingByte + (i * 7)] = moves[i + 1].animationID;
-        romData[movesStartingByte + (i * 7) + 1] = moves[i + 1].effect;
-        romData[movesStartingByte + (i * 7) + 2] = moves[i + 1].power;
-        romData[movesStartingByte + (i * 7) + 3] = moves[i + 1].moveType;
-        romData[movesStartingByte + (i * 7) + 4] = moves[i + 1].accuracy;
-        romData[movesStartingByte + (i * 7) + 5] = moves[i + 1].pp;
-        romData[movesStartingByte + (i * 7) + 6] = moves[i + 1].effectChance;
+      romData[movesStartingByte + (i * 12)] = moves[i + 1].effect;
+      romData[movesStartingByte + (i * 12) + 1] = moves[i + 1].power;
+      romData[movesStartingByte + (i * 12) + 2] = moves[i + 1].moveType;
+      romData[movesStartingByte + (i * 12) + 3] = moves[i + 1].accuracy;
+      romData[movesStartingByte + (i * 12) + 4] = moves[i + 1].pp;
+      romData[movesStartingByte + (i * 12) + 5] = moves[i + 1].effectChance;
+      romData[movesStartingByte + (i * 12) + 6] = moves[i + 1].target;
+      romData[movesStartingByte + (i * 12) + 7] = moves[i + 1].priority;
 
-        moves[i + 1].name.split("").forEach((c) => {
-          romData[currentMoveNameByte] = getKeyByValue(gen3Letters, c);
-          currentMoveNameByte++;
-        });
+      /*
+      romData[movesStartingByte + (i * 12)] = moves[i + 1].animationID;
+      //*/
 
-        romData[currentMoveNameByte] = 0x50;
+      /*
+      moves[i + 1].name.split("").forEach((c) => {
+        romData[currentMoveNameByte] = getKeyByValue(gen3Letters, c);
         currentMoveNameByte++;
+      });
+      //*/
+
     }
 
   }),
