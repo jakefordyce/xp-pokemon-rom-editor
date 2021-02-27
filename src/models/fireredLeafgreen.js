@@ -748,7 +748,7 @@ export default {
 
       //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
       while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
-        if(getState().rawBinArray[currentMoveNameByte] !== 0x00){
+        if(getState().rawBinArray[currentMoveNameByte] !== 0x00 || moveName.length > 0){
           moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
         }
         currentMoveNameByte++;
@@ -806,12 +806,13 @@ export default {
       romData[currentAnimationPosition++] = (animationValue >> 16) & 0xFF;
       currentAnimationPosition++; // skip the last byte because it is always 08;
 
-      /*
       moves[i + 1].name.split("").forEach((c) => {
-        romData[currentMoveNameByte] = getKeyByValue(gen3Letters, c);
-        currentMoveNameByte++;
+        romData[currentMoveNameByte++] = getKeyByValue(gen3Letters, c);
       });
-      //*/
+      romData[currentMoveNameByte++] = 0xFF;
+      for(let z = 0; z < (12 - moves[i + 1].name.length); z++){
+        romData[currentMoveNameByte++] = 0x00;
+      }
 
     }
 
