@@ -949,7 +949,7 @@ export default {
     let currentByte = typeChartByte;
     let foresightTypes = false;
 
-    while(getState().rawBinArray[currentByte] !== 0xFF) // Since we are checking the ending byte this can be converted to a while loop?
+    while(getState().rawBinArray[currentByte] !== 0xFF)
     {
       // The type matchups are split into 2 groups. The first group ends with FE.
       // The 2nd group is the ghost immunes that are cancelled by using the Foresight move.
@@ -999,9 +999,13 @@ export default {
       romData[currentByte++] = typeMatchups[i].effectiveness;
       if(i === typeMatchups.length-foresightCount){
         romData[currentByte++] = 0xFE; //0xFE separates the last 2 type matchups. Originally they are the ghost immunes that are removed by foresight.
+        romData[currentByte++] = 0xFE;
+        romData[currentByte++] = 0x00;
       }
     }
     romData[currentByte++] = 0xFF; //writing the ending byte manually in case the user removed some type strengths.
+    romData[currentByte++] = 0xFF;
+    romData[currentByte++] = 0x00;
 
   }),
   loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
@@ -1413,7 +1417,7 @@ export default {
     //actions.saveTMs();
     //actions.saveItems();
     //actions.savePokemonTypes();
-    //actions.saveTypeMatchups();
+    actions.saveTypeMatchups();
     //actions.saveEncounters();
     //actions.saveTrainers();
     //actions.saveShops();
