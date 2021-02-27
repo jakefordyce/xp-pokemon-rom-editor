@@ -1407,7 +1407,7 @@ export default {
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();
-    //actions.savePokemonMoves();
+    actions.savePokemonMoves();
     //actions.saveTMs();
     //actions.saveItems();
     //actions.savePokemonTypes();
