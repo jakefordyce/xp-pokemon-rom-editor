@@ -1299,34 +1299,22 @@ export default {
 
     getStoreActions().setShops(shops);
   }),
-  /* saveShops
+  //* saveShops
   saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let shops = getStoreState().shops;
 
-    let currentByte = shopsStartByte;
-    let currentPointerByte = shopsPointerStartByte;
-    for (let i = 0; i < 35; i++)
+    for (let i = 0; i < shopsStarts.length; i++)
     {
-        //first update pointers to the new location of the shop's data.
-        //the game stores these pointers along with the pointers to the text data.
-        if(i !== 34) //the last mart doesn't have a pointer i guess?
-        {
-            let secondPointerByte = Math.floor((currentByte) / 256);
-            let firstPointerByte = (currentByte) - (secondPointerByte * 256);
-            romData[currentPointerByte++] = firstPointerByte;
-            romData[currentPointerByte++] = secondPointerByte;
-        }
+      let currentPosition = shopsStarts[i].pointer;
 
-        //next update the shop data.
-        //The first byte is always the number of items for sale.
-        romData[currentByte++] = shops[i].items.length;
+      shops[i].items.forEach(item => {
+        romData[currentPosition++] = item.item & 0xFF;
+        romData[currentPosition++] = item.item >> 8;
+      });
 
-        for(let k = 0; k < shops[i].items.length; k++)
-        {
-            romData[currentByte++] = shops[i].items[k].item + 1;
-        }
-        romData[currentByte++] = 0xFF; //mark end of shop
+      romData[currentPosition++] = 0x00; //mark end of shop
+      romData[currentPosition++] = 0x00; //mark end of shop
     }
   }),
   //*/
@@ -1340,7 +1328,7 @@ export default {
     actions.saveTypeMatchups();
     actions.saveEncounters();
     actions.saveTrainers();
-    //actions.saveShops();
+    actions.saveShops();
     //actions.saveStarters();
     //actions.saveMoveDescriptions();
     //actions.saveShinyOdds();
