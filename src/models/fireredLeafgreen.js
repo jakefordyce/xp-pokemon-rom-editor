@@ -1165,6 +1165,8 @@ export default {
       newTrainer.name = trainerName;
       newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
 
+      newTrainer.doubleBattle = getState().rawBinArray[trainerDataStart + t*40 + 24];
+
       let numOfPokemon = getState().rawBinArray[trainerDataStart + t*40 + 32];
 
       //get the starting point for the trainer's pokemon
@@ -1234,6 +1236,8 @@ export default {
 
       //party flags
       romData[trainerDataStart + (i * 40)] = trainers[i].type;
+      //double battle.
+      romData[trainerDataStart + (i * 40) + 24] = trainers[i].doubleBattle;
       //number of pokemon
       romData[trainerDataStart + (i * 40) + 32] = trainers[i].pokemon.length;
       //pointer to the trainer's pokemon.

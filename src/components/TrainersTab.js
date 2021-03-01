@@ -3,7 +3,7 @@ import {useStoreState, useStoreActions} from 'easy-peasy';
 import ArraySelect from './ArraySelect';
 
 function TrainersTab(){
-    
+
   const dataLoaded = useStoreState(state => state.dataLoaded);
   const generation = useStoreState(state => state.romModelState.generation);
   const trainers = useStoreState(state => state.trainers);
@@ -20,7 +20,7 @@ function TrainersTab(){
   const currentTrainerBytes = useStoreState(state => state.currentTrainerBytes);
   const maxTrainerBytes = useStoreState(state => state.romModelState.maxTrainerBytes);
 
-  const trainersList = trainers.sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0)).map((trainer, index) => 
+  const trainersList = trainers.sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0)).map((trainer, index) =>
     <li key={index} className={"list-group-item" + (selectedTrainer === index ? " active" : "")} style={{maxWidth: "300px"}} onClick={()=> setSelectedTrainer(index)}>{trainer.name}</li>
   );
 
@@ -48,7 +48,7 @@ function TrainersTab(){
       <td><button onClick={(e) => handleRemovePokemon(e, index)}>X</button></td>
     </tr>
   );
-  
+
   function handleTrainerPokemonChange(event, pokeIndex, propName){
     let newValue = event.target.value;
     updateTrainerPokemon({index: pokeIndex, propName: propName, propValue: newValue});
@@ -82,6 +82,7 @@ function TrainersTab(){
               {generation === 1 && <tr><td>All Same Level: </td><td><input type="checkbox" checked={trainers[selectedTrainer].allSameLevel} onChange={(e) => handleTrainerCheckbox(e, selectedTrainer, 'allSameLevel')} /></td></tr>}
               {generation === 1 && trainers[selectedTrainer].allSameLevel && <tr><td>Party Level: </td><td><input value={trainers[selectedTrainer].partyLevel} onChange={(e) => handleTrainerChange(e, selectedTrainer, 'partyLevel')} /></td></tr>}
               {generation > 1 && <tr><td>Trainer Type: </td><td><ArraySelect collection={trainerTypes} selectedValue={trainers[selectedTrainer].type} handleOptionChange={handleTrainerChange} arrayIndex={selectedTrainer} propName={'type'} /></td></tr>}
+              {generation > 2 && <tr><td>Double Battle:</td><td><input value={trainers[selectedTrainer].doubleBattle} onChange={(e) => handleTrainerChange(e, selectedTrainer, 'doubleBattle')} /></td></tr>}
               {pokemonList}
             </tbody>
           </table>
@@ -89,7 +90,7 @@ function TrainersTab(){
         </div>
       </div>
   )
-  
+
 }
 
 export default TrainersTab;
