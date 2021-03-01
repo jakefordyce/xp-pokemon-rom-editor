@@ -357,6 +357,15 @@ export default {
         }
       });
     }
+    else if(state.romModelState.generation === 3){
+      state.trainers.forEach((trainer) => {
+        if(trainer.type === 1 || trainer.type === 3){
+          count += trainer.pokemon.length * 16;
+        }else{
+          count += trainer.pokemon.length * 8;
+        }
+      });
+    }
     return count;
   }),
   currentShopItems: computed((state) => {
@@ -397,7 +406,7 @@ export default {
     let modelActions;
     switch(getState().selectedROM){
       case 0:
-        modelActions = actions.fireredLeafgreenModel        
+        modelActions = actions.fireredLeafgreenModel
         break;
       case 1:
         modelActions = actions.redBlueModel

@@ -437,7 +437,7 @@ export default {
   abilities: g3Abilities,
   //these are limitations due to space.
   maxEvosMovesBytes: 5709,
-  maxTrainerBytes: 9791,
+  maxTrainerBytes: 17336,
   maxShopItems: 229,
   numHighCritMoves: 7,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
