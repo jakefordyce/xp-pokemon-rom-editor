@@ -885,9 +885,10 @@ export default {
     let romData = getState().rawBinArray;
     let tms = getStoreState().tms;
 
-    for (let i = 0; i < 58; i++) //There are 50 TMs and 7 HMs. Each is 1 byte which is the moveID
+    for (let i = 0; i < 58; i++) //There are 50 TMs and 7 HMs. Each is 2 bytes which is the moveID
     {
-        romData[tmStart + i] = tms[i].move;
+      romData[tmStart + i*2] = tms[i].move & 0xFF;
+      romData[tmStart + (i*2) + 1] = tms[i].move >> 8;
     }
   }),
   loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
@@ -1333,7 +1334,7 @@ export default {
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();
     actions.savePokemonMoves();
-    //actions.saveTMs();
+    actions.saveTMs();
     //actions.saveItems();
     actions.savePokemonTypes();
     actions.saveTypeMatchups();
