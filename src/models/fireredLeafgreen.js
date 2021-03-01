@@ -916,9 +916,9 @@ export default {
     let romData = getState().rawBinArray;
     let items = getStoreState().items;
 
-    for(let i = 0; i < 249; i++){
-      romData[itemPropertiesStart + i*7] = items[i].price % 256;
-      romData[itemPropertiesStart + i*7  +1] = Math.floor(items[i].price / 256);
+    for(let i = 0; i < 375; i++){
+      romData[itemPropertiesStart + i*44 + 16] = items[i].price & 0xFF;
+      romData[itemPropertiesStart + i*44 + 17] = items[i].price >> 8;
     }
 
   }),
@@ -1335,7 +1335,7 @@ export default {
     actions.savePokemonData();
     actions.savePokemonMoves();
     actions.saveTMs();
-    //actions.saveItems();
+    actions.saveItems();
     actions.savePokemonTypes();
     actions.saveTypeMatchups();
     actions.saveEncounters();
