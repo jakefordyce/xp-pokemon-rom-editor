@@ -795,7 +795,6 @@ export default {
     }
 
   }),
-
   loadMoveDescriptions: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let descriptions = [];
     let currentMoveDescByte = moveDescStartByte;
@@ -828,7 +827,6 @@ export default {
 
     getStoreActions().setMoveDescriptions(descriptions);
   }),
-
   saveMoveDescriptions: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let currentMoveDescByte = moveDescStartByte;
     let romData = getState().rawBinArray;
@@ -856,7 +854,6 @@ export default {
       currentMoveDescByte++;
     }
   }),
-
   loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
 
     let tms = [];
@@ -899,6 +896,7 @@ export default {
 
       //The price is stored in 2 bytes little endian.
       newItem.price = (getState().rawBinArray[itemPropertiesStart + i*44 + 17] * 256) + getState().rawBinArray[itemPropertiesStart + i*44 + 16];
+      newItem.importance = getState().rawBinArray[itemPropertiesStart + i*44 + 24]
 
       let itemName = "";
       let currentPosition = itemPropertiesStart + i*44;
@@ -919,6 +917,7 @@ export default {
     for(let i = 0; i < 375; i++){
       romData[itemPropertiesStart + i*44 + 16] = items[i].price & 0xFF;
       romData[itemPropertiesStart + i*44 + 17] = items[i].price >> 8;
+      romData[itemPropertiesStart + i*44 + 24] = items[i].importance;
     }
 
   }),
@@ -1111,7 +1110,6 @@ export default {
     //console.log(zones.length);
     getStoreActions().setEncounterZones(zones);
   }),
-
   saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let zones = getStoreState().encounterZones;
@@ -1129,7 +1127,6 @@ export default {
       currentPosition += 7;
     });
   }),
-
   loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
     let trainers = [];
     let trainerClasses = [];
@@ -1299,7 +1296,6 @@ export default {
 
     getStoreActions().setShops(shops);
   }),
-  //* saveShops
   saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let shops = getStoreState().shops;
@@ -1317,7 +1313,7 @@ export default {
       romData[currentPosition++] = 0x00; //mark end of shop
     }
   }),
-  //*/
+
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();

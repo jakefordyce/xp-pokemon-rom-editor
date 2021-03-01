@@ -3,7 +3,7 @@ import {useStoreState, useStoreActions} from 'easy-peasy';
 import ArraySelect from './ArraySelect';
 
 function ItemsTab(){
-  
+
   const dataLoaded = useStoreState(state => state.dataLoaded);
   const moves = useStoreState(state => state.moves);
   const tms = useStoreState(state => state.tms);
@@ -12,7 +12,7 @@ function ItemsTab(){
   const updateItem = useStoreActions(actions => actions.updateItemProperty);
   const generation = useStoreState(state => state.romModelState.generation);
 
-  const tmList = tms.map((tm, index) => 
+  const tmList = tms.map((tm, index) =>
     <tr key={index}>
       <td>{tm.name}</td>
       <td><ArraySelect collection={moves} value='id' display='name' selectedValue={tm.move} handleOptionChange={handleTMChange} arrayIndex={index} propName={'move'} /></td>
@@ -25,11 +25,11 @@ function ItemsTab(){
     </tr>
   );
 
-  const itemList = items.filter(item => item.price !== undefined).map((item, index) =>    
+  const itemList = items.filter(item => item.price !== undefined).map((item, index) =>
     <tr key={index}>
       <td>{item.name}</td>
-      <td>Price: </td>
       <td><input value={item.price} onChange={(e) => handleItemChange(e, index, 'price')} /></td>
+      {generation > 2 && <td><input value={item.importance} onChange={(e) => handleItemChange(e, index, 'importance')} /></td>}
     </tr>
   );
 
@@ -54,6 +54,12 @@ function ItemsTab(){
       </div>
       <div style={{overflowY: "scroll"}}>
         <table>
+          <thead>
+            <tr>
+              <th>Item</th><th>Price</th>
+              {generation > 2 && <th>Importance</th>}
+            </tr>
+          </thead>
           <tbody>
             {itemList}
           </tbody>
