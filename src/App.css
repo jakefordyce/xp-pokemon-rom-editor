@@ -11,6 +11,10 @@
   width: 100px;
 }
 
+.tiny-number-input {
+  width: 30px;
+}
+
 .pokemon-full-data-container {
   display: grid;
   grid-template-columns: 180px auto 250px 350px;
@@ -32,7 +36,7 @@ td {
   width: "100%";
   min-width: 100px;
   background: none;
-  border: none;  
+  border: none;
 }
 
 .items-tab-container {
@@ -60,7 +64,7 @@ td {
 }
 
 .type-header > div {
-  transform: 
+  transform:
     translate(19px, 28px)
     rotate(315deg);
   width: 30px;

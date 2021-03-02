@@ -451,9 +451,7 @@ export default {
     actions.loadEncounters();
     actions.loadTrainers();
     actions.loadShops();
-    //actions.loadStarters();
     actions.loadMoveDescriptions();
-    //actions.loadShinyOdds();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -476,9 +474,20 @@ export default {
       currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 28) +8];
       currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 9];
       currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 28) + 10];
+
+      let evYieldValue = getState().rawBinArray[pokemonStartByte + (i * 28) + 11];
+      currentPokemon.evYieldHP = evYieldValue & 0x03;
+      currentPokemon.evYieldAttack = (evYieldValue >> 2) & 0x03;
+      currentPokemon.evYieldDefense = (evYieldValue >> 4) & 0x03;
+      currentPokemon.evYieldSpeed = (evYieldValue >> 6) & 0x03;
+      evYieldValue = getState().rawBinArray[pokemonStartByte + (i * 28) + 12];
+      currentPokemon.evYieldSpecialAttack = evYieldValue & 0x03;
+      currentPokemon.evYieldSpecialDefense = (evYieldValue >> 2) & 0x03;
+
       currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 20];
       currentPokemon.ability1 = getState().rawBinArray[pokemonStartByte + (i * 28) + 23];
       currentPokemon.ability2 = getState().rawBinArray[pokemonStartByte + (i * 28) + 24];
+
 
       //*
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
@@ -589,6 +598,14 @@ export default {
       workingArray[pokemonStartByte + (i * 28) + 8] = pokemon[i].type2;
       workingArray[pokemonStartByte + (i * 28) + 9] = pokemon[i].catchRate;
       workingArray[pokemonStartByte + (i * 28) + 10] = pokemon[i].expYield;
+
+      let evYieldValue = pokemon[i].evYieldHP | (pokemon[i].evYieldAttack << 2) |
+      (pokemon[i].evYieldDefense << 4) | (pokemon[i].evYieldSpeed << 6)
+      workingArray[pokemonStartByte + (i * 28) + 11] = evYieldValue;
+
+      evYieldValue = pokemon[i].evYieldSpecialAttack | (pokemon[i].evYieldSpecialDefense << 2)
+      workingArray[pokemonStartByte + (i * 28) + 12] = evYieldValue;
+
       workingArray[pokemonStartByte + (i * 28) + 20] = pokemon[i].growthRate;
       workingArray[pokemonStartByte + (i * 28) + 23] = pokemon[i].ability1;
       workingArray[pokemonStartByte + (i * 28) + 24] = pokemon[i].ability2;

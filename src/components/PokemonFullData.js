@@ -147,12 +147,24 @@ function PokemonFullData(){
         <table>
           <tbody>
             <tr><td>Name: </td><td>{pokemon[selectedPokemon].name}</td></tr>
-            <tr><td>HP: </td><td><input value={pokemon[selectedPokemon].hp} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'hp')} /></td></tr>
-            <tr><td>Attack: </td><td><input value={pokemon[selectedPokemon].attack} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'attack')} /></td></tr>
-            <tr><td>Defense: </td><td><input value={pokemon[selectedPokemon].defense} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'defense')} /></td></tr>
-            <tr><td>Speed: </td><td><input value={pokemon[selectedPokemon].speed} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'speed')} /></td></tr>
-            <tr>{gen === 1 && <td>Special: </td>}{gen !== 1 && <td>Special Attack: </td>}<td><input value={pokemon[selectedPokemon].specialAttack} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'specialAttack')} /></td></tr>
-            {gen !== 1 && <tr><td>Special Defense: </td><td><input value={pokemon[selectedPokemon].specialDefense} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'specialDefense')} /></td></tr>}
+            <tr><td>HP: </td><td><input value={pokemon[selectedPokemon].hp} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'hp')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldHP} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldHP')} /></td>}
+            </tr>
+            <tr><td>Attack: </td><td><input value={pokemon[selectedPokemon].attack} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'attack')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldAttack} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldAttack')} /></td>}
+            </tr>
+            <tr><td>Defense: </td><td><input value={pokemon[selectedPokemon].defense} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'defense')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldDefense} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldDefense')} /></td>}
+            </tr>
+            <tr><td>Speed: </td><td><input value={pokemon[selectedPokemon].speed} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'speed')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldSpeed} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldSpeed')} /></td>}
+            </tr>
+            <tr>{gen === 1 && <td>Special: </td>}{gen !== 1 && <td>Special Attack: </td>}<td><input value={pokemon[selectedPokemon].specialAttack} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'specialAttack')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldSpecialAttack} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldSpecialAttack')} /></td>}
+            </tr>
+            {gen !== 1 && <tr><td>Special Defense: </td><td><input value={pokemon[selectedPokemon].specialDefense} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'specialDefense')} /></td>
+            {gen > 2 && <td>Yield: <input value={pokemon[selectedPokemon].evYieldSpecialDefense} className="tiny-number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'evYieldSpecialDefense')} /></td>}
+            </tr>}
             <tr><td><ArraySelect collection={pokemonTypes} value='typeIndex' display='typeName' selectedValue={pokemon[selectedPokemon].type1} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'type1'} /></td></tr>
             <tr><td><ArraySelect collection={pokemonTypes} value='typeIndex' display='typeName' selectedValue={pokemon[selectedPokemon].type2} handleOptionChange={handleStatChange} arrayIndex={selectedPokemon} propName={'type2'} /></td></tr>
             <tr><td>Catch Rate: </td><td><input value={pokemon[selectedPokemon].catchRate} className="number-input" onChange={(e) => handleStatChange(e, selectedPokemon, 'catchRate')} /></td></tr>
@@ -189,12 +201,12 @@ function PokemonFullData(){
               </tr>
             }
             {pokemon[selectedPokemon].evolutions.length > 0 &&
-              <tr><td colSpan="2">Evolutions</td></tr>
+              <tr><td colSpan="100">Evolutions</td></tr>
             }
             {pokemon[selectedPokemon].evolutions.length > 0 &&
-              <tr><td colSpan="2"><ul className="list-group">{evolutions}</ul></td></tr>
+              <tr><td colSpan="100"><ul className="list-group">{evolutions}</ul></td></tr>
             }
-            <tr><td colSpan="2"><button onClick={handleAddEvolution}>Add Evolution</button></td></tr>
+            <tr><td colSpan="100"><button onClick={handleAddEvolution}>Add Evolution</button></td></tr>
 
           </tbody>
         </table>
