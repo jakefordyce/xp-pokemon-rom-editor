@@ -20,9 +20,8 @@ const typeChartByte = 0x24F0C0;
 const moveNamesByte = 0x247111;
 const movesStartingByte = 0x250C80; //The move data starts.
 const moveAnimationsStart = 0x1C6968;
-const moveDescPointer = 0x1B4000;
-const moveDescBank = 0x1B0000;
-const moveDescStartByte = 0x1B4202;
+const moveDescPointers = 0x488748;
+const moveDescStartByte = 0x482894;
 //values used to load the TMs and HMs
 const tmStart = 0x45A604; //The TM info.
 const itemPropertiesStart = 0x3DB098; // The item properties start here. 44 bytes per item.
@@ -453,7 +452,7 @@ export default {
     actions.loadTrainers();
     actions.loadShops();
     //actions.loadStarters();
-    //actions.loadMoveDescriptions();
+    actions.loadMoveDescriptions();
     //actions.loadShinyOdds();
   }),
   loadBinaryData: action((state, payload) => {
@@ -806,21 +805,22 @@ export default {
 
     descriptions.push(moveDesc);
 
-    for (let i = 0; i < 251; i++) //251 because there are 251 moves in the game
+    for (let i = 0; i < 354; i++) //There are 354 moves in the game
     {
         let descText = "";
 
-        while (getState().rawBinArray[currentMoveDescByte] !== 0x50) //0x50 is the deliminator for the end of a name.
+        while (getState().rawBinArray[currentMoveDescByte] !== 0xFF) //0xFF is the deliminator for the end of a description.
         {
-          descText += gen3Letters.get(getState().rawBinArray[currentMoveDescByte]);
-          currentMoveDescByte++
+          if(gen3Letters.get(getState().rawBinArray[currentMoveDescByte]) === undefined){
+            console.log(`Add character for value: ${getState().rawBinArray[currentMoveDescByte++]}`);
+          }
+          descText += gen3Letters.get(getState().rawBinArray[currentMoveDescByte++]);
         }
         currentMoveDescByte++;
 
         moveDesc = {};
         moveDesc.id = i+1; // +1 because an extra move was added.
         moveDesc.text = descText;
-
 
         descriptions.push(moveDesc);
     }
@@ -831,27 +831,22 @@ export default {
     let currentMoveDescByte = moveDescStartByte;
     let romData = getState().rawBinArray;
     let moveDescriptions = getStoreState().moveDescriptions;
-    let currentPointerByte = moveDescPointer;
+    let currentPointerByte = moveDescPointers;
 
-    let firstPointerByte;
-    let secondPointerByte;
-
-    for(let i = 0; i < 251; i++)
+    for(let i = 0; i < 354; i++)
     {
-      secondPointerByte = Math.floor((currentMoveDescByte - moveDescBank) / 256);
-      firstPointerByte = (currentMoveDescByte - moveDescBank) - (secondPointerByte * 256);
-      // write the pointer to the desc
-      romData[currentPointerByte++] = firstPointerByte;
-      romData[currentPointerByte++] = secondPointerByte;
+      // write the pointer to the desc first.
+      romData[currentPointerByte++] = currentMoveDescByte & 0xFF;
+      romData[currentPointerByte++] = (currentMoveDescByte >> 8 ) & 0xFF;
+      romData[currentPointerByte++] = (currentMoveDescByte >> 16 ) & 0xFF;
+      currentPointerByte++; //skip the last byte because it is always 0x08
 
       // +1 is being used because an extra move is added to the moves array during the load process. We are skipping that here.
       moveDescriptions[i+1].text.split("").forEach((c) => {
-        romData[currentMoveDescByte] = getKeyByValue(gen3Letters, c);
-        currentMoveDescByte++;
+        romData[currentMoveDescByte++] = getKeyByValue(gen3Letters, c);
       });
 
-      romData[currentMoveDescByte] = 0x50;
-      currentMoveDescByte++;
+      romData[currentMoveDescByte++] = 0xFF;
     }
   }),
   loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
@@ -1329,8 +1324,6 @@ export default {
     actions.saveEncounters();
     actions.saveTrainers();
     actions.saveShops();
-    //actions.saveStarters();
-    //actions.saveMoveDescriptions();
-    //actions.saveShinyOdds();
+    actions.saveMoveDescriptions();
   })
 }

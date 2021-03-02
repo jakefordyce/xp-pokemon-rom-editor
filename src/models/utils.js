@@ -1404,13 +1404,6 @@ const gscShopNames = [
 export const gen3Letters = new Map([
   [0x00, " "],
   [0x2D, "&"],
-  [0x53, "PK"],
-  [0x54, "MN"],
-  [0x55, "Po"],
-  [0x56, "ke"],
-  [0x57, "Bl"],
-  [0x58, "o"],
-  [0x59, "ck"],
   [0xA1, "0"],
   [0xA2, "1"],
   [0xA3, "2"],
@@ -1426,6 +1419,7 @@ export const gen3Letters = new Map([
   [0xAD, "."],
   [0xAE, "-"],
   [0xB4, "'"],
+  [0xB8, ","],
   [0xBB, "A"],
   [0xBC, "B"],
   [0xBD, "C"],
@@ -1480,7 +1474,15 @@ export const gen3Letters = new Map([
   [0xEE, "z"],
   [0xB5, "M"],
   [0xB6, "F"],
-  [0x1B, "e"]
+  [0x1B, "é"],
+  [0x53, "PK"],
+  [0x54, "MN"],
+  [0x55, "Po"],
+  [0x56, "ke"],
+  [0x57, "Bl"],
+  [0x58, "o"],
+  [0x59, "ck"],
+  [0xFE, "@"]
 ]);
 
 export const g3GrowthRates = {
