@@ -1,7 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, g3TradeItems, g3GrowthRates,
   g3ZoneNames, g3GrassEncChances, gsTrainerTypes, g3WaterEncChances,
-  getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities} from './utils';
+  getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities, g3TrainerAIFlags} from './utils';
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
@@ -439,6 +439,7 @@ export default {
   maxTrainerBytes: 17336,
   maxShopItems: 229,
   numHighCritMoves: 7,
+  trainerAIFlags: g3TrainerAIFlags,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -1176,8 +1177,16 @@ export default {
       trainerName += " " + uniqueName;
       newTrainer.name = trainerName;
       newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
-
+      //this is a true/false for double battle
       newTrainer.doubleBattle = getState().rawBinArray[trainerDataStart + t*40 + 24];
+
+      let aiFlagsValue = getState().rawBinArray[trainerDataStart + t*40 + 28];
+      let aiFlagsBoolArray = [];
+      for(let i = 0; i < g3TrainerAIFlags.length; i++){
+        let flag = (aiFlagsValue >> i) & 0x01;
+        aiFlagsBoolArray.push(Boolean(flag));
+      }
+      newTrainer.aiFlags = aiFlagsBoolArray;
 
       let numOfPokemon = getState().rawBinArray[trainerDataStart + t*40 + 32];
 

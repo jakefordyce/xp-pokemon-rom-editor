@@ -19,6 +19,8 @@ function TrainersTab(){
   const removeTrainerPokemon = useStoreActions(actions => actions.removeTrainerPokemon);
   const currentTrainerBytes = useStoreState(state => state.currentTrainerBytes);
   const maxTrainerBytes = useStoreState(state => state.romModelState.maxTrainerBytes);
+  const trainerAIFlags = useStoreState(state => state.romModelState.trainerAIFlags);
+  const updateTrainerAI = useStoreActions(actions => actions.updateTrainerAI);
 
   const trainersList = trainers.sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0)).map((trainer, index) =>
     <li key={index} className={"list-group-item" + (selectedTrainer === index ? " active" : "")} style={{maxWidth: "300px"}} onClick={()=> setSelectedTrainer(index)}>{trainer.name}</li>
@@ -49,6 +51,13 @@ function TrainersTab(){
     </tr>
   );
 
+  const trainerAIs = trainers[selectedTrainer].aiFlags?.map((ai, index) =>
+      <div key={index}>
+        <input type="checkbox" checked={ai} onChange={(e) => handleAIChange(e, index)} />
+        {trainerAIFlags[index]}
+      </div>
+  );
+
   function handleTrainerPokemonChange(event, pokeIndex, propName){
     let newValue = event.target.value;
     updateTrainerPokemon({index: pokeIndex, propName: propName, propValue: newValue});
@@ -72,6 +81,11 @@ function TrainersTab(){
     addTrainerPokemon();
   }
 
+  function handleAIChange(event, aiIndex){
+    let newValue = event.target.checked;
+    updateTrainerAI({index: aiIndex, propValue: newValue});
+  };
+
   return(
       dataLoaded && <div className="trainers-tab-container">
         <ul className="list-group" style={{ overflowY: "scroll"}}>{trainersList}</ul>
@@ -87,6 +101,8 @@ function TrainersTab(){
             </tbody>
           </table>
           <button onClick={handleAddPokemon}>Add Pokemon</button>
+          <h3>AI</h3>
+          {trainerAIs}
         </div>
       </div>
   )

@@ -168,6 +168,9 @@ export default {
     let newValue = state.trainers[payload.index][payload.propName].constructor(payload.propValue)
     state.trainers[payload.index][payload.propName] = newValue;
   }),
+  updateTrainerAI: action((state, payload) => {
+    state.trainers[state.selectedTrainer].aiFlags[payload.index] = payload.propValue;
+  }),
   addTrainerPokemon: action((state, payload) => {
     state.trainers[state.selectedTrainer].pokemon.push({level: 1, pokemon: 1, item: 0, move1: 0, move2: 0, move3: 0, move4: 0});
   }),

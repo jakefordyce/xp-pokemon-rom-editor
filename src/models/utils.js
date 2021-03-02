@@ -2470,6 +2470,18 @@ export const g3MoveAnimations = [
   "PSYCHOBOOST"
 ];
 
+export const g3TrainerAIFlags = [
+  "CHECK_BAD_MOVE",
+  "CHECK_VIABILITY",
+  "TRY_TO_FAINT",
+  "SETUP_FIRST_TURN",
+  "RISKY",
+  "PREFER_STRONGEST_MOVE",
+  "PREFER_BATON_PASS",
+  "DOUBLE_BATTLE",
+  "HP_AWARE"
+]
+
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
