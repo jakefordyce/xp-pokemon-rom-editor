@@ -12,6 +12,10 @@ Gold (.gbc)
 
 Silver (.gbc)
 
+FireRed (.gba)
+
+LeafGreen (.gba)
+
 I got tons of my info from:
 
 https://github.com/pret/pokered
@@ -19,6 +23,8 @@ https://github.com/pret/pokered
 https://github.com/pret/pokecrystal
 
 https://github.com/pret/pokegold
+
+https://github.com/pret/pokefirered
 
 https://www.pokecommunity.com/showthread.php?p=6737744
 
