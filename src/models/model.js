@@ -1,6 +1,7 @@
 import { thunk, action, computed } from "easy-peasy";
 import redBlue from './redBlue';
 import goldSilver from './goldSilver';
+import fireredLeafgreen from './fireredLeafgreen';
 const remote = require('electron').remote;
 const dialog = remote.dialog;
 const fs = remote.require('fs');
@@ -166,6 +167,13 @@ export default {
   updateTrainerProperty: action((state, payload) => {
     let newValue = state.trainers[payload.index][payload.propName].constructor(payload.propValue)
     state.trainers[payload.index][payload.propName] = newValue;
+  }),
+  updateTrainerAI: action((state, payload) => {
+    state.trainers[state.selectedTrainer].aiFlags[payload.index] = payload.propValue;
+  }),
+  updateMoveFlag: action((state, payload) => {
+    let moveIndex = state.moves.findIndex((move) => move.id === payload.moveIndex);
+    state.moves[moveIndex].flags[payload.index] = payload.propValue;
   }),
   addTrainerPokemon: action((state, payload) => {
     state.trainers[state.selectedTrainer].pokemon.push({level: 1, pokemon: 1, item: 0, move1: 0, move2: 0, move3: 0, move4: 0});
@@ -356,6 +364,15 @@ export default {
         }
       });
     }
+    else if(state.romModelState.generation === 3){
+      state.trainers.forEach((trainer) => {
+        if(trainer.type === 1 || trainer.type === 3){
+          count += trainer.pokemon.length * 16;
+        }else{
+          count += trainer.pokemon.length * 8;
+        }
+      });
+    }
     return count;
   }),
   currentShopItems: computed((state) => {
@@ -374,6 +391,7 @@ export default {
   dataLoaded: false,
   redBlueModel: redBlue,
   goldSilverModel: goldSilver,
+  fireredLeafgreenModel: fireredLeafgreen,
   selectedROM: 0,
   romModelSelected: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     getState().dataLoaded = false;
@@ -395,10 +413,13 @@ export default {
     let modelActions;
     switch(getState().selectedROM){
       case 0:
-        modelActions = actions.goldSilverModel
+        modelActions = actions.fireredLeafgreenModel
         break;
       case 1:
         modelActions = actions.redBlueModel
+        break;
+      case 2:
+        modelActions = actions.goldSilverModel
         break;
       default:
         break;
@@ -409,10 +430,13 @@ export default {
     let modelState;
     switch(state.selectedROM){
       case 0:
-        modelState = state.goldSilverModel
+        modelState = state.fireredLeafgreenModel
         break;
       case 1:
         modelState = state.redBlueModel
+        break;
+      case 2:
+        modelState = state.goldSilverModel
         break;
       default:
         break;
@@ -425,8 +449,8 @@ export default {
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
   }),
-  supportedROMs: [{text: 'gold/silver', select: 0}, {text: 'red/blue', select: 1}],
-  defaultSupportedROM: 'gold/silver',
+  supportedROMs: [{text: "firered/leafgreen", select: 0}, {text: 'red/blue', select: 1}, {text: 'gold/silver', select: 2}],
+  defaultSupportedROM: 'firered/leafgreen',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
     getState().dataLoaded = false;
     let filedata;

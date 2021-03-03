@@ -26,7 +26,7 @@ function PokemonStatGridRow(props){
       <td><input value={props.stats.defense} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'defense')} onBlur={sortPokemon} /></td>
       <td><input value={props.stats.speed} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'speed')} onBlur={sortPokemon} /></td>
       <td><input value={props.stats.specialAttack} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'specialAttack')} onBlur={sortPokemon}/></td>
-      {props.gen === 2 && <td><input value={props.stats.specialDefense} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'specialDefense')} onBlur={sortPokemon}/></td>}
+      {props.gen !== 1 && <td><input value={props.stats.specialDefense} className="number-input" onChange={(e) => handleStatChange(e, props.stats.id, 'specialDefense')} onBlur={sortPokemon}/></td>}
       <td>{props.stats.totalStats}</td>
       <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type1} handleOptionChange={handleStatChange} arrayIndex={props.stats.id} propName={'type1'} /></td>
       <td><ArraySelect collection={props.types} value='typeIndex' display='typeName' selectedValue={props.stats.type2} handleOptionChange={handleStatChange} arrayIndex={props.stats.id} propName={'type2'} /></td>

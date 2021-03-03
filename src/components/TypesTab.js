@@ -21,9 +21,11 @@ function TypesTab(){
       <td><input style={{width: "100px"}} value={type.typeName} onChange={(e) => handleTypeChange(e, index, 'typeName')} /></td>
       <td><input type="checkbox" checked={type.typeIsUsed} onChange={(e) => handleTypeCheckbox(e, index, 'typeIsUsed')} /></td>
       <td><button onClick={(e) => handleRemoveType(e, index)}>X</button></td>
-      {index < 20 && <td>Att</td>}
+      {(index < 20 && generation < 3) && <td>Att</td>}      
       {(index >= 20 && generation === 1) && <td>Spec</td>}
-      {(index >= 20 && generation !== 1) && <td>Sp. Att</td>}
+      {(index >= 20 && generation === 2) && <td>Sp. Att</td>}
+      {(index < 10 && generation === 3) && <td>Att</td>}
+      {(index >= 10 && generation === 3) && <td>Sp. Att</td>}
     </tr>
   );
 
@@ -76,11 +78,11 @@ function TypesTab(){
     if(event.button === 0){ //left click cycle through damage modifiers
       if(matchup !== undefined){
         if(matchup.effectiveness === 0){
-          updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 5});
+          removeTypeMatchup(typeMatchups.indexOf(matchup));
         }else if(matchup.effectiveness === 5){
           updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 20});
         }else if(matchup.effectiveness === 20){
-          removeTypeMatchup(typeMatchups.indexOf(matchup));
+          updateTypeMatchup({index: typeMatchups.indexOf(matchup), propName: "effectiveness", propValue: 0});
         }
       }else{
         addTypeMatchup({attackType: attType.typeIndex, defenseType: defType.typeIndex});

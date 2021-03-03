@@ -41,8 +41,8 @@ function PokemonStatGrid(){
             <th><button className="header-button" onClick={(e) => changeSorting(e, "defense")}>Defense</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "speed")}>Speed</button></th>
             {generation === 1 && <th><button className="header-button" onClick={(e) => changeSorting(e, "specialAttack")}>Special</button></th>}
-            {generation === 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "specialAttack")}>Sp Attack</button></th>}
-            {generation === 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "specialDefense")}>Sp Defense</button></th>}
+            {generation !== 1 && <th><button className="header-button" onClick={(e) => changeSorting(e, "specialAttack")}>Sp Attack</button></th>}
+            {generation !== 1 && <th><button className="header-button" onClick={(e) => changeSorting(e, "specialDefense")}>Sp Defense</button></th>}
             <th><button className="header-button" onClick={(e) => changeSorting(e, "totalStats")}>Total Stats</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "type1")}>Type 1</button></th>
             <th><button className="header-button" onClick={(e) => changeSorting(e, "type2")}>Type 2</button></th>

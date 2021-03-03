@@ -13,7 +13,7 @@ function MoveDescRow(props) {
   return(
     <tr>
       <td>{props.name}</td>
-      <td><input value={props.text} onChange={(e) => handleDescChange(e, props.id, 'text')} style={{width: "500px"}}/></td>
+      <td><input value={props.text} onChange={(e) => handleDescChange(e, props.id, 'text')} style={{width: "600px"}}/></td>
     </tr>
   )
 }
