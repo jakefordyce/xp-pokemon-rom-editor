@@ -1259,6 +1259,13 @@ export default {
       romData[trainerDataStart + (i * 40)] = trainers[i].type;
       //double battle.
       romData[trainerDataStart + (i * 40) + 24] = trainers[i].doubleBattle;
+
+      let aiFlagsValue = 0;
+      for(let f = 0; f < trainers[i].aiFlags.length; f++){
+        aiFlagsValue += Number(trainers[i].aiFlags[f]) << f;
+      }
+      romData[trainerDataStart + (i * 40) + 28] = aiFlagsValue;
+
       //number of pokemon
       romData[trainerDataStart + (i * 40) + 32] = trainers[i].pokemon.length;
       //pointer to the trainer's pokemon.
