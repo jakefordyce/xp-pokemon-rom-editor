@@ -15,6 +15,14 @@ function MovesGridRow(props){
   const numHighCritMoves = useStoreState(state => state.romModelState.numHighCritMoves);
   const currentHighCritMoves = useStoreState(state => state.currentHighCritMoves);
   const targets = useStoreState(state => state.romModelState.moveTargets);
+  const updateMoveFlag = useStoreActions(actions => actions.updateMoveFlag);
+  const moveFlags = useStoreState(state => state.romModelState.moveFlags);
+
+  const moveFlagColumns = props.move.flags?.map((flag, index) =>
+    <td key={index}>
+      <input type="checkbox" checked={flag} onChange={(e) => handleFlagChange(e, index)} />
+    </td>
+  );
 
   function handleMoveChange(event, moveIndex, propName){
     let newValue = event.target.value;
@@ -29,6 +37,11 @@ function MovesGridRow(props){
     }
   }
 
+  function handleFlagChange(event, flagIndex){
+    let newValue = event.target.checked;
+    updateMoveFlag({index: flagIndex, propValue: newValue, moveIndex: props.move.id});
+  };
+
   return(
     <tr>
       <td><input value={props.move.name} onChange={(e) => handleMoveChange(e, props.move.id, 'name')} /></td>
@@ -42,6 +55,7 @@ function MovesGridRow(props){
       {generation > 2 && <td><EnumSelect enum={targets} selectedValue={props.move.target} handleOptionChange={handleMoveChange} arrayIndex={props.move.id} onBlur={sortMoves}/></td>}
       {generation > 2 && <td><input className="number-input" value={props.move.priority} onChange={(e) => handleMoveChange(e, props.move.id, 'priority')} onBlur={sortMoves}/></td>}
       {generation < 3 && <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>}
+      {generation > 2 && moveFlagColumns}
     </tr>
   );
 }

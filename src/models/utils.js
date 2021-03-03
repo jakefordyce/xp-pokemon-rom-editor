@@ -2480,7 +2480,16 @@ export const g3TrainerAIFlags = [
   "PREFER_BATON_PASS",
   "DOUBLE_BATTLE",
   "HP_AWARE"
-]
+];
+
+export const g3MoveFlags = [
+  "CONTACT",
+  "PROTECT",
+  "MAGICCOAT",
+  "SNATCH",
+  "MIRROR_MOVE",
+  "KINGS_ROCK"
+];
 
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
   rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,

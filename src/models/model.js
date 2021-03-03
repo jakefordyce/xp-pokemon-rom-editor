@@ -171,6 +171,10 @@ export default {
   updateTrainerAI: action((state, payload) => {
     state.trainers[state.selectedTrainer].aiFlags[payload.index] = payload.propValue;
   }),
+  updateMoveFlag: action((state, payload) => {
+    let moveIndex = state.moves.findIndex((move) => move.id === payload.moveIndex);
+    state.moves[moveIndex].flags[payload.index] = payload.propValue;
+  }),
   addTrainerPokemon: action((state, payload) => {
     state.trainers[state.selectedTrainer].pokemon.push({level: 1, pokemon: 1, item: 0, move1: 0, move2: 0, move3: 0, move4: 0});
   }),

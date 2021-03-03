@@ -1,7 +1,7 @@
 import { thunk, action } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, g3TradeItems, g3GrowthRates,
   g3ZoneNames, g3GrassEncChances, gsTrainerTypes, g3WaterEncChances,
-  getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities, g3TrainerAIFlags} from './utils';
+  getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities, g3TrainerAIFlags, g3MoveFlags} from './utils';
 
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
@@ -440,6 +440,7 @@ export default {
   maxShopItems: 229,
   numHighCritMoves: 7,
   trainerAIFlags: g3TrainerAIFlags,
+  moveFlags: g3MoveFlags,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
@@ -764,6 +765,13 @@ export default {
       moveToAdd.target = getState().rawBinArray[movesStartingByte + (i * 12) + 6];
       moveToAdd.priority = getState().rawBinArray[movesStartingByte + (i * 12) + 7];
       moveToAdd.highCrit = false;
+      let moveFlagsValue = getState().rawBinArray[movesStartingByte + (i * 12) + 8];
+      let moveFlagsBoolArray = [];
+      for(let i = 0; i < g3MoveFlags.length; i++){
+        let flag = (moveFlagsValue >> i) & 0x01;
+        moveFlagsBoolArray.push(Boolean(flag));
+      }
+      moveToAdd.flags = moveFlagsBoolArray;
 
       let animationPointer = getState().rawBinArray[moveAnimationsStart + i*4];
       animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 1] * 0x100;
@@ -793,6 +801,12 @@ export default {
       romData[movesStartingByte + (i * 12) + 5] = moves[i + 1].effectChance;
       romData[movesStartingByte + (i * 12) + 6] = moves[i + 1].target;
       romData[movesStartingByte + (i * 12) + 7] = moves[i + 1].priority;
+
+      let flagsValue = 0;
+      for(let f = 0; f < moves[i + 1].flags.length; f++){
+        flagsValue += Number(moves[i + 1].flags[f]) << f;
+      }
+      romData[movesStartingByte + (i * 12) + 8] = flagsValue;
 
       //the the value we save is a pointer to the function that performs the move's animation.
       let animationValue = animationPointers[moves[i + 1].animationID];

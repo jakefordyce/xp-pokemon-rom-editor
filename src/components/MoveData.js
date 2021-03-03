@@ -9,9 +9,14 @@ function MoveData(){
   const moves = useStoreState(state => state.moves);
   const generation = useStoreState(state => state.romModelState.generation);
   const updateMovesSorting = useStoreActions(actions => actions.updateMovesSorting);
+  const moveFlags = useStoreState(state => state.romModelState.moveFlags);
 
   const movesList = moves.map((move, index) =>
     <MovesGridRow key={index} move={move} />
+  );
+
+  const moveFlagColumns = moveFlags.map((flag, index) =>
+    <th key={index}>{flag}</th>
   );
 
   function changeSorting(event, column){
@@ -34,6 +39,7 @@ function MoveData(){
             {generation > 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "target")}>Target</button></th>}
             {generation > 2 && <th><button className="header-button" onClick={(e) => changeSorting(e, "priority")}>Priority</button></th>}
             {generation < 3 && <th>High Crit Chance</th>}
+            {generation > 2 && moveFlagColumns}
           </tr>
         </thead>
         <tbody>
