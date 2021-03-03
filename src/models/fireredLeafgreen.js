@@ -435,7 +435,7 @@ export default {
   moveTargets: g3MoveTargets,
   abilities: g3Abilities,
   //these are limitations due to space.
-  maxEvosMovesBytes: 5709,
+  maxEvosMovesBytes: 8894,
   maxTrainerBytes: 17336,
   maxShopItems: 229,
   numHighCritMoves: 7,

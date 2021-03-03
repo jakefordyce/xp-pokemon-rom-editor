@@ -284,15 +284,17 @@ export default {
 
   //computed data that will be used in the UI
   currentEvosMovesBytes: computed((state) => {
-      let count = 0;
+    let count = 0;
+    let generation = state.romModelState.generation;
 
-      state.pokemon.forEach((poke) =>
-      {
-        count += 2; //every pokemon has at least 2 bytes of data. 1 to mark the end of the evolutions and 1 to mark the end of the learned moves.
+    state.pokemon.forEach((poke) =>
+    {
+      count += 2; //every pokemon has at least 2 bytes of data. 1 to mark the end of the evolutions and 1 to mark the end of the learned moves.
 
+      if(generation < 3){
         poke.evolutions.forEach((evo) =>
         {
-          if(state.romModelState.generation === 1)
+          if(generation === 1)
           {
             if (evo.evolve === 2) // stone
             {
@@ -315,14 +317,15 @@ export default {
             }
           }
         });
+      }
 
-        poke.learnedMoves.forEach((move) =>
-        {
-          count += 2;
-        });
+      poke.learnedMoves.forEach((move) =>
+      {
+        count += 2;
       });
+    });
 
-      return count;
+    return count;
   }),
   currentTrainerBytes: computed((state) => {
     let count = 0;
