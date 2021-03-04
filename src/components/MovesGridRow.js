@@ -52,7 +52,7 @@ function MovesGridRow(props){
       <td><input value={props.move.accuracy} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'accuracy')} onBlur={sortMoves}/></td>
       <td><input value={props.move.pp} className="number-input" onChange={(e) => handleMoveChange(e, props.move.id, 'pp')} onBlur={sortMoves}/></td>
       {generation > 1 && <td><input className="number-input" value={props.move.effectChance} onChange={(e) => handleMoveChange(e, props.move.id, 'effectChance')} onBlur={sortMoves}/></td>}
-      {generation > 2 && <td><EnumSelect enum={targets} selectedValue={props.move.target} handleOptionChange={handleMoveChange} arrayIndex={props.move.id} onBlur={sortMoves}/></td>}
+      {generation > 2 && <td><EnumSelect enum={targets} selectedValue={props.move.target} handleOptionChange={(e) => handleMoveChange(e, props.move.id, 'target')} arrayIndex={props.move.id} onBlur={sortMoves}/></td>}
       {generation > 2 && <td><input className="number-input" value={props.move.priority} onChange={(e) => handleMoveChange(e, props.move.id, 'priority')} onBlur={sortMoves}/></td>}
       {generation < 3 && <td><input type="checkbox" checked={props.move.highCrit} onChange={(e) => handleCritChange(e, props.move.id, 'highCrit')}/></td>}
       {generation > 2 && moveFlagColumns}
