@@ -85,13 +85,13 @@ function PokemonFullData(){
   function gen3EvolutionOptions(evol, index){
     return <span>
       {(evol.evolve !== 1 && evol.evolve !== 2 && evol.evolve !== 3 && evol.evolve !== 5 && evol.evolve !== 6 && evol.evolve !== 7) &&
-        <input value={evol.param} className="number-input" onChange={(e) => handleEvolutionChange(e, index, 'evolveLevel')}/>
+        <input value={evol.param} className="number-input" onChange={(e) => handleEvolutionChange(e, index, 'param')}/>
       }
       {evol.evolve === 6 &&
-        <EnumSelect enum={tradeItems} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'tradeItem'} />
+        <EnumSelect enum={tradeItems} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'param'} />
       }
       {evol.evolve === 7 &&
-        <EnumSelect enum={evolveStones} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'evolveStone'} />
+        <EnumSelect enum={evolveStones} selectedValue={evol.param} handleOptionChange={handleEvolutionChange} arrayIndex={index} propName={'param'} />
       }
 
     </span>
