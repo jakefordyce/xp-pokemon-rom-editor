@@ -31,6 +31,8 @@ function PokemonFullData(){
   const maxEvosMovesBytes = useStoreState(state => state.romModelState.maxEvosMovesBytes);
   const currentEvosMovesBytes = useStoreState(state => state.currentEvosMovesBytes);
 
+  const sortedMoves = moves.slice(0).sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0));
+
   const pokemonList = pokemon.map((pokemon, index) =>
     <li key={index} className={"list-group-item" + (selectedPokemon === index ? " active" : "")} style={{maxWidth: "150px"}} onClick={()=> setSelectedPokemon(index)}>{pokemon.name}</li>
   );
@@ -38,7 +40,7 @@ function PokemonFullData(){
   const levelupMoves = pokemon[selectedPokemon].learnedMoves.map((move, index)=>
     <li key={index} className={"list-group-item"}>
       <input value={move.level} className="number-input" onChange={(e) => handleLevelUpMoveChange(e, index, 'level')} onBlur={(e) => handlePokemonMoveBlur(e, selectedPokemon)} />
-      <ArraySelect collection={moves} value='id' display='name' selectedValue={move.moveID} handleOptionChange={handleLevelUpMoveChange} arrayIndex={index} propName={'moveID'} />
+      <ArraySelect collection={sortedMoves} value='id' display='name' selectedValue={move.moveID} handleOptionChange={handleLevelUpMoveChange} arrayIndex={index} propName={'moveID'} />
       <button onClick={(e) => handleRemoveMove(e, index)}>X</button>
     </li>
   );
