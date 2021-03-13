@@ -12,6 +12,7 @@ function EncountersTab(){
   const pokemon = useStoreState(state => state.pokemon);
   const generation = useStoreState(state => state.romModelState.generation);
 
+  const sortedPokemon = pokemon.slice(0).sort((a,b) => (a.name < b.name) ? -1 : ((b.name < a.name) ? 1 : 0));
 
   const zonesList = encounterZones.map((zone, index) =>
     <li key={index} className={"list-group-item" + (selectedZone === index ? " active" : "")} style={{maxWidth: "400px"}} onClick={()=> setSelectedZone(index)}>{zone.name}</li>
@@ -26,11 +27,11 @@ function EncountersTab(){
       {generation > 2 && encounterZones[selectedZone].name.endsWith('fishing') && index >= 2 && index < 5 && <td>GOOD</td>}
       {generation > 2 && encounterZones[selectedZone].name.endsWith('fishing') && index >= 5 && <td>SUPER</td>}
       {generation > 2 && <td>{encounter.chance}% Spawn Chance -> MinLevel:</td>}
-      {generation > 2 && <td><input value={encounter.minLevel} onChange={(e) => handleZoneChange(e, index, 'minlevel')} /></td>}
+      {generation > 2 && <td><input value={encounter.minLevel} onChange={(e) => handleZoneChange(e, index, 'minLevel')} /></td>}
       {generation > 2 && <td>MaxLevel:</td>}
-      {generation > 2 && <td><input value={encounter.maxLevel} onChange={(e) => handleZoneChange(e, index, 'maxlevel')} /></td>}
+      {generation > 2 && <td><input value={encounter.maxLevel} onChange={(e) => handleZoneChange(e, index, 'maxLevel')} /></td>}
 
-      <td><ArraySelect collection={pokemon} display='name' selectedValue={encounter.pokemon} handleOptionChange={handleZoneChange} arrayIndex={index} propName={'pokemon'} /></td>
+      <td><ArraySelect collection={sortedPokemon} value='id' display='name' selectedValue={encounter.pokemon} handleOptionChange={handleZoneChange} arrayIndex={index} propName={'pokemon'} /></td>
     </tr>
   );
 
