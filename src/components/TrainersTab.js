@@ -96,7 +96,7 @@ function TrainersTab(){
               {generation === 1 && <tr><td>All Same Level: </td><td><input type="checkbox" checked={trainers[selectedTrainer].allSameLevel} onChange={(e) => handleTrainerCheckbox(e, selectedTrainer, 'allSameLevel')} /></td></tr>}
               {generation === 1 && trainers[selectedTrainer].allSameLevel && <tr><td>Party Level: </td><td><input value={trainers[selectedTrainer].partyLevel} onChange={(e) => handleTrainerChange(e, selectedTrainer, 'partyLevel')} /></td></tr>}
               {generation > 1 && <tr><td>Trainer Type: </td><td><ArraySelect collection={trainerTypes} selectedValue={trainers[selectedTrainer].type} handleOptionChange={handleTrainerChange} arrayIndex={selectedTrainer} propName={'type'} /></td></tr>}
-              {generation > 2 && <tr><td>Double Battle:</td><td><input value={trainers[selectedTrainer].doubleBattle} onChange={(e) => handleTrainerChange(e, selectedTrainer, 'doubleBattle')} /></td></tr>}
+              {generation > 2 && <tr><td>Double Battle:</td><td><input type="checkbox" checked={trainers[selectedTrainer].doubleBattle} onChange={(e) => handleTrainerCheckbox(e, selectedTrainer, 'doubleBattle')} /></td></tr>}
               {pokemonList}
             </tbody>
           </table>
