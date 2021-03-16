@@ -156,9 +156,13 @@ export default {
   removeTypeMatchup: action((state, payload) => {
     state.typeMatchups.splice(payload, 1);
   }),
-  updateZoneProperty: action((state, payload) => {
+  updateEncounterProperty: action((state, payload) => {
     let newValue = state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName].constructor(payload.propValue);
     state.encounterZones[state.selectedZone].encounters[payload.index][payload.propName] = newValue;
+  }),
+  updateZoneProperty: action((state, payload) => {
+    let newValue = state.encounterZones[state.selectedZone][payload.propName].constructor(payload.propValue);
+    state.encounterZones[state.selectedZone][payload.propName] = newValue;
   }),
   updateTrainerPokemonProperty: action((state, payload) => {
     let newValue = state.trainers[state.selectedTrainer].pokemon[payload.index][payload.propName].constructor(payload.propValue);

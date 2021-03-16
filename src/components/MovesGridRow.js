@@ -26,7 +26,6 @@ function MovesGridRow(props){
 
   function handleMoveChange(event, moveIndex, propName){
     let newValue = event.target.value;
-    console.log(`new value: ${newValue}`);
     updateMoveProperty({index: moveIndex, propName: propName, propValue: newValue});
   }
 

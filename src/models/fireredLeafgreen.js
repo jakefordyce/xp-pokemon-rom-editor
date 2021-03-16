@@ -1193,9 +1193,6 @@ export default {
       newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
       //this is a true/false for double battle
       newTrainer.doubleBattle = Boolean(getState().rawBinArray[trainerDataStart + t*40 + 24]);
-      if(newTrainer.doubleBattle){
-        console.log(newTrainer.name);
-      }
 
       let aiFlagsValue = getState().rawBinArray[trainerDataStart + t*40 + 28];
       let aiFlagsBoolArray = [];
