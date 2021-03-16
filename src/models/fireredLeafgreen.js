@@ -454,6 +454,7 @@ export default {
     actions.loadTrainers();
     actions.loadShops();
     actions.loadMoveDescriptions();
+    actions.loadIgnoreNationalDex();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1359,6 +1360,34 @@ export default {
       romData[currentPosition++] = 0x00; //mark end of shop
     }
   }),
+  loadIgnoreNationalDex: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let ignoreNationalDex = false;
+
+    ignoreNationalDex = !(
+      getState().rawBinArray[0xCE92E] === 0x97 &&
+      getState().rawBinArray[0xCE931] === 0xDD &&
+      getState().rawBinArray[0x126CC2] === 0x97 &&
+      getState().rawBinArray[0x126CC5] === 0xD9
+    )
+
+    getStoreActions().setIgnoreNationalDex(ignoreNationalDex);
+  }),
+  saveIgnoreNationalDex: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let ignoreNationalDex = getStoreState().ignoreNationalDex;
+
+    if(ignoreNationalDex){
+      romData[0xCE92E] = 0x00;
+      romData[0xCE931] = 0xDA;
+      romData[0x126CC2] = 0x00;
+      romData[0x126CC5] = 0xD8;
+    }else{
+      romData[0xCE92E] = 0x97;
+      romData[0xCE931] = 0xDD;
+      romData[0x126CC2] = 0x97;
+      romData[0x126CC5] = 0xD9;
+    }
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -1372,5 +1401,6 @@ export default {
     actions.saveTrainers();
     actions.saveShops();
     actions.saveMoveDescriptions();
+    actions.saveIgnoreNationalDex();
   })
 }

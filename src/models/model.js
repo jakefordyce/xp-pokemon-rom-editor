@@ -83,6 +83,9 @@ export default {
   setIncreaseShinyOdds: action((state, payload) => {
     state.increaseShinyOdds = payload;
   }),
+  setIgnoreNationalDex: action((state, payload) => {
+    state.ignoreNationalDex = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -203,7 +206,10 @@ export default {
     let newValue = state.increaseShinyOdds.constructor(payload.value);
     state.increaseShinyOdds = newValue;
   }),
-
+  updateIgnoreNationalDex: action((state, payload) => {
+    let newValue = state.ignoreNationalDex.constructor(payload.value);
+    state.ignoreNationalDex = newValue;
+  }),
 
   //sorting data and actions for the pokemon grid and moves grid
   pokemonSortColumn: "id",

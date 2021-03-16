@@ -9,12 +9,14 @@ function MiscTab(){
   const starters = useStoreState(state => state.starters);
   const updateStarterProperty = useStoreActions(actions => actions.updateStarterProperty);
   const pokemon = useStoreState(state => state.pokemon);
-  //const generation = useStoreState(state => state.romModelState.generation);
+  const generation = useStoreState(state => state.romModelState.generation);
   const items = useStoreState(state => state.items);
   const increaseShinyOdds = useStoreState(state => state.increaseShinyOdds);
   const updateIncreaseShinyOdds = useStoreActions(actions => actions.updateIncreaseShinyOdds);
+  const ignoreNationalDex = useStoreState(state => state.ignoreNationalDex);
+  const updateIgnoreNationalDex = useStoreActions(actions => actions.updateIgnoreNationalDex);
 
-  const startersList = starters.map((starter, index) => 
+  const startersList = starters.map((starter, index) =>
     <tr key={index}>
       <td><ArraySelect collection={pokemon} display='name' selectedValue={starter.pokemon} handleOptionChange={handleStarterPropertyChange} arrayIndex={index} propName={'pokemon'} /></td>
       <td><input value={starter.level} onChange={(e) => handleStarterPropertyChange(e, index, 'level')} /></td>
@@ -32,9 +34,14 @@ function MiscTab(){
     updateIncreaseShinyOdds({value: newValue});
   };
 
+  function handleNationalDexChange(event){
+    let newValue = event.target.checked;
+    updateIgnoreNationalDex({value: newValue});
+  }
+
   return ( dataLoaded &&
     <div className="misc-tab-container">
-      <table>
+      {generation === 2 && <table>
         <thead>
           <tr>
             <th>Starter</th><th>Level</th><th>Item</th>
@@ -43,11 +50,15 @@ function MiscTab(){
         <tbody>
           {startersList}
         </tbody>
-      </table>
-      <div>
+      </table>}
+      {generation === 2 && <div>
         <input type="checkbox" checked={increaseShinyOdds} onChange={(e) => handleShinyChange(e)} />
         <span title="This increases the chance to about 1/3">Increase Shiny Odds</span>
-      </div>
+      </div>}
+      {generation === 3 && <div>
+        <input type="checkbox" checked={ignoreNationalDex} onChange={(e) => handleNationalDexChange(e)} />
+        <span title="This allows all pokemon to evolve without the national dex">Ignore National Dex</span>
+      </div>}
     </div>
   );
 }
