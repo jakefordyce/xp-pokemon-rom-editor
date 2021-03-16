@@ -38,13 +38,11 @@ function EncountersTab(){
 
   function handleZoneChange(event, propName){
     let newValue = event.target.value;
-    console.log(` propName: ${propName}, newValue: ${newValue}`);
     updateZoneProperty({propName: propName, propValue: newValue});
   };
 
   function handleEncounterChange(event, encIndex, propName){
     let newValue = event.target.value;
-    console.log(`index: ${encIndex}, propName: ${propName}, newValue: ${newValue}`);
     updateEncounterProperty({index: encIndex, propName: propName, propValue: newValue});
   };
 
