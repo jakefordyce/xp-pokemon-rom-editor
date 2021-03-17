@@ -128,7 +128,16 @@ export default {
     state.items[payload.index][payload.propName] = newValue;
   }),
   addPokemonEvolution: action((state, payload) => {
-    state.pokemon[state.selectedPokemon].evolutions.push(state.romModelState.defaultEvolution);
+    let evolution = {
+      evolve: 1,
+      param: 1,
+      evolveTo: state.selectedPokemon +1,
+      evolveLevel: 1,
+      evolveStone: 8,
+      evolveHappiness: 1,
+      evolveStats: 1
+    }
+    state.pokemon[state.selectedPokemon].evolutions.push(evolution);
   }),
   removePokemonEvolution: action((state, payload) => {
     state.pokemon[state.selectedPokemon].evolutions.splice(payload, 1);
