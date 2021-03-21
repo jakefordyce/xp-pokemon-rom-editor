@@ -408,6 +408,13 @@ export default {
   currentHighCritMoves: computed((state) => {
     return state.moves.filter(m => m.highCrit === true).length;
   }),
+  currentMoveDescriptionBytes: computed((state) => {
+    let count = 0;
+    state.moveDescriptions.forEach((description) => {
+      count += description.text.length;
+    });
+    return count;
+  }),
 
   //accessing data from the correct ROM
   dataLoaded: false,

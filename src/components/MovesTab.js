@@ -11,6 +11,8 @@ function MovesTab(){
   const resetMovesSorting = useStoreActions(actions => actions.resetMovesSorting);
   const numHighCritMoves = useStoreState(state => state.romModelState.numHighCritMoves);
   const currentHighCritMoves = useStoreState(state => state.currentHighCritMoves);
+  const maxMoveDescriptionBytes = useStoreState(state => state.romModelState.maxMoveDescriptionBytes);
+  const currentMoveDescriptionBytes = useStoreState(state => state.currentMoveDescriptionBytes);
 
 
   function handleViewToggle(){
@@ -21,7 +23,9 @@ function MovesTab(){
   return( dataLoaded &&
     <div>
       {generation !== 1 && <button onClick={handleViewToggle}>Toggle View</button>}
-      High Crit Moves Used: {currentHighCritMoves} / {numHighCritMoves}
+      {generation < 3 && <span>High Crit Moves Used: {currentHighCritMoves} / {numHighCritMoves}</span>}
+      {generation === 3 &&
+      <span>Move Description Bytes: {currentMoveDescriptionBytes} / {maxMoveDescriptionBytes}</span>}
       {!dataView && <MoveDescriptions />}
       {dataView && <MoveData />}
     </div>

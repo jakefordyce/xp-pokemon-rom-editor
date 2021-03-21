@@ -439,6 +439,7 @@ export default {
   maxTrainerBytes: 17336,
   maxShopItems: 229,
   numHighCritMoves: 7,
+  maxMoveDescriptionBytes: 23906, //This is the number of characters used in an unchanged Fire Red ROM
   trainerAIFlags: g3TrainerAIFlags,
   moveFlags: g3MoveFlags,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
