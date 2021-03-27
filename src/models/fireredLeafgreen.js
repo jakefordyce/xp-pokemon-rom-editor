@@ -456,6 +456,7 @@ export default {
     actions.loadShops();
     actions.loadMoveDescriptions();
     actions.loadIgnoreNationalDex();
+    actions.loadEVData();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1389,6 +1390,53 @@ export default {
       romData[0x126CC5] = 0xD9;
     }
   }),
+  loadEVData: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let useNewEVMax = false;
+    let evMult = 0;
+
+    useNewEVMax = !(
+      getState().rawBinArray[0x3E076] === 0xFF &&
+      getState().rawBinArray[0x3E078] === 0x40 &&
+      getState().rawBinArray[0x439F2] === 0xFF &&
+      getState().rawBinArray[0x439F4] === 0x40 &&
+      getState().rawBinArray[0x43A50] === 0xFD &&
+      getState().rawBinArray[0x43A51] === 0x01 &&
+      getState().rawBinArray[0x43A10] === 0xFF &&
+      getState().rawBinArray[0x43A16] === 0xFF
+    )
+
+    evMult = getState().rawBinArray[0x438E6];
+
+    getStoreActions().setUseNewEVMax(useNewEVMax);
+    getStoreActions().setEVMult(evMult);
+  }),
+  saveEVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let useNewEVMax = getStoreState().useNewEVMax;
+    let evMult = getStoreState().evMult;
+
+    if(useNewEVMax){
+      romData[0x3E076] = 0xBD
+      romData[0x3E078] = 0xC0
+      romData[0x439F2] = 0xBD
+      romData[0x439F4] = 0xC0
+      romData[0x43A50] = 0xE7
+      romData[0x43A51] = 0x05
+      romData[0x43A10] = 0xFC
+      romData[0x43A16] = 0xFC
+    }else{
+      romData[0x3E076] = 0xFF
+      romData[0x3E078] = 0x40
+      romData[0x439F2] = 0xFF
+      romData[0x439F4] = 0x40
+      romData[0x43A50] = 0xFD
+      romData[0x43A51] = 0x01
+      romData[0x43A10] = 0xFF
+      romData[0x43A16] = 0xFF
+    }
+
+    romData[0x438E6] = evMult;
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -1403,5 +1451,6 @@ export default {
     actions.saveShops();
     actions.saveMoveDescriptions();
     actions.saveIgnoreNationalDex();
+    actions.saveEVData();
   })
 }

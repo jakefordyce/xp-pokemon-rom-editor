@@ -15,6 +15,10 @@ function MiscTab(){
   const updateIncreaseShinyOdds = useStoreActions(actions => actions.updateIncreaseShinyOdds);
   const ignoreNationalDex = useStoreState(state => state.ignoreNationalDex);
   const updateIgnoreNationalDex = useStoreActions(actions => actions.updateIgnoreNationalDex);
+  const useNewEVMax = useStoreState(state => state.useNewEVMax);
+  const updateUseNewEVMax = useStoreActions(actions => actions.updateUseNewEVMax);
+  const evMult = useStoreState(state => state.evMult);
+  const updateEVMult = useStoreActions(actions => actions.updateEVMult);
 
   const startersList = starters.map((starter, index) =>
     <tr key={index}>
@@ -39,6 +43,17 @@ function MiscTab(){
     updateIgnoreNationalDex({value: newValue});
   }
 
+  function handleEVMaxChange(event){
+    let newValue = event.target.checked;
+    updateUseNewEVMax({value: newValue});
+  }
+
+  function handleEVMult(event){
+    let newValue = event.target.value;
+    updateEVMult({value: newValue});
+  }
+
+
   return ( dataLoaded &&
     <div className="misc-tab-container">
       {generation === 2 && <table>
@@ -58,6 +73,14 @@ function MiscTab(){
       {generation === 3 && <div>
         <input type="checkbox" checked={ignoreNationalDex} onChange={(e) => handleNationalDexChange(e)} />
         <span title="This allows all pokemon to evolve without the national dex">Ignore National Dex</span>
+      </div>}
+      {generation === 3 && <div>
+        <input type="checkbox" checked={useNewEVMax} onChange={(e) => handleEVMaxChange(e)} />
+        <span title="This removes the 510 EV limit.">Remove EV Limit</span>
+      </div>}
+      {generation === 3 && <div>
+        <input value={evMult} onChange={(e) => handleEVMult(e)} />
+        <span title="All EVs gained are multiplied by this amount.">EV Multiplier</span>
       </div>}
     </div>
   );

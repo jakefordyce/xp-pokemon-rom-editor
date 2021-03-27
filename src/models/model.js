@@ -86,6 +86,12 @@ export default {
   setIgnoreNationalDex: action((state, payload) => {
     state.ignoreNationalDex = payload;
   }),
+  setUseNewEVMax: action((state, payload) => {
+    state.useNewEVMax = payload;
+  }),
+  setEVMult: action((state, payload) => {
+    state.evMult = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -218,6 +224,14 @@ export default {
   updateIgnoreNationalDex: action((state, payload) => {
     let newValue = state.ignoreNationalDex.constructor(payload.value);
     state.ignoreNationalDex = newValue;
+  }),
+  updateUseNewEVMax: action((state, payload) => {
+    let newValue = state.useNewEVMax.constructor(payload.value);
+    state.useNewEVMax = newValue;
+  }),
+  updateEVMult: action((state, payload) => {
+    let newValue = state.evMult.constructor(payload.value);
+    state.evMult = newValue;
   }),
 
   //sorting data and actions for the pokemon grid and moves grid
