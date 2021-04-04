@@ -71,7 +71,9 @@ function TypesTab(){
       (m.defenseType === type.typeIndex && m.effectiveness === 0)
       ){
         balance++;
-      }else if((m.defenseType === type.typeIndex && m.effectiveness === 20) ||
+      }
+
+      if((m.defenseType === type.typeIndex && m.effectiveness === 20) ||
       (m.attackType === type.typeIndex && m.effectiveness === 5) ||
       (m.attackType === type.typeIndex && m.effectiveness === 0)
       ){
