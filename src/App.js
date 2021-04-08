@@ -10,6 +10,7 @@ import EncountersTab from './components/EncountersTab';
 import TrainersTab from './components/TrainersTab';
 import ShopsTab from './components/ShopsTab';
 import MiscTab from './components/MiscTab';
+import NaturesTab from './components/NaturesTab';
 
 
 function App() {
@@ -52,8 +53,9 @@ function App() {
           <button className={tabClassNames(5)} onClick={(e) => handleTabClicked(e, 5)}>Trainers</button>
           <button className={tabClassNames(6)} onClick={(e) => handleTabClicked(e, 6)}>Shops</button>
           <button className={tabClassNames(7)} onClick={(e) => handleTabClicked(e, 7)}>Misc</button>
+          <button className={tabClassNames(8)} onClick={(e) => handleTabClicked(e, 8)}>Natures</button>
         </nav>
-      </div>      
+      </div>
       <div >
         <div hidden={tab !== 0}><PokemonTab /></div>
         <div hidden={tab !== 1}><MovesTab /></div>
@@ -63,6 +65,7 @@ function App() {
         <div hidden={tab !== 5}><TrainersTab /></div>
         <div hidden={tab !== 6}><ShopsTab /></div>
         <div hidden={tab !== 7}><MiscTab /></div>
+        <div hidden={tab !== 8}><NaturesTab /></div>
       </div>
     </div>
   );

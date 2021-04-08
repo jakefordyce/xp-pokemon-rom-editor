@@ -34,6 +34,8 @@ const trainerDataStart = 0x23EB38; // this is the start of the trainer data.
 const trainerClassesStart = 0x23E5C8; // the names of the different types of trainers.
 const trainerPokemonStart = 0x23A210; // Where the trainer pokemon data starts.
 
+const naturesStart = 0x252BB8 // start of the natures stat data.
+
 //values used to load shops
 const shopsStarts = [
   {shopName: "Viridian", pointer: 0x16A310},
@@ -457,6 +459,7 @@ export default {
     actions.loadMoveDescriptions();
     actions.loadIgnoreNationalDex();
     actions.loadEVData();
+    actions.loadNaturesData();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1437,6 +1440,35 @@ export default {
 
     romData[0x438E6] = evMult;
   }),
+  loadNaturesData: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let natures = [];
+    let natureNames = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty", "Serious", "Jolly", "Naive", "Modest",
+                        "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
+
+    for(let i = 0; i < 25; i++){
+      let newNature = {name: natureNames[i]}
+      newNature.attack = getState().rawBinArray[naturesStart + i*5];
+      newNature.defense = getState().rawBinArray[naturesStart + i*5 + 1];
+      newNature.speed = getState().rawBinArray[naturesStart + i*5 + 2];
+      newNature.specialAttack = getState().rawBinArray[naturesStart + i*5 + 3];
+      newNature.specialDefense = getState().rawBinArray[naturesStart + i*5 + 4];
+      natures.push(newNature);
+    }
+
+    getStoreActions().setNatures(natures);
+  }),
+  saveNaturesData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let natures = getStoreState().natures;
+
+    for(let i = 0; i < 25; i++){
+      romData[naturesStart + i*5] = natures[i].attack;
+      romData[naturesStart + i*5 + 1] = natures[i].defense;
+      romData[naturesStart + i*5 + 2] = natures[i].speed;
+      romData[naturesStart + i*5 + 3] = natures[i].specialAttack;
+      romData[naturesStart + i*5 + 4] = natures[i].specialDefense;
+    }
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -1452,5 +1484,6 @@ export default {
     actions.saveMoveDescriptions();
     actions.saveIgnoreNationalDex();
     actions.saveEVData();
+    actions.saveNaturesData();
   })
 }

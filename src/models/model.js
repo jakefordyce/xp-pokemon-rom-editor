@@ -92,6 +92,9 @@ export default {
   setEVMult: action((state, payload) => {
     state.evMult = payload;
   }),
+  setNatures: action((state, payload) => {
+    state.natures = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -233,6 +236,11 @@ export default {
     let newValue = state.evMult.constructor(payload.value);
     state.evMult = newValue;
   }),
+  updateNatureProperty: action((state, payload) => {
+    let newValue = state.natures[payload.index][payload.propName].constructor(payload.propValue);
+    state.natures[payload.index][payload.propName] = newValue;
+  }),
+
 
   //sorting data and actions for the pokemon grid and moves grid
   pokemonSortColumn: "id",
