@@ -460,6 +460,7 @@ export default {
     actions.loadIgnoreNationalDex();
     actions.loadEVData();
     actions.loadNaturesData();
+    actions.loadShinyData();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1469,6 +1470,131 @@ export default {
       romData[naturesStart + i*5 + 4] = natures[i].specialDefense;
     }
   }),
+  loadShinyData: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let valuesUnchanged = true;
+
+    if(
+      //load the palette.
+      romData[0x4410A] == 0x13 &&
+      romData[0x4410E] == 0x04 &&
+      romData[0x44110] == 0x25 &&
+      romData[0x44116] == 0x84 &&
+      romData[0x44124] == 0x08 &&
+      romData[0x44127] == 0x4A &&
+      romData[0x44128] == 0x11 &&
+      romData[0x4412A] == 0x48 &&
+      romData[0x4412C] == 0x19 &&
+      romData[0x4412E] == 0x48 &&
+      romData[0x44130] == 0x13 &&
+      romData[0x44131] == 0x40 &&
+      romData[0x44132] == 0x58 &&
+      romData[0x44134] == 0x07 &&
+      romData[0x44135] == 0x28 &&
+      romData[0x4413A] == 0xE1 &&
+      //is mon shiny?
+      romData[0x444B4] == 0x02 &&
+      romData[0x444B7] == 0x4B &&
+      romData[0x444B8] == 0x18 &&
+      romData[0x444BA] == 0x42 &&
+      romData[0x444BC] == 0x08 &&
+      romData[0x444BE] == 0x42 &&
+      romData[0x444C0] == 0x19 &&
+      romData[0x444C1] == 0x40 &&
+      romData[0x444C2] == 0x4A &&
+      romData[0x444C4] == 0x07 &&
+      romData[0x444C5] == 0x2A &&
+      //battle animation shiny
+      romData[0xF17EA] == 0x3C &&
+      romData[0xF17EB] == 0x40 &&
+      romData[0xF17EC] == 0x60 &&
+      romData[0xF17EE] == 0x07
+    ){
+      valuesUnchanged = true;
+    }else{
+      valuesUnchanged = false;
+    }
+
+    getStoreActions().setIncreaseShinyOdds(!valuesUnchanged);
+  }),
+  saveShinyData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let increaseShinyOdds = getStoreState().increaseShinyOdds;
+
+    if(increaseShinyOdds){
+      //load the palette.
+      romData[0x4410A] = 0x0C;
+      romData[0x4410E] = 0x03;
+      romData[0x44110] = 0x1D;
+      romData[0x44116] = 0x83;
+      romData[0x44124] = 0x21;
+      romData[0x44127] = 0x48;
+      romData[0x44128] = 0x20;
+      romData[0x4412A] = 0x41;
+      romData[0x4412C] = 0x10;
+      romData[0x4412E] = 0x41;
+      romData[0x44130] = 0xFF;
+      romData[0x44131] = 0x20;
+      romData[0x44132] = 0x01;
+      romData[0x44134] = 0x7F; // this is the number being compared.
+      romData[0x44135] = 0x29;
+      romData[0x4413A] = 0xD9;
+      //is mon shiny?
+      romData[0x444B4] = 0x03;
+      romData[0x444B7] = 0x4A;
+      romData[0x444B8] = 0x02;
+      romData[0x444BA] = 0x53;
+      romData[0x444BC] = 0x09;
+      romData[0x444BE] = 0x4B;
+      romData[0x444C0] = 0xFF;
+      romData[0x444C1] = 0x20;
+      romData[0x444C2] = 0x03;
+      romData[0x444C4] = 0x7F; // this is the number being compared
+      romData[0x444C5] = 0x2B;
+      //battle animation shiny
+      romData[0xF17EA] = 0xFF;
+      romData[0xF17EB] = 0x21;
+      romData[0xF17EC] = 0x08;
+      romData[0xF17EE] = 0x7F; // this is the number being compared
+    }else{
+      //load the palette.
+      romData[0x4410A] = 0x13;
+      romData[0x4410E] = 0x04;
+      romData[0x44110] = 0x25;
+      romData[0x44116] = 0x84;
+      romData[0x44124] = 0x08;
+      romData[0x44127] = 0x4A;
+      romData[0x44128] = 0x11;
+      romData[0x4412A] = 0x48;
+      romData[0x4412C] = 0x19;
+      romData[0x4412E] = 0x48;
+      romData[0x44130] = 0x13;
+      romData[0x44131] = 0x40;
+      romData[0x44132] = 0x58;
+      romData[0x44134] = 0x07;
+      romData[0x44135] = 0x28;
+      romData[0x4413A] = 0xE1;
+      //is mon shiny?
+      romData[0x444B4] = 0x02;
+      romData[0x444B7] = 0x4B;
+      romData[0x444B8] = 0x18;
+      romData[0x444BA] = 0x42;
+      romData[0x444BC] = 0x08;
+      romData[0x444BE] = 0x42;
+      romData[0x444C0] = 0x19;
+      romData[0x444C1] = 0x40;
+      romData[0x444C2] = 0x4A;
+      romData[0x444C4] = 0x07;
+      romData[0x444C5] = 0x2A;
+      //battle animation shiny
+      romData[0xF17EA] = 0x3C;
+      romData[0xF17EB] = 0x40;
+      romData[0xF17EC] = 0x60;
+      romData[0xF17EE] = 0x07;
+    }
+
+
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -1485,5 +1611,6 @@ export default {
     actions.saveIgnoreNationalDex();
     actions.saveEVData();
     actions.saveNaturesData();
+    actions.saveShinyData();
   })
 }

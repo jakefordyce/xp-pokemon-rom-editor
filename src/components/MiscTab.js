@@ -66,9 +66,9 @@ function MiscTab(){
           {startersList}
         </tbody>
       </table>}
-      {generation === 2 && <div>
+      {generation > 1 && <div>
         <input type="checkbox" checked={increaseShinyOdds} onChange={(e) => handleShinyChange(e)} />
-        <span title="This increases the chance to about 1/3">Increase Shiny Odds</span>
+        <span title="This increases the chance to about 1/3 in Gen2 and 1/2 in Gen3">Increase Shiny Odds</span>
       </div>}
       {generation === 3 && <div>
         <input type="checkbox" checked={ignoreNationalDex} onChange={(e) => handleNationalDexChange(e)} />
