@@ -19,6 +19,8 @@ function MiscTab(){
   const updateUseNewEVMax = useStoreActions(actions => actions.updateUseNewEVMax);
   const evMult = useStoreState(state => state.evMult);
   const updateEVMult = useStoreActions(actions => actions.updateEVMult);
+  const maximizeIVs = useStoreState(state => state.maximizeIVs);
+  const updateMaximizeIVs = useStoreActions(actions => actions.updateMaximizeIVs);
 
   const startersList = starters.map((starter, index) =>
     <tr key={index}>
@@ -53,6 +55,11 @@ function MiscTab(){
     updateEVMult({value: newValue});
   }
 
+  function handleIVChange(event){
+    let newValue = event.target.checked;
+    updateMaximizeIVs({value: newValue});
+  }
+
 
   return ( dataLoaded &&
     <div className="misc-tab-container">
@@ -81,6 +88,10 @@ function MiscTab(){
       {generation === 3 && <div>
         <input value={evMult} onChange={(e) => handleEVMult(e)} />
         <span title="All EVs gained are multiplied by this amount.">EV Multiplier</span>
+      </div>}
+      {generation === 3 && <div>
+        <input type="checkbox" checked={maximizeIVs} onChange={(e) => handleIVChange(e)} />
+        <span title="This makes all wild pokemon and pokemon you receive have 31 IVs.">Maximize IVs</span>
       </div>}
     </div>
   );

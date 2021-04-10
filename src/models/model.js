@@ -95,6 +95,9 @@ export default {
   setNatures: action((state, payload) => {
     state.natures = payload;
   }),
+  setMaximizeIVs: action((state, payload) => {
+    state.maximizeIVs = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -239,6 +242,10 @@ export default {
   updateNatureProperty: action((state, payload) => {
     let newValue = state.natures[payload.index][payload.propName].constructor(payload.propValue);
     state.natures[payload.index][payload.propName] = newValue;
+  }),
+  updateMaximizeIVs: action((state, payload) => {
+    let newValue = state.maximizeIVs.constructor(payload.value);
+    state.maximizeIVs = newValue;
   }),
 
 

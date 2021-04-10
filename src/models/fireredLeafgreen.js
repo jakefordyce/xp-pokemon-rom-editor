@@ -461,6 +461,7 @@ export default {
     actions.loadEVData();
     actions.loadNaturesData();
     actions.loadShinyData();
+    actions.loadIVData();
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
@@ -1595,6 +1596,44 @@ export default {
 
 
   }),
+  loadIVData: thunk (async (action, payload, {getState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let maximizeIVs = false;
+
+    if(
+      romData[0x3DCF3] == 0x43 &&
+      romData[0x3DD09] == 0x43 &&
+      romData[0x3DD1F] == 0x43 &&
+      romData[0x3DD3B] == 0x43 &&
+      romData[0x3DD4B] == 0x43 &&
+      romData[0x3DD5D] == 0x43
+    ){
+      maximizeIVs = true;
+    }
+
+    getStoreActions().setMaximizeIVs(maximizeIVs);
+  }),
+  saveIVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    let romData = getState().rawBinArray;
+    let maximizeIVs = getStoreState().maximizeIVs;
+
+    if(maximizeIVs){
+      romData[0x3DCF3] = 0x43;
+      romData[0x3DD09] = 0x43;
+      romData[0x3DD1F] = 0x43;
+      romData[0x3DD3B] = 0x43;
+      romData[0x3DD4B] = 0x43;
+      romData[0x3DD5D] = 0x43;
+    }else{
+      romData[0x3DCF3] = 0x40;
+      romData[0x3DD09] = 0x40;
+      romData[0x3DD1F] = 0x40;
+      romData[0x3DD3B] = 0x40;
+      romData[0x3DD4B] = 0x40;
+      romData[0x3DD5D] = 0x40;
+    }
+
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
@@ -1612,5 +1651,6 @@ export default {
     actions.saveEVData();
     actions.saveNaturesData();
     actions.saveShinyData();
+    actions.saveIVData();
   })
 }
