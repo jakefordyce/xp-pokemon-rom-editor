@@ -458,7 +458,8 @@ export default {
     actions.loadTrainers(rawBinArray).then((res) => { getStoreActions().setTrainers(res) });
     actions.loadShops(rawBinArray).then((res) => { getStoreActions().setShops(res) });
     actions.loadIgnoreNationalDex(rawBinArray).then((res) => { getStoreActions().setIgnoreNationalDex(res) });
-    actions.loadEVData(rawBinArray);
+    actions.loadUseNewEVMax(rawBinArray).then((res) => { getStoreActions().setUseNewEVMax(res) });
+    actions.loadEVMult(rawBinArray).then((res) => { getStoreActions().setEVMult(res) });
     actions.loadNaturesData(rawBinArray).then((res) => { getStoreActions().setNatures(res) });
     actions.loadShinyData(rawBinArray).then((res) => { getStoreActions().setIncreaseShinyOdds(res) });
     actions.loadIVData(rawBinArray).then((res) => { getStoreActions().setMaximizeIVs(res) });
@@ -1395,9 +1396,8 @@ export default {
       romData[0x126CC5] = 0xD9;
     }
   }),
-  loadEVData: thunk (async (action, rawBinArray, {getStoreActions}) => {
+  loadUseNewEVMax: thunk (async (action, rawBinArray) => {
     let useNewEVMax = false;
-    let evMult = 0;
 
     useNewEVMax = !(
       rawBinArray[0x3E076] === 0xFF &&
@@ -1410,10 +1410,13 @@ export default {
       rawBinArray[0x43A16] === 0xFF
     )
 
-    evMult = rawBinArray[0x438E6];
+    return useNewEVMax;
+  }),
+  loadEVMult: thunk (async (action, rawBinArray) => {
+    let evMult = 0;
 
-    getStoreActions().setUseNewEVMax(useNewEVMax);
-    getStoreActions().setEVMult(evMult);
+    evMult = rawBinArray[0x438E6];
+    return evMult;
   }),
   saveEVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
