@@ -445,72 +445,72 @@ export default {
   trainerAIFlags: g3TrainerAIFlags,
   moveFlags: g3MoveFlags,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
-  loadData: thunk(async (actions, payload) => {
-    actions.loadBinaryData(payload);
-    actions.loadPokemonTypes();
-    actions.loadPokemonMoves();
-    actions.loadTMs();
-    actions.loadPokemonData();
-    actions.loadItems();
-    actions.loadTypeMatchups();
-    actions.loadEncounters();
-    actions.loadTrainers();
-    actions.loadShops();
-    actions.loadMoveDescriptions();
-    actions.loadIgnoreNationalDex();
-    actions.loadEVData();
-    actions.loadNaturesData();
-    actions.loadShinyData();
-    actions.loadIVData();
+  loadData: thunk(async (actions, rawBinArray, {getStoreActions}) => {
+    actions.loadBinaryData(rawBinArray);
+    actions.loadPokemonData(rawBinArray).then((res) => { getStoreActions().setPokemonArray(res) });
+    actions.loadPokemonTypes(rawBinArray).then((res) => { getStoreActions().setPokemonTypes(res) });
+    actions.loadPokemonMoves(rawBinArray).then((res) => { getStoreActions().setMovesArray(res) });
+    actions.loadMoveDescriptions(rawBinArray).then((res) => { getStoreActions().setMoveDescriptions(res) });
+    actions.loadTMs(rawBinArray).then((res) => { getStoreActions().setTMs(res) });
+    actions.loadItems(rawBinArray).then((res) => { getStoreActions().setItems(res) });
+    actions.loadTypeMatchups(rawBinArray).then((res) => { getStoreActions().setTypeMatchups(res) });
+    actions.loadEncounters(rawBinArray).then((res) => { getStoreActions().setEncounterZones(res) });
+    actions.loadTrainers(rawBinArray).then((res) => { getStoreActions().setTrainers(res) });
+    actions.loadShops(rawBinArray).then((res) => { getStoreActions().setShops(res) });
+    actions.loadIgnoreNationalDex(rawBinArray).then((res) => { getStoreActions().setIgnoreNationalDex(res) });
+    actions.loadEVData(rawBinArray);
+    actions.loadNaturesData(rawBinArray).then((res) => { getStoreActions().setNatures(res) });
+    actions.loadShinyData(rawBinArray).then((res) => { getStoreActions().setIncreaseShinyOdds(res) });
+    actions.loadIVData(rawBinArray).then((res) => { getStoreActions().setMaximizeIVs(res) });
   }),
   loadBinaryData: action((state, payload) => {
     state.rawBinArray = payload;
   }),
-  loadPokemonData: thunk(async (actions, payload, {getState, getStoreActions}) => {
+  loadPokemonData: thunk(async (actions, rawBinArray) => {
     let pokemon = [];
     let currentMovesPosition = pokemonMovesStart;
     let currentEvolutionsPosition = pokemonEvolutionsStart;
     for(let i = 0; i < 411; i++){
       var currentPokemon = {};
       currentPokemon.id = i;
-      currentPokemon.hp = getState().rawBinArray[pokemonStartByte + (i * 28) +1];
-      currentPokemon.attack = getState().rawBinArray[pokemonStartByte + (i * 28) +2];
-      currentPokemon.defense = getState().rawBinArray[pokemonStartByte + (i * 28) +3];
-      currentPokemon.speed = getState().rawBinArray[pokemonStartByte + (i * 28) +4];
-      currentPokemon.specialAttack = getState().rawBinArray[pokemonStartByte + (i * 28) +5];
-      currentPokemon.specialDefense = getState().rawBinArray[pokemonStartByte + (i * 28) +6];
+      currentPokemon.hp = rawBinArray[pokemonStartByte + (i * 28) +1];
+      currentPokemon.attack = rawBinArray[pokemonStartByte + (i * 28) +2];
+      currentPokemon.defense = rawBinArray[pokemonStartByte + (i * 28) +3];
+      currentPokemon.speed = rawBinArray[pokemonStartByte + (i * 28) +4];
+      currentPokemon.specialAttack = rawBinArray[pokemonStartByte + (i * 28) +5];
+      currentPokemon.specialDefense = rawBinArray[pokemonStartByte + (i * 28) +6];
       currentPokemon.totalStats = currentPokemon.hp + currentPokemon.attack + currentPokemon.defense + currentPokemon.speed + currentPokemon.specialAttack + currentPokemon.specialDefense;
-      currentPokemon.type1 = getState().rawBinArray[pokemonStartByte + (i * 28) +7];
-      currentPokemon.type2 = getState().rawBinArray[pokemonStartByte + (i * 28) +8];
-      currentPokemon.catchRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 9];
-      currentPokemon.expYield = getState().rawBinArray[pokemonStartByte + (i * 28) + 10];
+      currentPokemon.type1 = rawBinArray[pokemonStartByte + (i * 28) +7];
+      currentPokemon.type2 = rawBinArray[pokemonStartByte + (i * 28) +8];
+      currentPokemon.catchRate = rawBinArray[pokemonStartByte + (i * 28) + 9];
+      currentPokemon.expYield = rawBinArray[pokemonStartByte + (i * 28) + 10];
 
-      let evYieldValue = getState().rawBinArray[pokemonStartByte + (i * 28) + 11];
+      let evYieldValue = rawBinArray[pokemonStartByte + (i * 28) + 11];
       currentPokemon.evYieldHP = evYieldValue & 0x03;
       currentPokemon.evYieldAttack = (evYieldValue >> 2) & 0x03;
       currentPokemon.evYieldDefense = (evYieldValue >> 4) & 0x03;
       currentPokemon.evYieldSpeed = (evYieldValue >> 6) & 0x03;
-      evYieldValue = getState().rawBinArray[pokemonStartByte + (i * 28) + 12];
+      evYieldValue = rawBinArray[pokemonStartByte + (i * 28) + 12];
       currentPokemon.evYieldSpecialAttack = evYieldValue & 0x03;
       currentPokemon.evYieldSpecialDefense = (evYieldValue >> 2) & 0x03;
 
-      currentPokemon.growthRate = getState().rawBinArray[pokemonStartByte + (i * 28) + 20];
-      currentPokemon.ability1 = getState().rawBinArray[pokemonStartByte + (i * 28) + 23];
-      currentPokemon.ability2 = getState().rawBinArray[pokemonStartByte + (i * 28) + 24];
+      currentPokemon.growthRate = rawBinArray[pokemonStartByte + (i * 28) + 20];
+      currentPokemon.ability1 = rawBinArray[pokemonStartByte + (i * 28) + 23];
+      currentPokemon.ability2 = rawBinArray[pokemonStartByte + (i * 28) + 24];
 
 
       //*
       //the tm/hm data for each pokemon is stored as 8 bytes. Each bit is a true/false for the pokemon's compatibility with a tm/hm.
       //first we grab the 8 bytes in an array.
       let tmIntArray = [];
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 0]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 1]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 2]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 3]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 4]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 5]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 6]);
-      tmIntArray.push(getState().rawBinArray[pokemonTMStart + (i * 8) + 7]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 0]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 1]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 2]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 3]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 4]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 5]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 6]);
+      tmIntArray.push(rawBinArray[pokemonTMStart + (i * 8) + 7]);
 
       let tmBoolArray = [];
 
@@ -532,19 +532,19 @@ export default {
       currentPokemon.learnedMoves = [];
 
       //Evolutions.
-      while(getState().rawBinArray[currentEvolutionsPosition] !== 0)
+      while(rawBinArray[currentEvolutionsPosition] !== 0)
       {
           let evo = {param: 1}; //initialize with some default values.
-          evo.evolve = getState().rawBinArray[currentEvolutionsPosition];
+          evo.evolve = rawBinArray[currentEvolutionsPosition];
           currentEvolutionsPosition += 2;
 
-          let evoParam = getState().rawBinArray[currentEvolutionsPosition++];
-          evoParam += getState().rawBinArray[currentEvolutionsPosition++] * 256;
+          let evoParam = rawBinArray[currentEvolutionsPosition++];
+          evoParam += rawBinArray[currentEvolutionsPosition++] * 256;
 
           evo.param = evoParam;
 
-          let targetPokemon = getState().rawBinArray[currentEvolutionsPosition++];
-          targetPokemon += getState().rawBinArray[currentEvolutionsPosition++] * 256;
+          let targetPokemon = rawBinArray[currentEvolutionsPosition++];
+          targetPokemon += rawBinArray[currentEvolutionsPosition++] * 256;
 
           evo.evolveTo = targetPokemon-1;
 
@@ -556,13 +556,13 @@ export default {
 
 
       //Moves learned while leveling up. They are deliminated with 0xFFFF
-      while ((getState().rawBinArray[currentMovesPosition] !== 0xFF) || (getState().rawBinArray[currentMovesPosition+1] !== 0xFF))
+      while ((rawBinArray[currentMovesPosition] !== 0xFF) || (rawBinArray[currentMovesPosition+1] !== 0xFF))
       {
           let moveToAdd = {};
           //the moves are stored in 2 bytes, little endian.
           // it is (level << 9 | move). We have to reverse the left shifting and ORing to get the values.
-          let moveValue = getState().rawBinArray[currentMovesPosition++];
-          moveValue += getState().rawBinArray[currentMovesPosition++] * 256;
+          let moveValue = rawBinArray[currentMovesPosition++];
+          moveValue += rawBinArray[currentMovesPosition++] * 256;
 
           // right shift 9 to get the level
           moveToAdd.level = moveValue >> 9;
@@ -577,8 +577,8 @@ export default {
       //Each name is 11 bytes
       for (let j = 0; j < 11; j++) {
         //The end of a name is marked with FF
-        if (getState().rawBinArray[pokemonNameStartByte + (i * 11) + j] !== 0xFF){
-            pokemonName += gen3Letters.get(getState().rawBinArray[pokemonNameStartByte + (i * 11) + j]);
+        if (rawBinArray[pokemonNameStartByte + (i * 11) + j] !== 0xFF){
+            pokemonName += gen3Letters.get(rawBinArray[pokemonNameStartByte + (i * 11) + j]);
         }else{
           break;
         }
@@ -587,7 +587,7 @@ export default {
       currentPokemon.name = pokemonName;
       pokemon.push(currentPokemon);
     }
-    getStoreActions().setPokemonArray(pokemon);
+    return pokemon;
   }),
   savePokemonData: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let workingArray = getState().rawBinArray;
@@ -679,7 +679,7 @@ export default {
     }
 
   }),
-  loadPokemonTypes: thunk (async (actions, payload, {getState, getStoreActions}) => {
+  loadPokemonTypes: thunk (async (actions, rawBinArray) => {
     let types = [];
     let newType;
     let currentTypesByte = typesByte;
@@ -695,10 +695,10 @@ export default {
       typeName = "";
 
       // read the name of each type
-      while (getState().rawBinArray[currentTypesByte] !== 0xFF) //0xFF is the deliminator for the end of a name.
+      while (rawBinArray[currentTypesByte] !== 0xFF) //0xFF is the deliminator for the end of a name.
       {
-        if(getState().rawBinArray[currentTypesByte] !== 0x00){
-          typeName += gen3Letters.get(getState().rawBinArray[currentTypesByte++]);
+        if(rawBinArray[currentTypesByte] !== 0x00){
+          typeName += gen3Letters.get(rawBinArray[currentTypesByte++]);
         }else{
           currentTypesByte++;
         }
@@ -712,7 +712,7 @@ export default {
       types.push(newType);
     }
     //console.log(types);
-    getStoreActions().setPokemonTypes(types);
+    return types;
   }),
   savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     //*
@@ -731,7 +731,7 @@ export default {
     });
     //*/
   }),
-  loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
+  loadPokemonMoves: thunk (async (actions, rawBinArray) => {
     let moves = [];
     let currentMoveNameByte = moveNamesByte;
     let moveToAdd;
@@ -751,9 +751,9 @@ export default {
       moveName = "";
 
       //Luckily the names for the moves are stored in the same order as the moves, just in a different spot in memory.
-      while (getState().rawBinArray[currentMoveNameByte] !== 0xFF){
-        if(getState().rawBinArray[currentMoveNameByte] !== 0x00 || moveName.length > 0){
-          moveName += gen3Letters.get(getState().rawBinArray[currentMoveNameByte]);
+      while (rawBinArray[currentMoveNameByte] !== 0xFF){
+        if(rawBinArray[currentMoveNameByte] !== 0x00 || moveName.length > 0){
+          moveName += gen3Letters.get(rawBinArray[currentMoveNameByte]);
         }
         currentMoveNameByte++;
       }
@@ -764,16 +764,16 @@ export default {
       moveToAdd.name = moveName;
       //Each Move uses 12 bytes. i = the current move so we take the starting point and add 12 for each move
       // that we have already read and then add 0-11 as we read through the data fields for that move.
-      moveToAdd.effect = getState().rawBinArray[movesStartingByte + (i * 12)];
-      moveToAdd.power = getState().rawBinArray[movesStartingByte + (i * 12) + 1];
-      moveToAdd.moveType = getState().rawBinArray[movesStartingByte + (i * 12) + 2];
-      moveToAdd.accuracy = getState().rawBinArray[movesStartingByte + (i * 12) + 3];
-      moveToAdd.pp = getState().rawBinArray[movesStartingByte + (i * 12) + 4];
-      moveToAdd.effectChance = getState().rawBinArray[movesStartingByte + (i * 12) + 5];
-      moveToAdd.target = getState().rawBinArray[movesStartingByte + (i * 12) + 6];
-      moveToAdd.priority = getState().rawBinArray[movesStartingByte + (i * 12) + 7];
+      moveToAdd.effect = rawBinArray[movesStartingByte + (i * 12)];
+      moveToAdd.power = rawBinArray[movesStartingByte + (i * 12) + 1];
+      moveToAdd.moveType = rawBinArray[movesStartingByte + (i * 12) + 2];
+      moveToAdd.accuracy = rawBinArray[movesStartingByte + (i * 12) + 3];
+      moveToAdd.pp = rawBinArray[movesStartingByte + (i * 12) + 4];
+      moveToAdd.effectChance = rawBinArray[movesStartingByte + (i * 12) + 5];
+      moveToAdd.target = rawBinArray[movesStartingByte + (i * 12) + 6];
+      moveToAdd.priority = rawBinArray[movesStartingByte + (i * 12) + 7];
       moveToAdd.highCrit = false;
-      let moveFlagsValue = getState().rawBinArray[movesStartingByte + (i * 12) + 8];
+      let moveFlagsValue = rawBinArray[movesStartingByte + (i * 12) + 8];
       let moveFlagsBoolArray = [];
       for(let i = 0; i < g3MoveFlags.length; i++){
         let flag = (moveFlagsValue >> i) & 0x01;
@@ -781,17 +781,17 @@ export default {
       }
       moveToAdd.flags = moveFlagsBoolArray;
 
-      let animationPointer = getState().rawBinArray[moveAnimationsStart + i*4];
-      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 1] * 0x100;
-      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 2] * 0x10000;
-      animationPointer += getState().rawBinArray[moveAnimationsStart + i*4 + 3] * 0x1000000;
+      let animationPointer = rawBinArray[moveAnimationsStart + i*4];
+      animationPointer += rawBinArray[moveAnimationsStart + i*4 + 1] * 0x100;
+      animationPointer += rawBinArray[moveAnimationsStart + i*4 + 2] * 0x10000;
+      animationPointer += rawBinArray[moveAnimationsStart + i*4 + 3] * 0x1000000;
 
       moveToAdd.animationID = animationPointers.indexOf(animationPointer);
 
       moves.push(moveToAdd);
     }
 
-    getStoreActions().setMovesArray(moves);
+    return moves;
   }),
   savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let currentMoveNameByte = moveNamesByte;
@@ -834,7 +834,7 @@ export default {
     }
 
   }),
-  loadMoveDescriptions: thunk (async (actions, payload, {getState, getStoreActions}) => {
+  loadMoveDescriptions: thunk (async (actions, rawBinArray) => {
     let descriptions = [];
     let currentMoveDescByte = moveDescStartByte;
     let moveDesc;
@@ -849,12 +849,12 @@ export default {
     {
         let descText = "";
 
-        while (getState().rawBinArray[currentMoveDescByte] !== 0xFF) //0xFF is the deliminator for the end of a description.
+        while (rawBinArray[currentMoveDescByte] !== 0xFF) //0xFF is the deliminator for the end of a description.
         {
-          if(gen3Letters.get(getState().rawBinArray[currentMoveDescByte]) === undefined){
-            console.log(`Add character for value: ${getState().rawBinArray[currentMoveDescByte++]}`);
+          if(gen3Letters.get(rawBinArray[currentMoveDescByte]) === undefined){
+            console.log(`Add character for value: ${rawBinArray[currentMoveDescByte++]}`);
           }
-          descText += gen3Letters.get(getState().rawBinArray[currentMoveDescByte++]);
+          descText += gen3Letters.get(rawBinArray[currentMoveDescByte++]);
         }
         currentMoveDescByte++;
 
@@ -865,7 +865,7 @@ export default {
         descriptions.push(moveDesc);
     }
 
-    getStoreActions().setMoveDescriptions(descriptions);
+    return descriptions;
   }),
   saveMoveDescriptions: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let currentMoveDescByte = moveDescStartByte;
@@ -889,7 +889,7 @@ export default {
       romData[currentMoveDescByte++] = 0xFF;
     }
   }),
-  loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
+  loadTMs: thunk (async (actions, rawBinArray) => {
 
     let tms = [];
 
@@ -897,8 +897,8 @@ export default {
     {
         let newTM = {};
 
-        newTM.move = getState().rawBinArray[tmStart + i*2];
-        newTM.move += getState().rawBinArray[tmStart + i*2 + 1] * 256;
+        newTM.move = rawBinArray[tmStart + i*2];
+        newTM.move += rawBinArray[tmStart + i*2 + 1] * 256;
         if (i < 50)
         {
             newTM.name = `TM${i + 1}`;
@@ -911,7 +911,7 @@ export default {
     }
 
     //console.log(tms);
-    getStoreActions().setTMs(tms);
+    return tms;
   }),
   saveTMs: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -923,27 +923,27 @@ export default {
       romData[tmStart + (i*2) + 1] = tms[i].move >> 8;
     }
   }),
-  loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
+  loadItems: thunk (async (actions, rawBinArray) => {
     let items = [];
 
     for(let i = 0; i < 375; i++){
       let newItem = {};
 
       //The price is stored in 2 bytes little endian.
-      newItem.price = (getState().rawBinArray[itemPropertiesStart + i*44 + 17] * 256) + getState().rawBinArray[itemPropertiesStart + i*44 + 16];
-      newItem.importance = getState().rawBinArray[itemPropertiesStart + i*44 + 24]
+      newItem.price = (rawBinArray[itemPropertiesStart + i*44 + 17] * 256) + rawBinArray[itemPropertiesStart + i*44 + 16];
+      newItem.importance = rawBinArray[itemPropertiesStart + i*44 + 24]
 
       let itemName = "";
       let currentPosition = itemPropertiesStart + i*44;
-      while(getState().rawBinArray[currentPosition] !== 0xFF){
-        itemName += gen3Letters.get(getState().rawBinArray[currentPosition++]);
+      while(rawBinArray[currentPosition] !== 0xFF){
+        itemName += gen3Letters.get(rawBinArray[currentPosition++]);
       }
       newItem.name = itemName;
 
       items.push(newItem);
     }
     //console.log(items);
-    getStoreActions().setItems(items);
+    return items;
   }),
   saveItems: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -956,31 +956,31 @@ export default {
     }
 
   }),
-  loadTypeMatchups: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadTypeMatchups: thunk (async (action, rawBinArray) => {
     let typeMatchups = [];
     let currentByte = typeChartByte;
     let foresightTypes = false;
 
-    while(getState().rawBinArray[currentByte] !== 0xFF)
+    while(rawBinArray[currentByte] !== 0xFF)
     {
       // The type matchups are split into 2 groups. The first group ends with FE.
       // The 2nd group is the ghost immunes that are cancelled by using the Foresight move.
-      if(getState().rawBinArray[currentByte] === 0xFE){
+      if(rawBinArray[currentByte] === 0xFE){
         currentByte += 3;
         foresightTypes = true;
       }
       else{
         let typeMatchupToAdd = {};
-        typeMatchupToAdd.attackType = getState().rawBinArray[currentByte++]; //first byte is the attacking type
-        typeMatchupToAdd.defenseType = getState().rawBinArray[currentByte++]; //second byte is the defending type
-        typeMatchupToAdd.effectiveness = getState().rawBinArray[currentByte++]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
+        typeMatchupToAdd.attackType = rawBinArray[currentByte++]; //first byte is the attacking type
+        typeMatchupToAdd.defenseType = rawBinArray[currentByte++]; //second byte is the defending type
+        typeMatchupToAdd.effectiveness = rawBinArray[currentByte++]; //third byte is effectiveness X 10. So double damage = 20, half damage = 5.
         typeMatchupToAdd.foresight = foresightTypes;
         typeMatchups.push(typeMatchupToAdd);
       }
     }
 
-    getStoreActions().setTypeMatchups(typeMatchups);
     //console.log(typeMatchups);
+    return typeMatchups;
   }),
   saveTypeMatchups: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1020,7 +1020,7 @@ export default {
     romData[currentByte++] = 0x00;
 
   }),
-  loadEncounters: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadEncounters: thunk (async (action, rawBinArray) => {
     let zones = [];
 
     let currentPosition = wildEncountersStart;
@@ -1050,16 +1050,16 @@ export default {
 
         for(let i = 0; i < 12; i++){
           let encounter = {};
-          encounter.minLevel = getState().rawBinArray[currentPosition++];
-          encounter.maxLevel = getState().rawBinArray[currentPosition++];
-          let pokeValue = getState().rawBinArray[currentPosition++];
-          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+          encounter.minLevel = rawBinArray[currentPosition++];
+          encounter.maxLevel = rawBinArray[currentPosition++];
+          let pokeValue = rawBinArray[currentPosition++];
+          pokeValue += rawBinArray[currentPosition++] * 256;
 
           encounter.pokemon = pokeValue - 1;
           encounter.chance = g3GrassEncChances[i];
           newZone.encounters.push(encounter);
         }
-        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        newZone.encounterRate = rawBinArray[currentPosition++];
         currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
 
         zones.push(newZone);
@@ -1075,16 +1075,16 @@ export default {
 
         for(let i = 0; i < 5; i++){
           let encounter = {};
-          encounter.minLevel = getState().rawBinArray[currentPosition++];
-          encounter.maxLevel = getState().rawBinArray[currentPosition++];
-          let pokeValue = getState().rawBinArray[currentPosition++];
-          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+          encounter.minLevel = rawBinArray[currentPosition++];
+          encounter.maxLevel = rawBinArray[currentPosition++];
+          let pokeValue = rawBinArray[currentPosition++];
+          pokeValue += rawBinArray[currentPosition++] * 256;
 
           encounter.pokemon = pokeValue - 1;
           encounter.chance = g3WaterEncChances[i];
           newZone.encounters.push(encounter);
         }
-        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        newZone.encounterRate = rawBinArray[currentPosition++];
         currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
 
         zones.push(newZone);
@@ -1100,16 +1100,16 @@ export default {
 
         for(let i = 0; i < 5; i++){
           let encounter = {};
-          encounter.minLevel = getState().rawBinArray[currentPosition++];
-          encounter.maxLevel = getState().rawBinArray[currentPosition++];
-          let pokeValue = getState().rawBinArray[currentPosition++];
-          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+          encounter.minLevel = rawBinArray[currentPosition++];
+          encounter.maxLevel = rawBinArray[currentPosition++];
+          let pokeValue = rawBinArray[currentPosition++];
+          pokeValue += rawBinArray[currentPosition++] * 256;
 
           encounter.pokemon = pokeValue - 1;
           encounter.chance = g3WaterEncChances[i]; // rocksmash uses the same enc chances as water
           newZone.encounters.push(encounter);
         }
-        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        newZone.encounterRate = rawBinArray[currentPosition++];
         currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
 
         zones.push(newZone);
@@ -1125,16 +1125,16 @@ export default {
 
         for(let i = 0; i < 10; i++){
           let encounter = {};
-          encounter.minLevel = getState().rawBinArray[currentPosition++];
-          encounter.maxLevel = getState().rawBinArray[currentPosition++];
-          let pokeValue = getState().rawBinArray[currentPosition++];
-          pokeValue += getState().rawBinArray[currentPosition++] * 256;
+          encounter.minLevel = rawBinArray[currentPosition++];
+          encounter.maxLevel = rawBinArray[currentPosition++];
+          let pokeValue = rawBinArray[currentPosition++];
+          pokeValue += rawBinArray[currentPosition++] * 256;
 
           encounter.pokemon = pokeValue - 1;
           encounter.chance = g3FishingEncChances[i];
           newZone.encounters.push(encounter);
         }
-        newZone.encounterRate = getState().rawBinArray[currentPosition++];
+        newZone.encounterRate = rawBinArray[currentPosition++];
         currentPosition += 7; //encounter rates use 3 extra bytes. The next 4 bytes are a pointer to the previous data.
 
         zones.push(newZone);
@@ -1142,8 +1142,8 @@ export default {
 
     }
 
-    //console.log(zones.length);
-    getStoreActions().setEncounterZones(zones);
+    console.log(zones);
+    return zones;
   }),
   saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1162,16 +1162,16 @@ export default {
       currentPosition += 7;
     });
   }),
-  loadTrainers: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadTrainers: thunk (async (action, rawBinArray) => {
     let trainers = [];
     let trainerClasses = [];
     let currentClassPosition = trainerClassesStart;
 
     for(let i = 0; i < 107; i++){
       let trainerClassName = "";
-      while(getState().rawBinArray[currentClassPosition] !== 0xFF){
-        if(getState().rawBinArray[currentClassPosition] !== 0x00 || trainerClassName.length > 0){
-          trainerClassName += gen3Letters.get(getState().rawBinArray[currentClassPosition++]);
+      while(rawBinArray[currentClassPosition] !== 0xFF){
+        if(rawBinArray[currentClassPosition] !== 0x00 || trainerClassName.length > 0){
+          trainerClassName += gen3Letters.get(rawBinArray[currentClassPosition++]);
         }else{
           currentClassPosition++;
         }
@@ -1185,24 +1185,24 @@ export default {
       newTrainer.id = t;
 
       //this value determines if the trainers pokemon hold items and/or have custom movesets.
-      newTrainer.type = getState().rawBinArray[trainerDataStart + t*40 + 0];
+      newTrainer.type = rawBinArray[trainerDataStart + t*40 + 0];
 
       let trainerName = "";
-      trainerName += trainerClasses[getState().rawBinArray[trainerDataStart + t*40 + 1]];
+      trainerName += trainerClasses[rawBinArray[trainerDataStart + t*40 + 1]];
 
       let uniqueName = "";
       let currentNamePosition = trainerDataStart + t*40 + 4;
       //reads the name. The ending is marked with 0xFF
-      while(getState().rawBinArray[currentNamePosition] !== 0xFF){
-        uniqueName += gen3Letters.get(getState().rawBinArray[currentNamePosition++]);
+      while(rawBinArray[currentNamePosition] !== 0xFF){
+        uniqueName += gen3Letters.get(rawBinArray[currentNamePosition++]);
       }
       trainerName += " " + uniqueName;
       newTrainer.name = trainerName;
       newTrainer.uniqueName = uniqueName; //need to keep track of this for the saving process.
       //this is a true/false for double battle
-      newTrainer.doubleBattle = Boolean(getState().rawBinArray[trainerDataStart + t*40 + 24]);
+      newTrainer.doubleBattle = Boolean(rawBinArray[trainerDataStart + t*40 + 24]);
 
-      let aiFlagsValue = getState().rawBinArray[trainerDataStart + t*40 + 28];
+      let aiFlagsValue = rawBinArray[trainerDataStart + t*40 + 28];
       let aiFlagsBoolArray = [];
       for(let i = 0; i < g3TrainerAIFlags.length; i++){
         let flag = (aiFlagsValue >> i) & 0x01;
@@ -1210,12 +1210,12 @@ export default {
       }
       newTrainer.aiFlags = aiFlagsBoolArray;
 
-      let numOfPokemon = getState().rawBinArray[trainerDataStart + t*40 + 32];
+      let numOfPokemon = rawBinArray[trainerDataStart + t*40 + 32];
 
       //get the starting point for the trainer's pokemon
-      let pokemonPointer = getState().rawBinArray[trainerDataStart + t*40 + 36];
-      pokemonPointer += getState().rawBinArray[trainerDataStart + t*40 + 37] * 256;
-      pokemonPointer += getState().rawBinArray[trainerDataStart + t*40 + 38] * 65536;
+      let pokemonPointer = rawBinArray[trainerDataStart + t*40 + 36];
+      pokemonPointer += rawBinArray[trainerDataStart + t*40 + 37] * 256;
+      pokemonPointer += rawBinArray[trainerDataStart + t*40 + 38] * 65536;
 
       let currentPokemonPosition = pokemonPointer;
       newTrainer.pokemon = [];
@@ -1223,33 +1223,33 @@ export default {
       for(let p = 0; p < numOfPokemon; p++){
         let newPokemon = {};
 
-        newPokemon.ivs = getState().rawBinArray[currentPokemonPosition++];
+        newPokemon.ivs = rawBinArray[currentPokemonPosition++];
         currentPokemonPosition++;
 
-        newPokemon.level = getState().rawBinArray[currentPokemonPosition++];
+        newPokemon.level = rawBinArray[currentPokemonPosition++];
         currentPokemonPosition++;
 
-        newPokemon.pokemon = getState().rawBinArray[currentPokemonPosition++]-1; // -1 because the pokemon array is 0 based. We will add 1 when saving.
-        newPokemon.pokemon += getState().rawBinArray[currentPokemonPosition++] * 256;
+        newPokemon.pokemon = rawBinArray[currentPokemonPosition++]-1; // -1 because the pokemon array is 0 based. We will add 1 when saving.
+        newPokemon.pokemon += rawBinArray[currentPokemonPosition++] * 256;
 
         //if the trainer type is 2 or 3 the next 2 bytes are the pokemon's item
         if(newTrainer.type === 2 || newTrainer.type === 3){
-          newPokemon.item = getState().rawBinArray[currentPokemonPosition++];
-          newPokemon.item += getState().rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.item = rawBinArray[currentPokemonPosition++];
+          newPokemon.item += rawBinArray[currentPokemonPosition++] * 256;
         }else{ // setting default value in case the user switches the trainer's type to one that uses items.
           newPokemon.item = 0;
         }
 
         //if the trainer type is 1 or 3 the next 8 bytes will be the pokemon's moves.
         if(newTrainer.type === 1 || newTrainer.type === 3){
-          newPokemon.move1 = getState().rawBinArray[currentPokemonPosition++];
-          newPokemon.move1 += getState().rawBinArray[currentPokemonPosition++] * 256;
-          newPokemon.move2 = getState().rawBinArray[currentPokemonPosition++];
-          newPokemon.move2 += getState().rawBinArray[currentPokemonPosition++] * 256;
-          newPokemon.move3 = getState().rawBinArray[currentPokemonPosition++];
-          newPokemon.move3 += getState().rawBinArray[currentPokemonPosition++] * 256;
-          newPokemon.move4 = getState().rawBinArray[currentPokemonPosition++];
-          newPokemon.move4 += getState().rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move1 = rawBinArray[currentPokemonPosition++];
+          newPokemon.move1 += rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move2 = rawBinArray[currentPokemonPosition++];
+          newPokemon.move2 += rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move3 = rawBinArray[currentPokemonPosition++];
+          newPokemon.move3 += rawBinArray[currentPokemonPosition++] * 256;
+          newPokemon.move4 = rawBinArray[currentPokemonPosition++];
+          newPokemon.move4 += rawBinArray[currentPokemonPosition++] * 256;
         }else{ // setting some default values in case the user switches the trainer's type to one that uses moves.
           newPokemon.move1 = 0;
           newPokemon.move2 = 0;
@@ -1267,7 +1267,7 @@ export default {
     }
 
     //console.log(trainers);
-    getStoreActions().setTrainers(trainers);
+    return trainers;
   }),
   saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1331,7 +1331,7 @@ export default {
     };
 
   }),
-  loadShops: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadShops: thunk (async (action, rawBinArray) => {
     let shops = [];
 
     shopsStarts.forEach(s => {
@@ -1339,16 +1339,16 @@ export default {
       newShop.name = s.shopName;
       let currentItemPosition = s.pointer;
       newShop.items = [];
-      while(getState().rawBinArray[currentItemPosition] !== 0x00 || getState().rawBinArray[currentItemPosition + 1] !== 0x00) //the end of the shop is marked by 0x0000
+      while(rawBinArray[currentItemPosition] !== 0x00 || rawBinArray[currentItemPosition + 1] !== 0x00) //the end of the shop is marked by 0x0000
       {
-        let newItem = getState().rawBinArray[currentItemPosition++];
-        newItem += getState().rawBinArray[currentItemPosition++] * 256;
+        let newItem = rawBinArray[currentItemPosition++];
+        newItem += rawBinArray[currentItemPosition++] * 256;
         newShop.items.push({item: newItem });
       }
       shops.push(newShop);
     });
 
-    getStoreActions().setShops(shops);
+    return shops;
   }),
   saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1367,17 +1367,17 @@ export default {
       romData[currentPosition++] = 0x00; //mark end of shop
     }
   }),
-  loadIgnoreNationalDex: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadIgnoreNationalDex: thunk (async (action, rawBinArray) => {
     let ignoreNationalDex = false;
 
     ignoreNationalDex = !(
-      getState().rawBinArray[0xCE92E] === 0x97 &&
-      getState().rawBinArray[0xCE931] === 0xDD &&
-      getState().rawBinArray[0x126CC2] === 0x97 &&
-      getState().rawBinArray[0x126CC5] === 0xD9
+      rawBinArray[0xCE92E] === 0x97 &&
+      rawBinArray[0xCE931] === 0xDD &&
+      rawBinArray[0x126CC2] === 0x97 &&
+      rawBinArray[0x126CC5] === 0xD9
     )
 
-    getStoreActions().setIgnoreNationalDex(ignoreNationalDex);
+    return ignoreNationalDex;
   }),
   saveIgnoreNationalDex: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1395,22 +1395,22 @@ export default {
       romData[0x126CC5] = 0xD9;
     }
   }),
-  loadEVData: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadEVData: thunk (async (action, rawBinArray, {getStoreActions}) => {
     let useNewEVMax = false;
     let evMult = 0;
 
     useNewEVMax = !(
-      getState().rawBinArray[0x3E076] === 0xFF &&
-      getState().rawBinArray[0x3E078] === 0x40 &&
-      getState().rawBinArray[0x439F2] === 0xFF &&
-      getState().rawBinArray[0x439F4] === 0x40 &&
-      getState().rawBinArray[0x43A50] === 0xFD &&
-      getState().rawBinArray[0x43A51] === 0x01 &&
-      getState().rawBinArray[0x43A10] === 0xFF &&
-      getState().rawBinArray[0x43A16] === 0xFF
+      rawBinArray[0x3E076] === 0xFF &&
+      rawBinArray[0x3E078] === 0x40 &&
+      rawBinArray[0x439F2] === 0xFF &&
+      rawBinArray[0x439F4] === 0x40 &&
+      rawBinArray[0x43A50] === 0xFD &&
+      rawBinArray[0x43A51] === 0x01 &&
+      rawBinArray[0x43A10] === 0xFF &&
+      rawBinArray[0x43A16] === 0xFF
     )
 
-    evMult = getState().rawBinArray[0x438E6];
+    evMult = rawBinArray[0x438E6];
 
     getStoreActions().setUseNewEVMax(useNewEVMax);
     getStoreActions().setEVMult(evMult);
@@ -1442,22 +1442,22 @@ export default {
 
     romData[0x438E6] = evMult;
   }),
-  loadNaturesData: thunk (async (action, payload, {getState, getStoreActions}) => {
+  loadNaturesData: thunk (async (action, rawBinArray) => {
     let natures = [];
     let natureNames = ["Hardy", "Lonely", "Brave", "Adamant", "Naughty", "Bold", "Docile", "Relaxed", "Impish", "Lax", "Timid", "Hasty", "Serious", "Jolly", "Naive", "Modest",
                         "Mild", "Quiet", "Bashful", "Rash", "Calm", "Gentle", "Sassy", "Careful", "Quirky"];
 
     for(let i = 0; i < 25; i++){
       let newNature = {name: natureNames[i]}
-      newNature.attack = getState().rawBinArray[naturesStart + i*5];
-      newNature.defense = getState().rawBinArray[naturesStart + i*5 + 1];
-      newNature.speed = getState().rawBinArray[naturesStart + i*5 + 2];
-      newNature.specialAttack = getState().rawBinArray[naturesStart + i*5 + 3];
-      newNature.specialDefense = getState().rawBinArray[naturesStart + i*5 + 4];
+      newNature.attack = rawBinArray[naturesStart + i*5];
+      newNature.defense = rawBinArray[naturesStart + i*5 + 1];
+      newNature.speed = rawBinArray[naturesStart + i*5 + 2];
+      newNature.specialAttack = rawBinArray[naturesStart + i*5 + 3];
+      newNature.specialDefense = rawBinArray[naturesStart + i*5 + 4];
       natures.push(newNature);
     }
 
-    getStoreActions().setNatures(natures);
+    return natures;
   }),
   saveNaturesData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1471,52 +1471,51 @@ export default {
       romData[naturesStart + i*5 + 4] = natures[i].specialDefense;
     }
   }),
-  loadShinyData: thunk (async (action, payload, {getState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  loadShinyData: thunk (async (action, rawBinArray) => {
     let valuesUnchanged = true;
 
     if(
       //load the palette.
-      romData[0x4410A] == 0x13 &&
-      romData[0x4410E] == 0x04 &&
-      romData[0x44110] == 0x25 &&
-      romData[0x44116] == 0x84 &&
-      romData[0x44124] == 0x08 &&
-      romData[0x44127] == 0x4A &&
-      romData[0x44128] == 0x11 &&
-      romData[0x4412A] == 0x48 &&
-      romData[0x4412C] == 0x19 &&
-      romData[0x4412E] == 0x48 &&
-      romData[0x44130] == 0x13 &&
-      romData[0x44131] == 0x40 &&
-      romData[0x44132] == 0x58 &&
-      romData[0x44134] == 0x07 &&
-      romData[0x44135] == 0x28 &&
-      romData[0x4413A] == 0xE1 &&
+      rawBinArray[0x4410A] == 0x13 &&
+      rawBinArray[0x4410E] == 0x04 &&
+      rawBinArray[0x44110] == 0x25 &&
+      rawBinArray[0x44116] == 0x84 &&
+      rawBinArray[0x44124] == 0x08 &&
+      rawBinArray[0x44127] == 0x4A &&
+      rawBinArray[0x44128] == 0x11 &&
+      rawBinArray[0x4412A] == 0x48 &&
+      rawBinArray[0x4412C] == 0x19 &&
+      rawBinArray[0x4412E] == 0x48 &&
+      rawBinArray[0x44130] == 0x13 &&
+      rawBinArray[0x44131] == 0x40 &&
+      rawBinArray[0x44132] == 0x58 &&
+      rawBinArray[0x44134] == 0x07 &&
+      rawBinArray[0x44135] == 0x28 &&
+      rawBinArray[0x4413A] == 0xE1 &&
       //is mon shiny?
-      romData[0x444B4] == 0x02 &&
-      romData[0x444B7] == 0x4B &&
-      romData[0x444B8] == 0x18 &&
-      romData[0x444BA] == 0x42 &&
-      romData[0x444BC] == 0x08 &&
-      romData[0x444BE] == 0x42 &&
-      romData[0x444C0] == 0x19 &&
-      romData[0x444C1] == 0x40 &&
-      romData[0x444C2] == 0x4A &&
-      romData[0x444C4] == 0x07 &&
-      romData[0x444C5] == 0x2A &&
+      rawBinArray[0x444B4] == 0x02 &&
+      rawBinArray[0x444B7] == 0x4B &&
+      rawBinArray[0x444B8] == 0x18 &&
+      rawBinArray[0x444BA] == 0x42 &&
+      rawBinArray[0x444BC] == 0x08 &&
+      rawBinArray[0x444BE] == 0x42 &&
+      rawBinArray[0x444C0] == 0x19 &&
+      rawBinArray[0x444C1] == 0x40 &&
+      rawBinArray[0x444C2] == 0x4A &&
+      rawBinArray[0x444C4] == 0x07 &&
+      rawBinArray[0x444C5] == 0x2A &&
       //battle animation shiny
-      romData[0xF17EA] == 0x3C &&
-      romData[0xF17EB] == 0x40 &&
-      romData[0xF17EC] == 0x60 &&
-      romData[0xF17EE] == 0x07
+      rawBinArray[0xF17EA] == 0x3C &&
+      rawBinArray[0xF17EB] == 0x40 &&
+      rawBinArray[0xF17EC] == 0x60 &&
+      rawBinArray[0xF17EE] == 0x07
     ){
       valuesUnchanged = true;
     }else{
       valuesUnchanged = false;
     }
 
-    getStoreActions().setIncreaseShinyOdds(!valuesUnchanged);
+    return !valuesUnchanged;
   }),
   saveShinyData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
@@ -1596,22 +1595,21 @@ export default {
 
 
   }),
-  loadIVData: thunk (async (action, payload, {getState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  loadIVData: thunk (async (action, rawBinArray) => {
     let maximizeIVs = false;
 
     if(
-      romData[0x3DCF3] == 0x43 &&
-      romData[0x3DD09] == 0x43 &&
-      romData[0x3DD1F] == 0x43 &&
-      romData[0x3DD3B] == 0x43 &&
-      romData[0x3DD4B] == 0x43 &&
-      romData[0x3DD5D] == 0x43
+      rawBinArray[0x3DCF3] == 0x43 &&
+      rawBinArray[0x3DD09] == 0x43 &&
+      rawBinArray[0x3DD1F] == 0x43 &&
+      rawBinArray[0x3DD3B] == 0x43 &&
+      rawBinArray[0x3DD4B] == 0x43 &&
+      rawBinArray[0x3DD5D] == 0x43
     ){
       maximizeIVs = true;
     }
 
-    getStoreActions().setMaximizeIVs(maximizeIVs);
+    return maximizeIVs;
   }),
   saveIVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;

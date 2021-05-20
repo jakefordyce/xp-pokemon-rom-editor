@@ -93,6 +93,10 @@ function getKeyByValue(mapObject, searchValue) {
   return 0x50;
 };
 
+export function pipe(arg, ...fns) {
+  return fns.reduce((v, fn) => fn(v), arg);
+}
+
 const rbyMoveAnimations = [
   "None",
   "POUND",

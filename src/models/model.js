@@ -18,17 +18,19 @@ export default {
   selectedTrainer: 0,
   selectedShop: 0,
   selectedTypeMatchup: 0,
-  pokemonTypes: [{typeIsUsed: 'true', typeName: 'NORMAL', typeIndex: 0}],
-  moves: [{}],
+  pokemonTypes: [{typeIsUsed: true, typeName: 'NORMAL', typeIndex: 0}],
+  moves: [{name: '', power: 0, accuracy: 0, pp: 0}],
   tms: [{}],
   items: [{}],
   typeMatchups: [{}],
-  encounterZones: [{encounters: []}],
-  trainers: [{uniqueName: '', pokemon: []}],
+  encounterZones: [{name: '', encounterRate: 0, encounters: []}],
+  trainers: [{uniqueName: '', pokemon: [], doubleBattle: false}],
   shops: [{items: []}],
   starters: [],
   moveDescriptions: [],
   increaseShinyOdds: false,
+  ignoreNationalDex: false,
+  maximizeIVs: false,
 
   //actions for setting the above data. These are called from the ROM specific models after loading data from the ROM file.
   //I might refactor these into 1 method at some point.

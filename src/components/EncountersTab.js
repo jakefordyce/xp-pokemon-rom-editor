@@ -19,7 +19,7 @@ function EncountersTab(){
     <li key={index} className={"list-group-item" + (selectedZone === index ? " active" : "")} style={{maxWidth: "400px"}} onClick={()=> setSelectedZone(index)}>{zone.name}</li>
   );
 
-  const encountersList = encounterZones[selectedZone].encounters.map((encounter, index) =>
+  const encountersList = encounterZones[selectedZone]?.encounters.map((encounter, index) =>
     <tr key={index}>
       {generation < 3 && <td>{encounter.chance}% Spawn Chance -> Level:</td>}
       {generation < 3 &&  <td><input value={encounter.level} onChange={(e) => handleEncounterChange(e, index, 'level')} /></td>}

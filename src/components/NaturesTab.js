@@ -7,7 +7,7 @@ function NaturesTab(){
   const natures = useStoreState(state => state.natures);
   const updateNatureProperty = useStoreActions(actions => actions.updateNatureProperty);
 
-  const natureRows = natures?.map((nature, index) => <tr>
+  const natureRows = natures?.map((nature, index) => <tr key={index}>
     <td>{nature.name}</td>
     <td className={getCssForValue(nature.attack)} onClick={(e) => handleNatureStatChange(e, index, nature.attack, "attack")} >{getTextForValue(nature.attack)}</td>
     <td className={getCssForValue(nature.defense)} onClick={(e) => handleNatureStatChange(e, index, nature.defense, "defense")} >{getTextForValue(nature.defense)}</td>
@@ -69,12 +69,14 @@ function NaturesTab(){
     <div>
       <table>
         <thead>
-          <th>Nature</th>
-          <th>Attack</th>
-          <th>Defense</th>
-          <th>Speed</th>
-          <th>Sp. Att</th>
-          <th>Sp. Def</th>
+          <tr>
+            <th>Nature</th>
+            <th>Attack</th>
+            <th>Defense</th>
+            <th>Speed</th>
+            <th>Sp. Att</th>
+            <th>Sp. Def</th>
+          </tr>
         </thead>
         <tbody>
           {natureRows}
