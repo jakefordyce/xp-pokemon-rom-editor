@@ -16,7 +16,6 @@ function MovesGridRow(props){
   const currentHighCritMoves = useStoreState(state => state.currentHighCritMoves);
   const targets = useStoreState(state => state.romModelState.moveTargets);
   const updateMoveFlag = useStoreActions(actions => actions.updateMoveFlag);
-  const moveFlags = useStoreState(state => state.romModelState.moveFlags);
 
   const moveFlagColumns = props.move.flags?.map((flag, index) =>
     <td key={index}>

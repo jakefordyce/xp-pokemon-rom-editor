@@ -31,6 +31,13 @@ export default {
   increaseShinyOdds: false,
   ignoreNationalDex: false,
   maximizeIVs: false,
+  useNewEVMax: false,
+  evMult: 1,
+  rawBinArray: [],
+
+  setRawBinArray: action((state, payload) => {
+    state.rawBinArray = payload;
+  }),
 
   //actions for setting the above data. These are called from the ROM specific models after loading data from the ROM file.
   //I might refactor these into 1 method at some point.
@@ -518,6 +525,7 @@ export default {
       {filters: getState().romModelState.fileFilters}
     ).then((res) => {
       filedata = fs.readFileSync(res.filePaths[0]);
+      actions.setRawBinArray(filedata);
       actions.setCurrentFile(res.filePaths[0]);
       return actions.getRomModelActions();
     }).then((res) => {
@@ -534,7 +542,7 @@ export default {
     actions.resetMovesSorting();
     actions.getRomModelActions()
     .then(res => {
-      // the rom model will prepare its rawBinArray to be saved.
+      // the rom model will prepare the rawBinArray to be saved.
       return res.prepareDataForSaving();
     })
     .then(() => {
@@ -544,7 +552,7 @@ export default {
       })
     })
     .then((res) => {
-      fs.writeFileSync(res.filePath, getState().romModelState.rawBinArray, 'base64');
+      fs.writeFileSync(res.filePath, getState().rawBinArray, 'base64');
     })
     .catch((err) => {
       console.log(err);
@@ -557,11 +565,11 @@ export default {
     actions.resetMovesSorting();
     actions.getRomModelActions()
     .then(res => {
-      // the rom model will prepare its rawBinArray to be saved.
+      // the rom model will prepare the rawBinArray to be saved.
       return res.prepareDataForSaving();
     })
     .then(() => {
-      fs.writeFileSync(getState().currentFile, getState().romModelState.rawBinArray, 'base64');
+      fs.writeFileSync(getState().currentFile, getState().rawBinArray, 'base64');
     })
     .catch((err) => {
       console.log(err);

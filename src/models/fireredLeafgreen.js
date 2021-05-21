@@ -1,4 +1,4 @@
-import { thunk, action } from "easy-peasy";
+import { thunk } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, g3TradeItems, g3GrowthRates,
   g3ZoneNames, g3GrassEncChances, gsTrainerTypes, g3WaterEncChances,
   getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities, g3TrainerAIFlags, g3MoveFlags} from './utils';
@@ -9,7 +9,6 @@ const pokemonMovesStart = 0x257504; //In Firered the learned moves are stored se
 const pokemonStartByte = 0x25480F; //Pokemon base stats data starts here. It goes in Pokedex order, Bulbasaur through Deoxys. Chimecho is at the end, out of order.
 const pokemonMovesPointers = 0x25D828;//The first pointer is a dup pointer to bulbasaur's moves so I skipped it.
 const pokemonEvolutionsStart = 0x2597EC;
-const pointerBase = 0x3C000;
 const pokemonTMStart = 0x252C40;
 
 //values used to load the pokemon types
@@ -446,7 +445,6 @@ export default {
   moveFlags: g3MoveFlags,
   defaultEvolution: {evolve: 1, param: 1, evolveTo: 1},
   loadData: thunk(async (actions, rawBinArray, {getStoreActions}) => {
-    actions.loadBinaryData(rawBinArray);
     actions.loadPokemonData(rawBinArray).then((res) => { getStoreActions().setPokemonArray(res) });
     actions.loadPokemonTypes(rawBinArray).then((res) => { getStoreActions().setPokemonTypes(res) });
     actions.loadPokemonMoves(rawBinArray).then((res) => { getStoreActions().setMovesArray(res) });
@@ -463,9 +461,6 @@ export default {
     actions.loadNaturesData(rawBinArray).then((res) => { getStoreActions().setNatures(res) });
     actions.loadShinyData(rawBinArray).then((res) => { getStoreActions().setIncreaseShinyOdds(res) });
     actions.loadIVData(rawBinArray).then((res) => { getStoreActions().setMaximizeIVs(res) });
-  }),
-  loadBinaryData: action((state, payload) => {
-    state.rawBinArray = payload;
   }),
   loadPokemonData: thunk(async (actions, rawBinArray) => {
     let pokemon = [];
@@ -590,8 +585,8 @@ export default {
     }
     return pokemon;
   }),
-  savePokemonData: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let workingArray = getState().rawBinArray;
+  savePokemonData: thunk(async (actions, payload, {getStoreState}) => {
+    let workingArray = getStoreState().rawBinArray;
     let currentMovesPosition = pokemonMovesStart;
     let currentPointerPosition = pokemonMovesPointers;
     let pokemon = getStoreState().pokemon;
@@ -669,11 +664,11 @@ export default {
 
       //save the pokemon's moves. Once they are all done we mark the end with 0xFFFF
       //*
-      pokemon[i].learnedMoves.forEach((m) => {
-        let moveValue = (m.level << 9 | m.moveID);
+      for(const m of pokemon[i].learnedMoves) {
+        let moveValue = (m.level << 9) | m.moveID;
         workingArray[currentMovesPosition++] = moveValue & 0xFF;
         workingArray[currentMovesPosition++] = moveValue >> 8;
-      });
+      }
       workingArray[currentMovesPosition++] = 0xFF;
       workingArray[currentMovesPosition++] = 0xFF;
       //*/
@@ -715,9 +710,9 @@ export default {
     //console.log(types);
     return types;
   }),
-  savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+  savePokemonTypes: thunk (async (actions, payload, {getStoreState}) => {
     //*
-    let romData = getState().rawBinArray;
+    let romData = getStoreState().rawBinArray;
     let pokemonTypes = getStoreState().pokemonTypes;
     let currentTypePosition = typesByte;
 
@@ -794,10 +789,10 @@ export default {
 
     return moves;
   }),
-  savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+  savePokemonMoves: thunk (async (actions, payload, {getStoreState}) => {
     let currentMoveNameByte = moveNamesByte;
     let currentAnimationPosition = moveAnimationsStart;
-    let romData = getState().rawBinArray;
+    let romData = getStoreState().rawBinArray;
     let moves = getStoreState().moves;
 
     for(let i = 0; i < 354; i++)
@@ -824,9 +819,9 @@ export default {
       romData[currentAnimationPosition++] = (animationValue >> 16) & 0xFF;
       currentAnimationPosition++; // skip the last byte because it is always 08;
 
-      moves[i + 1].name.split("").forEach((c) => {
+      for(const c of moves[i + 1].name.split("")){
         romData[currentMoveNameByte++] = getKeyByValue(gen3Letters, c);
-      });
+      }
       romData[currentMoveNameByte++] = 0xFF;
       for(let z = 0; z < (12 - moves[i + 1].name.length); z++){
         romData[currentMoveNameByte++] = 0x00;
@@ -868,9 +863,9 @@ export default {
 
     return descriptions;
   }),
-  saveMoveDescriptions: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+  saveMoveDescriptions: thunk (async (actions, payload, {getStoreState}) => {
     let currentMoveDescByte = moveDescStartByte;
-    let romData = getState().rawBinArray;
+    let romData = getStoreState().rawBinArray;
     let moveDescriptions = getStoreState().moveDescriptions;
     let currentPointerByte = moveDescPointers;
 
@@ -883,9 +878,9 @@ export default {
       currentPointerByte++; //skip the last byte because it is always 0x08
 
       // +1 is being used because an extra move is added to the moves array during the load process. We are skipping that here.
-      moveDescriptions[i+1].text.split("").forEach((c) => {
+      for(const c of moveDescriptions[i+1].text.split("")){
         romData[currentMoveDescByte++] = getKeyByValue(gen3Letters, c);
-      });
+      }
 
       romData[currentMoveDescByte++] = 0xFF;
     }
@@ -914,8 +909,8 @@ export default {
     //console.log(tms);
     return tms;
   }),
-  saveTMs: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveTMs: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let tms = getStoreState().tms;
 
     for (let i = 0; i < 58; i++) //There are 50 TMs and 7 HMs. Each is 2 bytes which is the moveID
@@ -946,8 +941,8 @@ export default {
     //console.log(items);
     return items;
   }),
-  saveItems: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveItems: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let items = getStoreState().items;
 
     for(let i = 0; i < 375; i++){
@@ -983,8 +978,8 @@ export default {
     //console.log(typeMatchups);
     return typeMatchups;
   }),
-  saveTypeMatchups: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveTypeMatchups: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let typeMatchups = getStoreState().typeMatchups;
     let currentByte = typeChartByte;
 
@@ -1143,11 +1138,11 @@ export default {
 
     }
 
-    console.log(zones);
+    //console.log(zones);
     return zones;
   }),
-  saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveEncounters: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let zones = getStoreState().encounterZones;
     let currentPosition = wildEncountersStart
 
@@ -1270,8 +1265,8 @@ export default {
     //console.log(trainers);
     return trainers;
   }),
-  saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveTrainers: thunk (async (action, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let trainers = getStoreState().trainers.sort((a,b) => a.id < b.id ? -1 : 1); // sort the trainers by ID so they get saved in the correct order.
 
     let currentPosition = trainerPokemonStart;
@@ -1297,7 +1292,7 @@ export default {
       romData[trainerDataStart + (i * 40) + 38] = (currentPosition >> 16) & 0xFF;
       //The last byte of the pointer is always 0x08 so I don't bother changing it.
 
-      trainers[i].pokemon.forEach(poke => {
+      for(const poke of trainers[i].pokemon){
         romData[currentPosition++] = poke.ivs;
         currentPosition++;
         romData[currentPosition++] = poke.level;
@@ -1328,7 +1323,7 @@ export default {
           romData[currentPosition++] = 0x00;
           romData[currentPosition++] = 0x00;
         }
-      });
+      }
     };
 
   }),
@@ -1351,8 +1346,8 @@ export default {
 
     return shops;
   }),
-  saveShops: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveShops: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let shops = getStoreState().shops;
 
     for (let i = 0; i < shopsStarts.length; i++)
@@ -1380,8 +1375,8 @@ export default {
 
     return ignoreNationalDex;
   }),
-  saveIgnoreNationalDex: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveIgnoreNationalDex: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let ignoreNationalDex = getStoreState().ignoreNationalDex;
 
     if(ignoreNationalDex){
@@ -1418,8 +1413,8 @@ export default {
     evMult = rawBinArray[0x438E6];
     return evMult;
   }),
-  saveEVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveEVData: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let useNewEVMax = getStoreState().useNewEVMax;
     let evMult = getStoreState().evMult;
 
@@ -1462,8 +1457,8 @@ export default {
 
     return natures;
   }),
-  saveNaturesData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveNaturesData: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let natures = getStoreState().natures;
 
     for(let i = 0; i < 25; i++){
@@ -1479,39 +1474,39 @@ export default {
 
     if(
       //load the palette.
-      rawBinArray[0x4410A] == 0x13 &&
-      rawBinArray[0x4410E] == 0x04 &&
-      rawBinArray[0x44110] == 0x25 &&
-      rawBinArray[0x44116] == 0x84 &&
-      rawBinArray[0x44124] == 0x08 &&
-      rawBinArray[0x44127] == 0x4A &&
-      rawBinArray[0x44128] == 0x11 &&
-      rawBinArray[0x4412A] == 0x48 &&
-      rawBinArray[0x4412C] == 0x19 &&
-      rawBinArray[0x4412E] == 0x48 &&
-      rawBinArray[0x44130] == 0x13 &&
-      rawBinArray[0x44131] == 0x40 &&
-      rawBinArray[0x44132] == 0x58 &&
-      rawBinArray[0x44134] == 0x07 &&
-      rawBinArray[0x44135] == 0x28 &&
-      rawBinArray[0x4413A] == 0xE1 &&
+      rawBinArray[0x4410A] === 0x13 &&
+      rawBinArray[0x4410E] === 0x04 &&
+      rawBinArray[0x44110] === 0x25 &&
+      rawBinArray[0x44116] === 0x84 &&
+      rawBinArray[0x44124] === 0x08 &&
+      rawBinArray[0x44127] === 0x4A &&
+      rawBinArray[0x44128] === 0x11 &&
+      rawBinArray[0x4412A] === 0x48 &&
+      rawBinArray[0x4412C] === 0x19 &&
+      rawBinArray[0x4412E] === 0x48 &&
+      rawBinArray[0x44130] === 0x13 &&
+      rawBinArray[0x44131] === 0x40 &&
+      rawBinArray[0x44132] === 0x58 &&
+      rawBinArray[0x44134] === 0x07 &&
+      rawBinArray[0x44135] === 0x28 &&
+      rawBinArray[0x4413A] === 0xE1 &&
       //is mon shiny?
-      rawBinArray[0x444B4] == 0x02 &&
-      rawBinArray[0x444B7] == 0x4B &&
-      rawBinArray[0x444B8] == 0x18 &&
-      rawBinArray[0x444BA] == 0x42 &&
-      rawBinArray[0x444BC] == 0x08 &&
-      rawBinArray[0x444BE] == 0x42 &&
-      rawBinArray[0x444C0] == 0x19 &&
-      rawBinArray[0x444C1] == 0x40 &&
-      rawBinArray[0x444C2] == 0x4A &&
-      rawBinArray[0x444C4] == 0x07 &&
-      rawBinArray[0x444C5] == 0x2A &&
+      rawBinArray[0x444B4] === 0x02 &&
+      rawBinArray[0x444B7] === 0x4B &&
+      rawBinArray[0x444B8] === 0x18 &&
+      rawBinArray[0x444BA] === 0x42 &&
+      rawBinArray[0x444BC] === 0x08 &&
+      rawBinArray[0x444BE] === 0x42 &&
+      rawBinArray[0x444C0] === 0x19 &&
+      rawBinArray[0x444C1] === 0x40 &&
+      rawBinArray[0x444C2] === 0x4A &&
+      rawBinArray[0x444C4] === 0x07 &&
+      rawBinArray[0x444C5] === 0x2A &&
       //battle animation shiny
-      rawBinArray[0xF17EA] == 0x3C &&
-      rawBinArray[0xF17EB] == 0x40 &&
-      rawBinArray[0xF17EC] == 0x60 &&
-      rawBinArray[0xF17EE] == 0x07
+      rawBinArray[0xF17EA] === 0x3C &&
+      rawBinArray[0xF17EB] === 0x40 &&
+      rawBinArray[0xF17EC] === 0x60 &&
+      rawBinArray[0xF17EE] === 0x07
     ){
       valuesUnchanged = true;
     }else{
@@ -1520,8 +1515,8 @@ export default {
 
     return !valuesUnchanged;
   }),
-  saveShinyData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveShinyData: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let increaseShinyOdds = getStoreState().increaseShinyOdds;
 
     if(increaseShinyOdds){
@@ -1602,20 +1597,20 @@ export default {
     let maximizeIVs = false;
 
     if(
-      rawBinArray[0x3DCF3] == 0x43 &&
-      rawBinArray[0x3DD09] == 0x43 &&
-      rawBinArray[0x3DD1F] == 0x43 &&
-      rawBinArray[0x3DD3B] == 0x43 &&
-      rawBinArray[0x3DD4B] == 0x43 &&
-      rawBinArray[0x3DD5D] == 0x43
+      rawBinArray[0x3DCF3] === 0x43 &&
+      rawBinArray[0x3DD09] === 0x43 &&
+      rawBinArray[0x3DD1F] === 0x43 &&
+      rawBinArray[0x3DD3B] === 0x43 &&
+      rawBinArray[0x3DD4B] === 0x43 &&
+      rawBinArray[0x3DD5D] === 0x43
     ){
       maximizeIVs = true;
     }
 
     return maximizeIVs;
   }),
-  saveIVData: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let romData = getState().rawBinArray;
+  saveIVData: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
     let maximizeIVs = getStoreState().maximizeIVs;
 
     if(maximizeIVs){
@@ -1637,7 +1632,7 @@ export default {
   }),
 
 
-  prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+  prepareDataForSaving: thunk(async (actions, payload) => {
     actions.savePokemonData();
     actions.savePokemonMoves();
     actions.saveTMs();
