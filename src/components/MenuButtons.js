@@ -7,6 +7,7 @@ function MenuButtons() {
   const saveFile = useStoreActions(actions => actions.saveFile);
   const romModelSelected = useStoreActions(actions => actions.romModelSelected);
   const supportedROMs = useStoreState(state => state.supportedROMs);
+  const generateChangeLog = useStoreActions(actions => actions.generateChangeLog);
 
   const romSelectOptions = supportedROMs.map((rom,index) => <option key={index} value={rom.text}>{rom.text}</option>);
 
@@ -16,6 +17,7 @@ function MenuButtons() {
       <button onClick={(e) => saveFile() }>Save ROM</button>
       <button onClick={(e) => saveFileAs() }>Save As</button>
       <select onChange={(e) => romModelSelected(e.target.value)}>{romSelectOptions}</select>
+      <button onClick={(e) => generateChangeLog() }>Generate Changelog</button>
     </div>
   );
 }

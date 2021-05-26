@@ -2,7 +2,7 @@ import { thunk } from "easy-peasy";
 import {gscDamageModifiers, gen3Letters, g3MoveAnimations, g3MoveEffects, g3EvolveTypes, g3Stones, g3TradeItems, g3GrowthRates,
   g3ZoneNames, g3GrassEncChances, gsTrainerTypes, g3WaterEncChances,
   getKeyByValue, g3MoveTargets, g3FishingEncChances, g3Abilities, g3TrainerAIFlags, g3MoveFlags} from './utils';
-
+import {isEqual} from "lodash";
 
 const pokemonNameStartByte = 0x245F5B; //Pokemon names start here and run Pokedex order with Chimecho at the end, out of order.
 const pokemonMovesStart = 0x257504; //In Firered the learned moves are stored separately from evolutions.
@@ -1629,6 +1629,39 @@ export default {
       romData[0x3DD5D] = 0x40;
     }
 
+  }),
+  getChanges: thunk (async (actions, originalROM, {getStoreState}) => {
+    let changes = ""
+
+    let originalPokemon = []
+    await actions.loadPokemonData(originalROM).then((res) => { originalPokemon = res });
+    const updatedPokemon = getStoreState().pokemon;
+    for (let i = 0; i < 411; i++) //There are 411 pokemon in the game
+    {
+      //console.log(originalPokemon[i]);
+      //console.log(updatedPokemon[i]);
+      if(!isEqual(originalPokemon[i], updatedPokemon[i])){
+        changes += `---Changes for ${originalPokemon[i].name}---\n`;
+        //let properties = Object.getOwnPropertyNames(originalPokemon[i]);
+        let properties = ['hp', 'attack', 'defense', 'speed', 'specialAttack', 'specialDefense', 'totalStats', 'catchRate', 'expYield',
+        'evYieldHP', 'evYieldAttack', 'evYieldDefense', 'evYieldSpeed', 'evYieldSpecialAttack', 'evYieldSpecialDefense'];
+
+        for(const prop of properties){
+          if(originalPokemon[i][prop] !== updatedPokemon[i][prop]){
+            changes += `${prop} changed. ${originalPokemon[i][prop]} --> ${updatedPokemon[i][prop]}\n`;
+          }
+        }
+        changes += `------------------`;
+
+        /*
+        if(originalPokemon[i].attack !== updatedPokemon[i].attack){
+          changes += `Attack changed to ${updatedPokemon[i].attack}. Original value: ${originalPokemon[i].attack}\n`;
+        }
+        //*/
+      }
+    }
+
+    return changes;
   }),
 
 

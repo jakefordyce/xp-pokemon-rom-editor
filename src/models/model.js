@@ -535,6 +535,32 @@ export default {
       //TODO
     });
   }),
+  generateChangeLog: thunk(async (actions, payload, {getState}) => {
+    let filedata;
+    let changeLog = ""
+    dialog.showOpenDialog(
+      {filters: getState().romModelState.fileFilters}
+    ).then((res) => {
+      filedata = fs.readFileSync(res.filePaths[0]);
+      return actions.getRomModelActions();
+    }).then((res) => {
+      return res.getChanges(filedata);
+    }).then((res) => {
+      changeLog = res;
+      return dialog.showSaveDialog({
+        title: 'Save Changelog',
+        filters: [
+          { name: 'XP Rom Editor Changelog', extensions: ['txt'] }
+        ]
+      })
+    })
+    .then((res) => {
+      fs.writeFileSync(res.filePath, changeLog);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
   saveFileAs: thunk(async (actions, payload, {getState}) => {
     //return the pokemon to their original order before saving.
     actions.resetPokemonSorting();
