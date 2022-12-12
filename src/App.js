@@ -11,6 +11,7 @@ import TrainersTab from './components/TrainersTab';
 import ShopsTab from './components/ShopsTab';
 import MiscTab from './components/MiscTab';
 import NaturesTab from './components/NaturesTab';
+import RandomizeTab from './components/RandomizeTab';
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
           <button className={tabClassNames(6)} onClick={(e) => handleTabClicked(e, 6)}>Shops</button>
           <button className={tabClassNames(7)} onClick={(e) => handleTabClicked(e, 7)}>Misc</button>
           <button className={tabClassNames(8)} onClick={(e) => handleTabClicked(e, 8)}>Natures</button>
+          <button className={tabClassNames(9)} onClick={(e) => handleTabClicked(e, 9)}>Randomize</button>
         </nav>
       </div>
       <div >
@@ -66,6 +68,7 @@ function App() {
         <div hidden={tab !== 6}><ShopsTab /></div>
         <div hidden={tab !== 7}><MiscTab /></div>
         <div hidden={tab !== 8}><NaturesTab /></div>
+        <div hidden={tab !== 9}><RandomizeTab /></div>
       </div>
     </div>
   );

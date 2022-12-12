@@ -1663,6 +1663,20 @@ export default {
 
     return changes;
   }),
+  randomizeWildPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let romData = getStoreState().rawBinArray;
+    let zones = getStoreState().encounterZones;
+    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
+    //console.log(`${JSON.stringify(pokemonIDs)}`);
+    zones.forEach(zone => {
+      zone.encounters.forEach(enc => {
+        let randomPokemon = pokemonIDs[Math.floor(Math.random() * pokemonIDs.length)]
+        enc.pokemon = randomPokemon;
+      });
+    });
+
+    getStoreActions().setEncounterZones(zones);
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload) => {

@@ -256,6 +256,16 @@ export default {
     let newValue = state.maximizeIVs.constructor(payload.value);
     state.maximizeIVs = newValue;
   }),
+  randomizeWildPokemon: thunk(async (actions, payload, {getState}) => {
+    actions.getRomModelActions()
+    .then(res => {
+      // the rom specific way of randomizing its wild encounters
+      return res.randomizeWildPokemon();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
 
 
   //sorting data and actions for the pokemon grid and moves grid
