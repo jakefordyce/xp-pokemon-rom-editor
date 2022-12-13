@@ -1664,8 +1664,8 @@ export default {
     return changes;
   }),
   randomizeWildPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
-    let romData = getStoreState().rawBinArray;
     let zones = getStoreState().encounterZones;
+    let epz = getStoreState().encountersPerZone;
     let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
     //console.log(`${JSON.stringify(pokemonIDs)}`);
     zones.forEach(zone => {
@@ -1673,6 +1673,45 @@ export default {
         let randomPokemon = pokemonIDs[Math.floor(Math.random() * pokemonIDs.length)]
         enc.pokemon = randomPokemon;
       });
+      if(zone.name.includes(" land")){
+        console.log("Name included land");
+        console.log(JSON.stringify(zone.encounters))
+        if(epz < 12){
+          zone.encounters[11].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 11){
+          zone.encounters[10].pokemon = zone.encounters[8].pokemon;
+        }
+        if(epz < 10){
+          zone.encounters[7].pokemon = zone.encounters[8].pokemon;
+        }
+        if(epz < 9){
+          zone.encounters[5].pokemon = zone.encounters[6].pokemon;
+        }
+        if(epz < 8){
+          zone.encounters[4].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 7){
+          zone.encounters[3].pokemon = zone.encounters[8].pokemon;
+        }
+        if(epz < 6){
+          zone.encounters[1].pokemon = zone.encounters[2].pokemon;
+        }
+        if(epz < 5){
+          zone.encounters[6].pokemon = zone.encounters[9].pokemon;
+          zone.encounters[5].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 4){
+          zone.encounters[0].pokemon = zone.encounters[8].pokemon;
+        }
+        if(epz < 3){
+          zone.encounters[2].pokemon = zone.encounters[9].pokemon;
+          zone.encounters[1].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 2){
+          zone.encounters.forEach(enc => enc.pokemon = zone.encounters[0].pokemon);
+        }
+      }
     });
 
     getStoreActions().setEncounterZones(zones);

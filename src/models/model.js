@@ -33,6 +33,7 @@ export default {
   maximizeIVs: false,
   useNewEVMax: false,
   evMult: 1,
+  encountersPerZone: 12,
   rawBinArray: [],
 
   setRawBinArray: action((state, payload) => {
@@ -106,6 +107,9 @@ export default {
   }),
   setMaximizeIVs: action((state, payload) => {
     state.maximizeIVs = payload;
+  }),
+  setEncountersPerZone: action((state, payload) => {
+    state.encountersPerZone = payload;
   }),
 
   //actions for updating the data.
@@ -255,6 +259,10 @@ export default {
   updateMaximizeIVs: action((state, payload) => {
     let newValue = state.maximizeIVs.constructor(payload.value);
     state.maximizeIVs = newValue;
+  }),
+  updateEncountersPerZone: action((state, payload) => {
+    let newValue = state.encountersPerZone.constructor(payload);
+    state.encountersPerZone = newValue;
   }),
   randomizeWildPokemon: thunk(async (actions, payload, {getState}) => {
     actions.getRomModelActions()
