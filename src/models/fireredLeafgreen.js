@@ -1674,8 +1674,6 @@ export default {
         enc.pokemon = randomPokemon;
       });
       if(zone.name.includes(" land")){
-        console.log("Name included land");
-        console.log(JSON.stringify(zone.encounters))
         if(epz < 12){
           zone.encounters[11].pokemon = zone.encounters[9].pokemon;
         }
@@ -1710,6 +1708,37 @@ export default {
         }
         if(epz < 2){
           zone.encounters.forEach(enc => enc.pokemon = zone.encounters[0].pokemon);
+        }
+      }
+      else if(zone.name.includes(" water") || zone.name.includes(" rocks")){
+        if(epz < 5){
+          zone.encounters[3].pokemon = zone.encounters[4].pokemon;
+        }
+        if(epz < 4){
+          zone.encounters[2].pokemon = zone.encounters[3].pokemon;
+        }
+        if(epz < 3){
+          zone.encounters[1].pokemon = zone.encounters[2].pokemon;
+        }
+        if(epz < 2){
+          zone.encounters[0].pokemon = zone.encounters[1].pokemon;
+        }
+      }
+      else if(zone.name.includes(" fishing")){
+        if(epz < 5){
+          zone.encounters[8].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 4){
+          zone.encounters[7].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 3){
+          zone.encounters[3].pokemon = zone.encounters[4].pokemon;
+          zone.encounters[6].pokemon = zone.encounters[9].pokemon;
+        }
+        if(epz < 2){
+          zone.encounters[2].pokemon = zone.encounters[4].pokemon;
+          zone.encounters[5].pokemon = zone.encounters[9].pokemon;
+          zone.encounters[0].pokemon = zone.encounters[1].pokemon;
         }
       }
     });

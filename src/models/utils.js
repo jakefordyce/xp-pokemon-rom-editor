@@ -1764,6 +1764,7 @@ export const g3TradeItems = {
 
 export const g3GrassEncChances = [20,20,10,10,10,10,5,5,4,4,1,1];
 
+//these are the same chances for rock smash.
 export const g3WaterEncChances = [60, 30, 5, 4, 1];
 
 export const g3FishingEncChances = [70, 30, 60, 20, 20, 40, 40, 15, 4, 1];
