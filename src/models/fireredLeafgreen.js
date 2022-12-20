@@ -1745,6 +1745,19 @@ export default {
 
     getStoreActions().setEncounterZones(zones);
   }),
+  randomizeTrainerPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let trainers = getStoreState().trainers;
+    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
+    
+    trainers.forEach(trainer => {
+      trainer.pokemon.forEach(mon => {
+        let randomPokemon = pokemonIDs[Math.floor(Math.random() * pokemonIDs.length)]
+        mon.pokemon = randomPokemon;
+      });
+    });
+
+    getStoreActions().setTrainers(trainers);
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload) => {

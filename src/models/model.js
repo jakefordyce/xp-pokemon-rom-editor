@@ -274,6 +274,16 @@ export default {
       console.log(err);
     });
   }),
+  randomizeTrainerPokemon: thunk(async (actions, payload, {getState}) => {
+    actions.getRomModelActions()
+    .then(res => {
+      // the rom specific way of randomizing its trainers
+      return res.randomizeTrainerPokemon();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
 
 
   //sorting data and actions for the pokemon grid and moves grid
