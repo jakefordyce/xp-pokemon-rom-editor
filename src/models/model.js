@@ -284,6 +284,26 @@ export default {
       console.log(err);
     });
   }),
+  randomizePokemonStats: thunk(async (actions, payload, {getState}) => {
+    actions.getRomModelActions()
+    .then(res => {
+      // the rom specific way of randomizing its stats
+      return res.randomizePokemonStats();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
+  randomizePokemonMoves: thunk(async (actions, payload, {getState}) => {
+    actions.getRomModelActions()
+    .then(res => {
+      // the rom specific way of randomizing its moves
+      return res.randomizePokemonMoves();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }),
 
 
   //sorting data and actions for the pokemon grid and moves grid

@@ -1758,6 +1758,33 @@ export default {
 
     getStoreActions().setTrainers(trainers);
   }),
+  randomizePokemonStats: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let pokemon = getStoreState().pokemon;
+    
+    pokemon.forEach(mon => {
+      mon.hp = Math.floor(Math.random() * 100) +50;
+      mon.attack = Math.floor(Math.random() * 100) +50;
+      mon.defense = Math.floor(Math.random() * 100) +50;
+      mon.speed = Math.floor(Math.random() * 100) +50;
+      mon.specialAttack = Math.floor(Math.random() * 100) +50;
+      mon.specialDefense = Math.floor(Math.random() * 100) +50;
+      mon.totalStats = mon.hp + mon.attack + mon.defense + mon.speed + mon.specialAttack + mon.specialDefense;
+    });
+
+    getStoreActions().setPokemon(pokemon);
+  }),
+  randomizePokemonMoves: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let pokemon = getStoreState().pokemon;
+    
+    pokemon.forEach(pokemon => {
+      pokemon.learnedMoves.forEach(move => {
+        let randomMove = Math.floor(Math.random() * 354) +1;
+        move.moveID = randomMove;
+      });
+    });
+
+    getStoreActions().setPokemon(pokemon);
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload) => {

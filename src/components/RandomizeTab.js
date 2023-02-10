@@ -7,10 +7,20 @@ function RandomizeTab(){
   const encountersPerZone = useStoreState(state => state.encountersPerZone);
   const randomizeWildPokemon = useStoreActions(actions => actions.randomizeWildPokemon);
   const randomizeTrainerPokemon = useStoreActions(actions => actions.randomizeTrainerPokemon);
+  const randomizePokemonStats = useStoreActions(actions => actions.randomizePokemonStats);
+  const randomizePokemonMoves = useStoreActions(actions => actions.randomizePokemonMoves);
   const updateEncountersPerZone = useStoreActions(actions => actions.updateEncountersPerZone);
  
   function handleRandomizeWildPokemon(event){
     randomizeWildPokemon();
+  }
+
+  function handleRandomizePokemonStats(event){
+    randomizePokemonStats();
+  }
+
+  function handleRandomizePokemonMoves(event){
+    randomizePokemonMoves();
   }
 
   function handleRandomizeTrainerPokemon(event){
@@ -30,6 +40,10 @@ function RandomizeTab(){
         <button onClick={handleRandomizeWildPokemon}>Randomize Wild Pokemon</button>
         <div>Encounters Per Zone: <input value={encountersPerZone} onChange={(e) => handleEncountersPerZoneChange(e)} /></div>
         <button onClick={handleRandomizeTrainerPokemon}>Randomize Trainer Pokemon</button>
+        <br/>
+        <button onClick={handleRandomizePokemonStats}>Randomize Pokemon Stats</button>
+        <br/>
+        <button onClick={handleRandomizePokemonMoves}>Randomize Pokemon Moves</button>
       </div>
   )
 
