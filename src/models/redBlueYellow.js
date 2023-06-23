@@ -1,41 +1,71 @@
 import { thunk, action } from "easy-peasy";
 import {rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyItems, rbyEvolveTypes, rbyStones, rbyGrowthRates,
-  rbyDamageModifiers, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
-  getKeyByValue} from './utils';
+  rbyDamageModifiers, rbZoneNames, yZoneNames, rbyGrassEncChances, rbyTrainerNames, rbTrainerCounts, yTrainerCounts, 
+  rbUnusedTrainers, yUnusedTrainers, rbyShopNames,  getKeyByValue} from './utils';
 import RomBank from './romBank';
 
 //values used to load pokemon stats and moves.
-const mewStartByte = 16987; // Mew's stats start at byte 0x425B
-const pokemonNameStartByte = 115230; //Pokemon names start at byte 0x1c21e and also run in Index order.
-const pokemonEvosMovesByte = 242136; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x3B1D8.
-const pokemonStartByte = 230366; //Pokemon data starts at byte 0x383DE. It goes in Pokedex order, Bulbasaur through Mewtwo.
-const pokedexStartByte = 266276; //List of pokedex IDs start at byte 0x41024 and run in Index order, Rhydon through Victreebel.
+const rbMewStartByte = 0x425B; // Mew's stats start at byte 0x425B in Red and Blue
+const yMewStartByte = 0x39446; // Mew's stats start at byte 0x39446 in Yellow
+const rbPokemonNameStartByte = 0x1C21E; //Pokemon names start at byte 0x1C21E in Red and Blue and run in Index order.
+const yPokemonNameStartByte = 0XE8000; //Pokemon names start at byte 0XE8000 in Yellow and also run in Index order.
+const rbPokemonEvosMovesByte = 0x3B1D8; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x3B1D8 in Red and Blue
+const yPokemonEvosMovesByte = 0x3B361; //Pokemon evolutions and moves learned through leveling are stored together starting at byte 0x3B361 in Yellow
+const pokemonStartByte = 0x383DE; //Pokemon data starts at byte 0x383DE. It goes in Pokedex order, Bulbasaur through Mewtwo.
+const rbPokedexStartByte = 0x41024; //List of pokedex IDs start at byte 0x41024 in Red and Blue and run in Index order, Rhydon through Victreebel.
+const yPokedexStartByte = 0x410B1; //List of pokedex IDs start at byte 0x410B1 in Yellow and run in Index order, Rhydon through Victreebel.
 let pokedexIDs = new Map();
 let indexIDs = new Map();
-const pokemonEvosPointersByte = 241756; //The pointers to the pokemon Evolutions and learned moves start at byte 0x3B05C.
-const pointerBase = 212992; //this is the value that is added to the pointers to get the location of evolutions/moves and trainer data
+const rbPokemonEvosPointersByte = 0x3B05C; //The pointers to the pokemon Evolutions and learned moves start at byte 0x3B05C in Red and Blue
+const yPokemonEvosPointersByte = 0x3B1E5; //The pointers to the pokemon Evolutions and learned moves start at byte 0x3B1E5 in yellow.
+
+const rbPointerBase = 0x34000; //this is the value that is added to the pointers to get the location of evolutions/moves and trainer data
+const yPointerBase = 0x34000; //this is the value that is added to the pointers to get the location of evolutions/moves and trainer data
 
 //values used to load the pokemon types
-const typesBankByte = 0x20000; // bank 9
-const typesPointer = 0x7DAE; // this is a pointer within a bank, not the full address
-const typeChartByte = 255092; //The types' strengths start at byte 0x3E474.
-//values used to load the moves
-const moveNamesByte = 720896; //The data for move names starts at 0xB0000 bytes into the file which is 720896 in Decimal.
-const movesStartingByte = 229376; //The move data starts 0x38000 bytes into the file which is 229376 in Decimal.
-//values used to load the TMs and HMs
-const tmStartByte = 79731; //The TM info starts at byte 0x13773.
-const tmPricesStartByte = 507815; //TM prices start at byte 0x7BFA7
-const itemPricesStartByte = 17928; // The prices for items start at byte 0x4608
-//values used to load wild encounters
-const wildEncountersByte = 53471; //The data for wild encounters start at 0xD0DE but the first one is empty so I skip it.
-const wildEncountersEndByte = 54727;
-//values used to load trainers
-const trainerPointersByte = 236859; // The pointers to the trainer groups start at byte 0x39D3B
-const trainerStartByte = 236953; //The data for trainers starts at 0x39D99
-//const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D
+const typesBankByte = 0x20000; // bank 9. This is the same bank for Red, Blue, and Yellow.
+const rbTypesPointer = 0x7DAE; // this is a pointer within a bank, not the full address
+const yTypesPointer = 0x7D63; // this is a pointer within a bank, not the full address
+const rbTypeChartByte = 0x3E474; //The types' strengths start at byte 0x3E474 in Red and Blue
+const yTypeChartByte = 0x3E5FA; //The types' strengths start at byte 0x3E5FA in yellow
 
-const shopsStartByte = 9282; //The data for the pokemarts inventories starts at byte 0x2442
-const shopPointerBytes = [0x1D4EA, 0x74CB6, 0x5C898, 0x00, 0x5C9E4, 0x5C92F, 0x560F8, 0x560FA, 0x48359, 0x49070, 0x49072, 0x1DD8B, 0x00, 0x75E81, 0x5D40C, 0x19C85];
+//values used to load the moves
+const rbMoveNamesByte = 0xB0000; //The data for move names starts at 0xB0000 in Red and Blue
+const yMoveNamesByte = 0xBC000; //The data for move names starts at 0xBC000 in Yellow
+const movesStartingByte = 0x38000; //The move data starts at 0x38000. Same for Red, Blue, and Yellow
+
+//values used to load the TMs and HMs
+const rbTmStartByte = 0x13773; //The TM info starts at byte 0x13773 in Red and Blue
+const yTmStartByte = 0x1232D; //The TM info starts at byte 0x1232D in Yellow
+const rbTmPricesStartByte = 0x7BFA7; //TM prices start at byte 0x7BFA7 in Red and Blue
+const yTmPricesStartByte = 0xF65F5; //TM prices start at byte 0x7BFA7 in Yellow
+const rbItemPricesStartByte = 0x4608; // The prices for items start at byte 0x4608 in Red and Blue
+const yItemPricesStartByte = 0x4494; // The prices for items start at byte 0x4495 in Yellow
+
+//values used to load wild encounters
+const rbWildEncountersByte = 0xD0DF; //The data for wild encounters start at 0xD0DE in Red and Blue but the first one is empty so I skip it and start at 0xD0DF
+const yWildEncountersByte = 0xCD8B; //The data for wild encounters start at 0xCD89 in Yellow
+
+// I split the encounter data into 63 zones, each with 10 slots @ 2 bytes each slot. 
+// There is also 1 byte per zone for the encounter rate. 
+// For the zones that I didn't split in half (grass and surf are stored in the same area originally), you have to also add 1 byte for the encounter rate that isn't being used.
+// 63 X 22 - 7 = the number of bytes to add to the WildEncountersByte to get the End Byte below.
+const rbWildEncountersEndByte = 0xD5C7;
+const yWildEncountersEndByte = 0xD2EC;
+
+//values used to load trainers
+const rbTrainerPointersByte = 0x39D3B; // The pointers to the trainer groups start at byte 0x39D3B in Red and Blue
+const yTrainerPointersByte = 0x39DD1; // The pointers to the trainer groups start at byte 0x39DD1 in Yellow
+const rbTrainerStartByte = 0x39D99; //The data for trainers starts at 0x39D99 in Red and Blue
+const yTrainerStartByte = 0x39E2F; //The data for trainers starts at 0x39E2F in Yellow
+//const trainerEndByte = 238893; //The last byte for trainers is 0x3A52D in Red and Blue.
+
+const rbShopsStartByte = 0x2442; //The data for the pokemarts inventories starts at byte 0x2442
+const yShopsStartByte = 0x233B; //The data for the pokemarts inventories starts at byte 0x233B
+
+// These are for Red and Blue and are needed for adding/removing items from marts. 
+// I'm removing this functionality since I couldn't find the pointers for Yellow.
+//const shopPointerBytes = [0x1D4EA, 0x74CB6, 0x5C898, 0x00, 0x5C9E4, 0x5C92F, 0x560F8, 0x560FA, 0x48359, 0x49070, 0x49072, 0x1DD8B, 0x00, 0x75E81, 0x5D40C, 0x19C85];
 
 function HexToDec(hexNum)
 {
@@ -60,10 +90,10 @@ function DecToHex(decNum)
 }
 
 export default {
-  version: "RED/BLUE",
+  version: "RED/BLUE/YELLOW",
   rawBinArray: [],
   fileFilters: [
-    { name: 'Gameboy ROM', extensions: ['gb'] }
+    { name: 'Gameboy ROM', extensions: ['gb', 'gbc'] }
     ],
   generation: 1,
   moveAnimations: rbyMoveAnimations,
@@ -72,15 +102,13 @@ export default {
   evolveTypes: rbyEvolveTypes,
   growthRates: rbyGrowthRates,
   damageModifiers: rbyDamageModifiers,
-  zoneNames: rbyZoneNames,
+  //zoneNames: yZoneNames,
   items: rbyItems,
-  maxEvosMovesBytes: 1990,
-  maxTrainerBytes: 1941,
-  maxShopItems: 100,
   numHighCritMoves: 4,
   defaultEvolution: {evolve: 1, evolveTo: 0, evolveLevel: 1, evolveStone: 10},
   loadData: thunk(async (actions, payload) => {
     actions.loadBinaryData(payload);
+    actions.setVersion();
     actions.loadPokemonTypes();
     actions.loadPokemonMoves();
     actions.loadTMs();
@@ -92,11 +120,38 @@ export default {
     actions.loadShops();
   }),
   loadBinaryData: action((state, payload) => {
+    // is this needed?
     state.rawBinArray = payload;
+  }),
+  setVersion: action((state, payload) => {
+    let versionFirstLetter = state.rawBinArray[0x13C];
+    // 0x59 = Y, for Yellow version.
+    if (versionFirstLetter === 0x59){
+      state.altVersion = true;
+      state.maxShopItems = 102;
+      state.maxEvosMovesBytes = 2206;
+      state.maxTrainerBytes = 1923;
+    } else {
+      state.altVersion = false;
+      state.maxShopItems = 100;
+      state.maxEvosMovesBytes = 1990;
+      state.maxTrainerBytes = 1941;
+    }
   }),
   loadPokemonData: thunk( async (actions, payload, {getState, getStoreActions}) => {
     let pokemon = [];
-    let currentEvosMovesByte = pokemonEvosMovesByte;
+    let currentEvosMovesByte, mewStartByte, pokedexStartByte, pokemonNameStartByte;
+    if (getState().altVersion) {
+      currentEvosMovesByte = yPokemonEvosMovesByte;
+      mewStartByte = yMewStartByte;
+      pokedexStartByte = yPokedexStartByte;
+      pokemonNameStartByte = yPokemonNameStartByte;
+    }else{
+      currentEvosMovesByte = rbPokemonEvosMovesByte;
+      mewStartByte = rbMewStartByte;
+      pokedexStartByte = rbPokedexStartByte;
+      pokemonNameStartByte = rbPokemonNameStartByte;
+    }
 
     for(let i = 0; i < 150; i++){
       var currentPokemon = {};
@@ -269,8 +324,20 @@ export default {
   }),
   savePokemonData: thunk(async(actions, payload, {getState, getStoreState, getStoreActions}) => {
     let workingArray = getState().rawBinArray;
-    let currentEvosMovesByte = pokemonEvosMovesByte;
-    let currentPointerByte = pokemonEvosPointersByte;
+    let currentEvosMovesByte, mewStartByte, pokedexStartByte, currentPointerByte, pointerBase;
+    if (getState().altVersion) {
+      currentEvosMovesByte = yPokemonEvosMovesByte;
+      mewStartByte = yMewStartByte;
+      pokedexStartByte = yPokedexStartByte;
+      currentPointerByte = yPokemonEvosPointersByte;
+      pointerBase = yPointerBase;
+    }else{
+      currentEvosMovesByte = rbPokemonEvosMovesByte;
+      mewStartByte = rbMewStartByte;
+      pokedexStartByte = rbPokedexStartByte;
+      currentPointerByte = rbPokemonEvosPointersByte;
+      pointerBase = rbPointerBase;
+    }
     let pokemon = getStoreState().pokemon;
 
     for (let i = 0; i < 150; i++) //There are 151 pokemon in the game but Mew is stored separately from the others.
@@ -400,6 +467,12 @@ export default {
   loadPokemonTypes: thunk ( async (actions, payload, {getState, getStoreActions}) => {
     let types = [];
     let newType;
+    let typesPointer;
+    if (getState().altVersion) {
+      typesPointer = yTypesPointer;
+    }else{
+      typesPointer = rbTypesPointer;
+    }
     let currentPointerByte = typesBankByte + typesPointer;
     let namesStartByte;
     let currentNamesByte;
@@ -448,21 +521,39 @@ export default {
 
       types.push(newType);
     }
-    //console.log(types);
+
     getStoreActions().setPokemonTypes(types);
   }),
   savePokemonTypes: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
+    /*
+      If you check your file against a binary comparison tool and see that there are un-expected changes in the pokemon pointers, don't be alarmed.
+      In the original ROM the names are stored in the order: Normal, Fighting, Flying, Poison, Fire, Water, Grass, Electric, Psychic, Ice,
+        Ground, Rock, Bird (this isn't used in the game, but it does exist), Bug, Ghost, Dragon.
+      The reason it gets out of order is because when it saves it just loops over the types in the order that their pointers were found,
+      which goes: All physical types, the 11 ununsed types that point to "Normal", then all of the special types.
+      The reordering of the names does not change any functionality in the game.
+    */
+    
     let romData = getState().rawBinArray;
     let pokemonTypes = getStoreState().pokemonTypes;
-
-    let endOfOriginalSpace = 0x27e4a; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
-    let blankDataStartByte = 0x27fb8; // there is some extra space at the end of the bank. This is the first byte of that space.
-    //int endOfBank = 0x28000; // this is the first byte of the next bank. We can't write on this byte or any after it.
+    let typesPointer, endOfOriginalSpace, blankDataStartByte, endOfBank;
+    if (getState().altVersion) {
+      typesPointer = yTypesPointer;
+      endOfOriginalSpace = 0x27DFF; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
+      blankDataStartByte = 0x27F3B; // there is some extra space at the end of the bank. This is the first byte of that space.
+      endOfBank = 0x27FFF; // End of the bank. Can't go past this.
+    }else{
+      typesPointer = rbTypesPointer;
+      endOfOriginalSpace = 0x27E4A; // this is the first byte of some data that is between the type names and the extra space at the end of the bank.
+      blankDataStartByte = 0x27FB8; // there is some extra space at the end of the bank. This is the first byte of that space.
+      endOfBank = 0x27FFF; // End of the bank. Can't go past this.
+    }
+   
     let firstPointerByte;
     let secondPointerByte;
 
     //setup a class that will help us track where we are saving data.
-    let romBank = new RomBank(typesPointer + typesBankByte, 0x27fff);
+    let romBank = new RomBank(typesPointer + typesBankByte, endOfBank);
 
     //get a reference to the block of data that we don't want to overwrite.
     let saveFunctionBlock = romBank.addDataBlock(endOfOriginalSpace, blankDataStartByte - 1);
@@ -515,10 +606,16 @@ export default {
   }),
   loadPokemonMoves: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let moves = [];
-    let currentMoveNameByte = moveNamesByte;
     let moveToAdd;
     let moveName;
-    const highCritMovesStartByte = 0x3E08E;
+    let highCritMovesStartByte, currentMoveNameByte;
+    if (getState().altVersion) {
+      highCritMovesStartByte = 0x3E190;
+      currentMoveNameByte = yMoveNamesByte;
+    }else{
+      highCritMovesStartByte = 0x3E08E;
+      currentMoveNameByte = rbMoveNamesByte;
+    }
 
     let highCritMoves = [];
 
@@ -569,10 +666,18 @@ export default {
     //return moves;
   }),
   savePokemonMoves: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
-    let currentMoveNameByte = moveNamesByte;
     let romData = getState().rawBinArray;
     let moves = getStoreState().moves;
-    const highCritMovesStartByte = 0x3E08E;
+    
+    let highCritMovesStartByte, currentMoveNameByte;
+    if (getState().altVersion) {
+      highCritMovesStartByte = 0x3E190;
+      currentMoveNameByte = yMoveNamesByte;
+    }else{
+      highCritMovesStartByte = 0x3E08E;
+      currentMoveNameByte = rbMoveNamesByte;
+    }
+    
     let highCritMoves = [];
 
     for(let i = 0; i < 165; i++)
@@ -604,8 +709,15 @@ export default {
 
   }),
   loadTMs: thunk (async (actions, payload, {getState, getStoreActions}) => {
-
     let tms = [];
+    let tmStartByte, tmPricesStartByte;
+    if (getState().altVersion) {
+      tmStartByte = yTmStartByte;
+      tmPricesStartByte = yTmPricesStartByte;
+    }else{
+      tmStartByte = rbTmStartByte;
+      tmPricesStartByte = rbTmPricesStartByte;
+    }
 
     for (let i = 0; i < 55; i++) //There are 50 TMs and 5 HMs. Each is 1 byte which is the moveID
     {
@@ -636,6 +748,15 @@ export default {
     let romData = getState().rawBinArray;
     let tms = getStoreState().tms;
 
+    let tmStartByte, tmPricesStartByte;
+    if (getState().altVersion) {
+      tmStartByte = yTmStartByte;
+      tmPricesStartByte = yTmPricesStartByte;
+    }else{
+      tmStartByte = rbTmStartByte;
+      tmPricesStartByte = rbTmPricesStartByte;
+    }
+
     for (let i = 0; i < 55; i++) //There are 50 TMs and 5 HMs. Each is 1 byte which is the moveID
     {
         romData[tmStartByte + i] = tms[i].move;
@@ -649,7 +770,12 @@ export default {
   }),
   loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let items = [];
-    let itemToAdd;
+    let itemToAdd, itemPricesStartByte;
+    if (getState().altVersion) {
+      itemPricesStartByte = yItemPricesStartByte;
+    }else{
+      itemPricesStartByte = rbItemPricesStartByte;
+    }
 
     for ( let [name, id] of Object.entries(rbyItems)){
       itemToAdd = {name: name};
@@ -659,6 +785,7 @@ export default {
         itemPrice += (HexToDec(getState().rawBinArray[itemPricesStartByte + ((id -1) * 3)]) * 10000);
         itemPrice += (HexToDec(getState().rawBinArray[itemPricesStartByte + ((id -1) * 3) + 1]) * 100);
         itemPrice += (HexToDec(getState().rawBinArray[itemPricesStartByte + ((id -1) * 3) + 2]) * 1 );
+
         itemToAdd.price = itemPrice;
       }
       items.push(itemToAdd);
@@ -669,7 +796,12 @@ export default {
   saveItems: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let items = getStoreState().items;
-    let currentByte = itemPricesStartByte;
+    let currentByte;
+    if (getState().altVersion) {
+      currentByte = yItemPricesStartByte;
+    }else{
+      currentByte = rbItemPricesStartByte;
+    }
 
     for(let i = 0; i < items.length; i++){
       if(i < 83){
@@ -693,6 +825,13 @@ export default {
   loadTypeMatchups: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let typeMatchups = [];
 
+    let typeChartByte;
+    if (getState().altVersion) {
+      typeChartByte = yTypeChartByte;
+    }else{
+      typeChartByte = rbTypeChartByte;
+    }
+
     for (let i = 0; i < 82; i++) //There are 82 type strengths. Each is 3 bytes and the group is terminated by the byte FF.
     {
         if(getState().rawBinArray[typeChartByte + (i * 3)] !== 0xFF) // Since we are checking the ending byte this can be converted to a while loop?
@@ -710,12 +849,16 @@ export default {
         }
     }
     getStoreActions().setTypeMatchups(typeMatchups);
-    //console.log(typeMatchups);
   }),
   saveTypeMatchups: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let typeMatchups = getStoreState().typeMatchups;
-    let currentByte = typeChartByte;
+    let currentByte;
+    if (getState().altVersion) {
+      currentByte = yTypeChartByte;
+    }else{
+      currentByte = rbTypeChartByte;
+    }
 
     for(let i = 0; i < typeMatchups.length; i++){
       romData[currentByte++] = typeMatchups[i].attackType;
@@ -727,11 +870,24 @@ export default {
   }),
   loadEncounters: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let zones = [];
-    let currentByte = wildEncountersByte;
+    let currentByte, zoneNames, zonesWithWater, waterOnlyZones, wildEncountersEndByte;
+    if (getState().altVersion) {
+      currentByte = yWildEncountersByte;
+      zoneNames = yZoneNames;
+      zonesWithWater = [13,14,19,20,28,29,39,40,44,45,46,47,52,53];
+      waterOnlyZones = [39, 40];
+      wildEncountersEndByte = yWildEncountersEndByte;
+    }else{
+      currentByte = rbWildEncountersByte;
+      zoneNames = rbZoneNames;
+      zonesWithWater = [36, 46, 47];
+      waterOnlyZones = [36];
+      wildEncountersEndByte = rbWildEncountersEndByte;
+    }
 
     while (currentByte < wildEncountersEndByte)
     {
-        if(zones.length === 36) // There's an extra byte at the beginning of this data.
+        if(waterOnlyZones.includes(zones.length)) // Skip a byte for water only routes.
         {
             currentByte++;
         }
@@ -739,7 +895,7 @@ export default {
         {
             let newZone = {};
             newZone.encounterRate = getState().rawBinArray[currentByte++];
-            newZone.name = rbyZoneNames[zones.length];
+            newZone.name = zoneNames[zones.length];
             newZone.encounters = [];
             // If the zone has encounters it has 10 slots, each with 2 bytes. The slot determines the chance of the pokemon appearing in a random encounter
             // The first byte is the pokemon's level and the 2nd is the index ID. We are converting to pokedex IDs for display purposes.
@@ -751,7 +907,7 @@ export default {
               newZone.encounters.push(encounter);
             }
 
-            if (zones.length !== 36 && zones.length !== 46 && zones.length !== 47) //There's no ending byte at the end of these 3 zones.
+            if (!zonesWithWater.includes(zones.length)) //For zones that don't have water we skip over the water enc rate byte
             {
                 currentByte++;
             }
@@ -762,17 +918,29 @@ export default {
             currentByte += 2;
         }
     }
-    //console.log(encounters);
     getStoreActions().setEncounterZones(zones);
   }),
   saveEncounters: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let zones = getStoreState().encounterZones;
+    let currentByte, zonesWithWater, waterOnlyZones, numOfZones, route7Index;
+    if (getState().altVersion) {
+      currentByte = yWildEncountersByte;
+      zonesWithWater = [13,14,19,20,28,29,39,40,44,45,46,47,52,53];
+      waterOnlyZones = [39, 40];
+      numOfZones = 63;
+      route7Index = 22;
+    }else{
+      currentByte = rbWildEncountersByte;
+      zonesWithWater = [36, 46, 47];
+      waterOnlyZones = [36];
+      numOfZones = 57;
+      route7Index = 20;
+    }
 
-    let currentByte = wildEncountersByte;
-    for (let i = 0; i < 57; i++)
+    for (let i = 0; i < numOfZones; i++)
     {
-      if(i === 36) //There's an extra byte at the beginning of this zone
+      if(waterOnlyZones.includes(i)) //There's an extra byte at the beginning of these zone
       {
         romData[currentByte++] = 0;
       }
@@ -782,11 +950,11 @@ export default {
         romData[currentByte++] = indexIDs.get(zones[i].encounters[k].pokemon +1);
       }
 
-      if(i !== 36 && i !== 46 && i !== 47) //there's no ending byte for these 3
+      if(!zonesWithWater.includes(i)) //there's no ending byte for these, so skip them.
       {
           romData[currentByte++] = 0;
       }
-      if(i === 20) //These 4 bytes are the first 2 floors of the pokemon tower. The data for them comes after Route 7.
+      if(i === route7Index) //These 4 bytes are the first 2 floors of the pokemon tower. The data for them comes after Route 7.
       {
           romData[currentByte++] = 0;
           romData[currentByte++] = 0;
@@ -798,12 +966,23 @@ export default {
   }),
   loadTrainers: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let trainers = [];
-    let currentByte = trainerStartByte;
+    let currentByte, numOfTrainers, unusedTrainers, trainerCounts;
+    if (getState().altVersion) {
+      currentByte = yTrainerStartByte;
+      numOfTrainers = 396;
+      unusedTrainers = yUnusedTrainers;
+      trainerCounts = yTrainerCounts;
+    }else{
+      currentByte = rbTrainerStartByte;
+      numOfTrainers = 391;
+      unusedTrainers = rbUnusedTrainers;
+      trainerCounts = rbTrainerCounts;
+    }
     let trainerGroupTracker = 0; // tells which name to pull from the dictionary
     let numOfTrainersInGroup = 0;
     let trainerID = 0;
 
-    while (trainers.length < 391)
+    while (trainers.length < numOfTrainers)
     {
         let trainerToAdd = {};
         trainerToAdd.id = trainerID++;
@@ -835,36 +1014,41 @@ export default {
         }
         currentByte++;
 
-        let trainerName = `${rbTrainerNames[trainerGroupTracker]} ${numOfTrainersInGroup +1}`;
-        if (rbUnusedTrainers.includes(trainers.length))
+        let trainerName = `${rbyTrainerNames[trainerGroupTracker]} ${numOfTrainersInGroup +1}`;
+        if (unusedTrainers.includes(trainers.length))
         {
             trainerName += " (unused)";
         }
         trainerToAdd.name = trainerName;
-
-        //trainerToAdd.GroupNum = trainerGroupTracker + 201;
-        //trainerToAdd.TrainerNum = numOfTrainersInGroup + 1;
-
         numOfTrainersInGroup++;
-        while(numOfTrainersInGroup === rbTrainerCounts[trainerGroupTracker] && trainerGroupTracker < 46)
+
+        while(numOfTrainersInGroup === trainerCounts[trainerGroupTracker] && trainerGroupTracker < 46)
         {
             trainerGroupTracker++;
             numOfTrainersInGroup = 0;
         }
         trainers.push(trainerToAdd);
     }
-
-    //console.log(trainers);
     getStoreActions().setTrainers(trainers);
   }),
   saveTrainers: thunk (async (action, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let trainers = getStoreState().trainers.sort((a,b) => a.id < b.id ? -1 : 1); // sort the trainers by ID so they get saved in the correct order.
 
-    let currentByte = trainerStartByte;
     let currentTrainerGroup = 0;
     let numOfTrainers = 0;
-    let currentPointerByte = trainerPointersByte;
+    let currentByte, trainerCounts, currentPointerByte, pointerBase;
+    if (getState().altVersion) {
+      currentByte = yTrainerStartByte;
+      trainerCounts = yTrainerCounts;
+      currentPointerByte = yTrainerPointersByte;
+      pointerBase = yPointerBase;
+    }else{
+      currentByte = rbTrainerStartByte;
+      trainerCounts = rbTrainerCounts;
+      currentPointerByte = rbTrainerPointersByte;
+      pointerBase = rbPointerBase;
+    }
 
 
     for(let i = 0; i < trainers.length; i++)
@@ -908,7 +1092,7 @@ export default {
       }
 
       numOfTrainers++;
-      if(numOfTrainers === rbTrainerCounts[currentTrainerGroup])
+      if(numOfTrainers === trainerCounts[currentTrainerGroup])
       {
         currentTrainerGroup++;
         numOfTrainers = 0;
@@ -917,7 +1101,13 @@ export default {
   }),
   loadShops: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let shops = [];
-    let currentByte = shopsStartByte;
+
+    let currentByte;
+    if (getState().altVersion) {
+      currentByte = yShopsStartByte;
+    }else{
+      currentByte = rbShopsStartByte;
+    }
 
     for (let i = 0; i < 16; i++)
     {
@@ -939,9 +1129,18 @@ export default {
     let romData = getState().rawBinArray;
     let shops = getStoreState().shops;
 
-    let currentByte = shopsStartByte;
+    let currentByte;
+    if (getState().altVersion) {
+      currentByte = yShopsStartByte;
+    }else{
+      currentByte = rbShopsStartByte;
+    }
+
     for (let i = 0; i < 16; i++)
     {
+        /*
+        // Removing this for now because I don't have a good way of telling where the Yellow version pointers are stored.
+        // If I ever find it I will add this back in.
         //first update pointers to the new location of the shop's data.
         //the game stores these pointers along with the pointers to the text data.
         if(shopPointerBytes[i] !== 0x00) //there are 2 pointers that aren't used. We don't need to update them
@@ -951,6 +1150,7 @@ export default {
             romData[shopPointerBytes[i]] = firstPointerByte;
             romData[shopPointerBytes[i]+1] = secondPointerByte;
         }
+        */
 
         //next update the shop data.
         //The first byte is always 0xFE and the 2nd is the number of items for sale.

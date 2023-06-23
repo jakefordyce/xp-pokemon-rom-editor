@@ -1,5 +1,5 @@
 import { thunk, action, computed } from "easy-peasy";
-import redBlue from './redBlue';
+import redBlueYellow from './redBlueYellow';
 import goldSilver from './goldSilver';
 import fireredLeafgreen from './fireredLeafgreen';
 const remote = require('electron').remote;
@@ -34,6 +34,7 @@ export default {
   useNewEVMax: false,
   evMult: 1,
   encountersPerZone: 12,
+  altVersion: false,
   rawBinArray: [],
 
   setRawBinArray: action((state, payload) => {
@@ -110,6 +111,9 @@ export default {
   }),
   setEncountersPerZone: action((state, payload) => {
     state.encountersPerZone = payload;
+  }),
+  setAltVersion: action((state, payload) => {
+    state.altVersion = payload;
   }),
 
   //actions for updating the data.
@@ -504,7 +508,7 @@ export default {
 
   //accessing data from the correct ROM
   dataLoaded: false,
-  redBlueModel: redBlue,
+  redBlueYellowModel: redBlueYellow,
   goldSilverModel: goldSilver,
   fireredLeafgreenModel: fireredLeafgreen,
   selectedROM: 0,
@@ -528,13 +532,13 @@ export default {
     let modelActions;
     switch(getState().selectedROM){
       case 0:
-        modelActions = actions.fireredLeafgreenModel
+        modelActions = actions.redBlueYellowModel
         break;
       case 1:
-        modelActions = actions.redBlueModel
+        modelActions = actions.goldSilverModel
         break;
       case 2:
-        modelActions = actions.goldSilverModel
+        modelActions = actions.fireredLeafgreenModel
         break;
       default:
         break;
@@ -545,13 +549,13 @@ export default {
     let modelState;
     switch(state.selectedROM){
       case 0:
-        modelState = state.fireredLeafgreenModel
+        modelState = state.redBlueYellowModel
         break;
       case 1:
-        modelState = state.redBlueModel
+        modelState = state.goldSilverModel
         break;
       case 2:
-        modelState = state.goldSilverModel
+        modelState = state.fireredLeafgreenModel
         break;
       default:
         break;
@@ -564,7 +568,7 @@ export default {
   setCurrentFile: action((state, payload) => {
     state.currentFile = payload;
   }),
-  supportedROMs: [{text: "firered/leafgreen", select: 0}, {text: 'red/blue', select: 1}, {text: 'gold/silver', select: 2}],
+  supportedROMs: [{text: 'red/blue/yellow', select: 0}, {text: 'gold/silver', select: 1}, {text: "firered/leafgreen", select: 2}],
   defaultSupportedROM: 'firered/leafgreen',
   getFileFromUser: thunk(async (actions, payload, {getState}) => {
     getState().dataLoaded = false;
@@ -580,7 +584,7 @@ export default {
       res.loadData(filedata);
       getState().dataLoaded = true;
     }).catch(err => {
-      //TODO
+      console.log(err);
     });
   }),
   generateChangeLog: thunk(async (actions, payload, {getState}) => {

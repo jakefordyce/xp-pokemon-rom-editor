@@ -32,7 +32,7 @@ function ShopsTab(){
       {generation !== 1 &&
         <td><ArraySelect collection={items} display='name' selectedValue={item.item} handleOptionChange={handleShopItemChange} arrayIndex={index} propName={'item'} /></td>
       }
-      <td><button onClick={(e) => handleRemoveItem(e, index)}>X</button></td>
+      {generation !== 1 && <td><button onClick={(e) => handleRemoveItem(e, index)}>X</button></td>}
     </tr>
   );
 
@@ -60,7 +60,7 @@ function ShopsTab(){
               {itemsList}
             </tbody>
           </table>
-          <button onClick={handleAddItem}>Add Item</button>
+          {generation !== 1 && <button onClick={handleAddItem}>Add Item</button>}
         </div>
       </div>
   );

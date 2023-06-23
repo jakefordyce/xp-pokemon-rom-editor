@@ -15,7 +15,7 @@ function MoveData(){
     <MovesGridRow key={index} move={move} />
   );
 
-  const moveFlagColumns = moveFlags.map((flag, index) =>
+  const moveFlagColumns = moveFlags?.map((flag, index) =>
     <th key={index}>{flag}</th>
   );
 

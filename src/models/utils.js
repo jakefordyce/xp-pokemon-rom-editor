@@ -987,7 +987,7 @@ const gscDamageModifiers = {
   Double: 20
 };
 
-const rbyZoneNames = [
+const rbZoneNames = [
   "Route 1",
   "Route 2",
   "Route 22",
@@ -1030,6 +1030,72 @@ const rbyZoneNames = [
   "Seafoam Island B2",
   "Seafoam Island B3",
   "Seafoam Island B4",
+  "Mansion 1",
+  "Mansion 2",
+  "Mansion 3",
+  "Mansion B1",
+  "Route 21 Grass",
+  "Route 21 Surf",
+  "Unknown Dungeon 1",
+  "Unknown Dungeon 2",
+  "Unknown Dungeon B1",
+  "Power Plant",
+  "Route 23",
+  "Victory Road 2",
+  "Victory Road 3",
+  "Victory Road 1",
+  "Digletts Cave"
+];
+
+const yZoneNames = [
+  "Route 1",
+  "Route 2",
+  "Route 22",
+  "Viridian Forest",
+  "Route 3",
+  "MT. Moon 1",
+  "MT. Moon B1",
+  "MT. Moon B2",
+  "Route 4",
+  "Route 24",
+  "Route 25",
+  "Route 9",
+  "Route 5",
+  "Route 6 Grass",
+  "Route 6 Surf",
+  "Route 11",
+  "Rock Tunnel 1",
+  "Rock Tunnel 2",
+  "Route 10",
+  "Route 12 Grass",
+  "Route 12 Surf",
+  "Route 8",
+  "Route 7",
+  "Pokemon Tower 3",
+  "Pokemon Tower 4",
+  "Pokemon Tower 5",
+  "Pokemon Tower 6",
+  "Pokemon Tower 7",
+  "Route 13 Grass",
+  "Route 13 Surf",
+  "Route 14",
+  "Route 15",
+  "Route 16",
+  "Route 17",
+  "Route 18",
+  "Safari Zone Center",
+  "Safari Zone 1",
+  "Safari Zone 2",
+  "Safari Zone 3",
+  "Route 19 Surf",
+  "Route 20 Surf",
+  "Seafoam Island 1",
+  "Seafoam Island B1",
+  "Seafoam Island B2",
+  "Seafoam Island B3 Cave",
+  "Seafoam Island B3 Surf",
+  "Seafoam Island B4 Cave",
+  "Seafoam Island B4 Surf",
   "Mansion 1",
   "Mansion 2",
   "Mansion 3",
@@ -1210,7 +1276,7 @@ const gscGrassEncChances = [30, 30, 20, 10, 5, 4, 1];
 
 const gscWaterEncChances = [60, 30, 10];
 
-const rbTrainerNames = [
+const rbyTrainerNames = [
   "Youngster",
   "BugCatcher",
   "Lass",
@@ -1262,9 +1328,11 @@ const rbTrainerNames = [
 
 //this is the number of trainers in each group. This lets us know when to switch to the next group name.
 const rbTrainerCounts = [13, 14, 18, 8, 9, 24, 7, 12, 14, 15, 9, 3, 0, 11, 15, 9, 7, 15, 4, 2, 8, 6, 17, 9, 9, 3, 0, 13, 3, 41, 10, 8, 1, 1, 1, 1, 1, 1, 1, 1, 5, 12, 3, 1, 24, 1, 1];
+const yTrainerCounts = [14, 15, 19, 8, 10, 25, 7, 12, 14, 15, 9, 3, 0, 11, 15, 9, 7, 15, 4, 2, 8, 6, 17, 9, 3, 3, 0, 13, 3, 49, 10, 8, 1, 1, 1, 1, 1, 1, 1, 1, 5, 10, 3, 1, 24, 1, 1];
 
 //these trainers aren't used in the game. We will mark them as unused so the user knows they can remove pokemon from their rosters to free up extra space.
 const rbUnusedTrainers = [12, 24, 58, 65, 98, 99, 100, 134, 135, 136, 143, 186, 198, 214, 222, 234, 235, 258, 259, 260, 261, 298, 321, 323, 324, 325, 331, 333, 334, 335, 347, 365, 366, 367, 368, 371, 375, 377, 379];
+const yUnusedTrainers = [12, 25, 61, 62, 67, 69, 103, 104, 105, 139, 140, 141, 148, 191, 203, 219, 227, 239, 240, 257, 258, 259, 260, 279, 291, 292, 294, 295, 296, 297, 316, 321, 322, 323, 324, 328, 330, 331, 332, 338, 340, 341, 342, 354, 370, 371, 372, 373, 376, 380, 382, 384]
 
 const gsTrainerGroups = ["Falkner",
 "Whitney",
@@ -2497,7 +2565,7 @@ export const g3MoveFlags = [
 ];
 
 export {rbyDamageModifiers, gscDamageModifiers, rbygsLetters, rbyMoveAnimations, rbyMoveEffects, rbyGrowthRates,
-  rbyEvolveTypes, rbyStones, rbyItems, rbyZoneNames, rbyGrassEncChances, rbTrainerNames, rbTrainerCounts, rbUnusedTrainers, rbyShopNames,
+  rbyEvolveTypes, rbyStones, rbyItems, rbZoneNames, yZoneNames, rbyGrassEncChances, rbyTrainerNames, rbTrainerCounts, yTrainerCounts, rbUnusedTrainers, yUnusedTrainers, rbyShopNames,
   gscMoveAnimations, gscMoveEffects, gscEvolveTypes, gscStones, gscHappiness, gscStats, gscTradeItems, gscGrowthRates,
   gsZoneNames, gscGrassEncChances, gscWaterEncChances, gsTrainerGroups, gsTrainerCounts, gsUniqueGroupNameIds, gsTrainerTypes, gscShopNames,
   getKeyByValue};
