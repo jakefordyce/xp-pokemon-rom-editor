@@ -105,11 +105,11 @@ function MiscTab(){
         <input type="checkbox" checked={maximizeIVs} onChange={(e) => handleIVChange(e)} />
         <span title="This makes all wild pokemon and pokemon you receive have 31 IVs.">Maximize IVs</span>
       </div>}
-      {generation === 2 && <div>
+      <div>
         <input value={expYieldDiv} onChange={(e) => handleExpYieldDivChange(e)} />
         <button onClick={handleUpdateExpYield}>Update EXP Yields</button>
         <span title="All EXP Yields will be set to Base Stat Total divided by this number.">EXP Yield Divisor</span>
-      </div>}
+      </div>
     </div>
   );
 }
