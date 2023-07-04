@@ -34,6 +34,7 @@ export default {
   useNewEVMax: false,
   evMult: 1,
   encountersPerZone: 12,
+  expYieldDiv: 2,
   altVersion: false,
   rawBinArray: [],
 
@@ -111,6 +112,9 @@ export default {
   }),
   setEncountersPerZone: action((state, payload) => {
     state.encountersPerZone = payload;
+  }),
+  setExpYieldDiv: action((state, payload) => {
+    state.expYieldDiv = payload;
   }),
   setAltVersion: action((state, payload) => {
     state.altVersion = payload;
@@ -307,6 +311,22 @@ export default {
     .catch((err) => {
       console.log(err);
     });
+  }),
+  updateExpYieldDiv: action((state, payload) => {
+    let newValue = state.expYieldDiv.constructor(payload.value);
+    state.expYieldDiv = newValue;
+  }),
+  updateExpYieldByStats: thunk(async (actions, payload, {getState, getStoreActions}) => {
+    let pokemon = getState().pokemon;
+    pokemon.forEach((poke) =>
+    {
+      let newExpYield = Math.round(poke.totalStats / getState().expYieldDiv);
+      if (newExpYield > 255){
+        newExpYield = 255;
+      }
+      poke.expYield = newExpYield;
+    });
+    getStoreActions().setPokemonArray(pokemon);
   }),
 
 

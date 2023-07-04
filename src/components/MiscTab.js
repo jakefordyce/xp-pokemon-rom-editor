@@ -21,6 +21,9 @@ function MiscTab(){
   const updateEVMult = useStoreActions(actions => actions.updateEVMult);
   const maximizeIVs = useStoreState(state => state.maximizeIVs);
   const updateMaximizeIVs = useStoreActions(actions => actions.updateMaximizeIVs);
+  const expYieldDiv = useStoreState(state => state.expYieldDiv);
+  const updateExpYieldDiv = useStoreActions(actions => actions.updateExpYieldDiv);
+  const updateExpYieldByStats = useStoreActions(actions => actions.updateExpYieldByStats);
 
   const startersList = starters.map((starter, index) =>
     <tr key={index}>
@@ -60,6 +63,15 @@ function MiscTab(){
     updateMaximizeIVs({value: newValue});
   }
 
+  function handleExpYieldDivChange(event){
+    let newValue = event.target.value;
+    updateExpYieldDiv({value: newValue});
+  }
+
+  function handleUpdateExpYield(event){
+    updateExpYieldByStats();
+  }
+
 
   return ( dataLoaded &&
     <div className="misc-tab-container">
@@ -92,6 +104,11 @@ function MiscTab(){
       {generation === 3 && <div>
         <input type="checkbox" checked={maximizeIVs} onChange={(e) => handleIVChange(e)} />
         <span title="This makes all wild pokemon and pokemon you receive have 31 IVs.">Maximize IVs</span>
+      </div>}
+      {generation === 2 && <div>
+        <input value={expYieldDiv} onChange={(e) => handleExpYieldDivChange(e)} />
+        <button onClick={handleUpdateExpYield}>Update EXP Yields</button>
+        <span title="All EXP Yields will be set to Base Stat Total divided by this number.">EXP Yield Divisor</span>
       </div>}
     </div>
   );

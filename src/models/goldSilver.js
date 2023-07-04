@@ -1254,7 +1254,7 @@ export default {
       mon.totalStats = mon.hp + mon.attack + mon.defense + mon.speed + mon.specialAttack + mon.specialDefense;
     });
 
-    getStoreActions().setPokemon(pokemon);
+    getStoreActions().setPokemonArray(pokemon);
   }),
   randomizePokemonMoves: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
     let pokemon = getStoreState().pokemon;
@@ -1266,7 +1266,7 @@ export default {
       });
     });
 
-    getStoreActions().setPokemon(pokemon);
+    getStoreActions().setPokemonArray(pokemon);
   }),
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();
