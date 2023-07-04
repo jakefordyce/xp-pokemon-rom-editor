@@ -1186,6 +1186,88 @@ export default {
     }
 
   }),
+  randomizeWildPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let zones = getStoreState().encounterZones;
+    let epz = getStoreState().encountersPerZone;
+    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
+    //console.log(`${JSON.stringify(pokemonIDs)}`);
+    zones.forEach(zone => {
+      zone.encounters.forEach(enc => {
+        let randomPokemon = pokemonIDs[Math.floor(Math.random() * pokemonIDs.length)]
+        enc.pokemon = randomPokemon;
+      });
+      if(zone.name.includes(" water")){
+        if(epz < 3){
+          zone.encounters[1].pokemon = zone.encounters[2].pokemon;
+        }
+        if(epz < 2){
+          zone.encounters[0].pokemon = zone.encounters[1].pokemon;
+        }
+      }
+      else{ //grass
+        if(epz < 7){
+          zone.encounters[5].pokemon = zone.encounters[6].pokemon;
+        }
+        if(epz < 6){
+          zone.encounters[4].pokemon = zone.encounters[5].pokemon;
+        }
+        if(epz < 5){
+          zone.encounters[3].pokemon = zone.encounters[4].pokemon;
+        }
+        if(epz < 4){
+          zone.encounters[2].pokemon = zone.encounters[3].pokemon;
+        }
+        if(epz < 3){
+          zone.encounters[1].pokemon = zone.encounters[2].pokemon;
+        }
+        if(epz < 2){
+          zone.encounters[0].pokemon = zone.encounters[1].pokemon;
+        }
+      }
+    });
+
+    getStoreActions().setEncounterZones(zones);
+  }),
+  randomizeTrainerPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let trainers = getStoreState().trainers;
+    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
+    
+    trainers.forEach(trainer => {
+      trainer.pokemon.forEach(mon => {
+        let randomPokemon = pokemonIDs[Math.floor(Math.random() * pokemonIDs.length)]
+        mon.pokemon = randomPokemon;
+      });
+    });
+
+    getStoreActions().setTrainers(trainers);
+  }),
+  randomizePokemonStats: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let pokemon = getStoreState().pokemon;
+    
+    pokemon.forEach(mon => {
+      mon.hp = Math.floor(Math.random() * 100) +50;
+      mon.attack = Math.floor(Math.random() * 100) +50;
+      mon.defense = Math.floor(Math.random() * 100) +50;
+      mon.speed = Math.floor(Math.random() * 100) +50;
+      mon.specialAttack = Math.floor(Math.random() * 100) +50;
+      mon.specialDefense = Math.floor(Math.random() * 100) +50;
+      mon.totalStats = mon.hp + mon.attack + mon.defense + mon.speed + mon.specialAttack + mon.specialDefense;
+    });
+
+    getStoreActions().setPokemon(pokemon);
+  }),
+  randomizePokemonMoves: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
+    let pokemon = getStoreState().pokemon;
+    
+    pokemon.forEach(pokemon => {
+      pokemon.learnedMoves.forEach(move => {
+        let randomMove = Math.floor(Math.random() * 251) +1;
+        move.moveID = randomMove;
+      });
+    });
+
+    getStoreActions().setPokemon(pokemon);
+  }),
   prepareDataForSaving: thunk(async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     actions.savePokemonData();
     actions.savePokemonMoves();
