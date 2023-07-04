@@ -22,7 +22,8 @@ const moveDescBank = 0x1B0000;
 const moveDescStartByte = 0x1B4202;
 //values used to load the TMs and HMs
 const tmStartByte = 0x11A66; //The TM info.
-const itemPropertiesStartByte = 0x68A0; // The item properties start here. 7 bytes per item.
+const itemPropertiesStartByteGold = 0x68A0; // The item properties start here. 7 bytes per item.
+const itemPropertiesStartByteSivler = 0x6866;
 const itemNamesByte = 0x1B0000  // could be useful later.
 //values used to load wild encounters
 const johtoGrassWildEncountersByte = 0x2AB35;
@@ -573,6 +574,14 @@ export default {
   loadItems: thunk (async (actions, payload, {getState, getStoreActions}) => {
     let items = [];
     let currentNamesByte = itemNamesByte;
+    let itemPropertiesStartByte;
+    let versionFirstLetter = getState().rawBinArray[0x13C];
+    // 0x53 = S, for Silver version.
+    if (versionFirstLetter === 0x53){
+      itemPropertiesStartByte = itemPropertiesStartByteSivler;
+    } else {
+      itemPropertiesStartByte = itemPropertiesStartByteGold;
+    }
     for(let i = 0; i < 249; i++){
       let newItem = {};
 
@@ -601,6 +610,14 @@ export default {
   saveItems: thunk (async (actions, payload, {getState, getStoreState, getStoreActions}) => {
     let romData = getState().rawBinArray;
     let items = getStoreState().items;
+    let itemPropertiesStartByte;
+    let versionFirstLetter = getState().rawBinArray[0x13C];
+    // 0x53 = S, for Silver version.
+    if (versionFirstLetter === 0x53){
+      itemPropertiesStartByte = itemPropertiesStartByteSivler;
+    } else {
+      itemPropertiesStartByte = itemPropertiesStartByteGold;
+    }
 
     for(let i = 0; i < 249; i++){
       romData[itemPropertiesStartByte + i*7] = items[i].price % 256;
