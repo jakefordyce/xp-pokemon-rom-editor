@@ -1666,7 +1666,7 @@ export default {
   randomizeWildPokemon: thunk (async (actions, payload, {getStoreState, getStoreActions}) => {
     let zones = getStoreState().encounterZones;
     let epz = getStoreState().encountersPerZone;
-    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?").map(p => p.id);
+    let pokemonIDs = getStoreState().pokemon.filter(p => p.name !== "?" || p.id === 200).map(p => p.id);
     //console.log(`${JSON.stringify(pokemonIDs)}`);
     zones.forEach(zone => {
       zone.encounters.forEach(enc => {
