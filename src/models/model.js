@@ -46,6 +46,7 @@ export default {
   //I might refactor these into 1 method at some point.
   setPokemonArray: action((state, payload) => {
     state.pokemon = payload;
+    //console.log(payload);
   }),
   setSelectedPokemon: action((state, payload) => {
     state.selectedPokemon = payload;
@@ -328,7 +329,18 @@ export default {
     });
     getStoreActions().setPokemonArray(pokemon);
   }),
+  updateTMsHMs: thunk((actions, payload, {getState, getStoreActions}) => {
+    let pokemon = getState().pokemon;
 
+    pokemon.forEach((poke) => 
+    {
+      let pokeTMs = new Array(poke.tms.length);
+      pokeTMs.fill(true);
+
+      poke.tms = pokeTMs;
+    });
+    getStoreActions().setPokemonArray(pokemon);
+  }),
 
   //sorting data and actions for the pokemon grid and moves grid
   pokemonSortColumn: "id",

@@ -24,6 +24,7 @@ function MiscTab(){
   const expYieldDiv = useStoreState(state => state.expYieldDiv);
   const updateExpYieldDiv = useStoreActions(actions => actions.updateExpYieldDiv);
   const updateExpYieldByStats = useStoreActions(actions => actions.updateExpYieldByStats);
+  const updateTMsHMs = useStoreActions(actions => actions.updateTMsHMs);
 
   const startersList = starters.map((starter, index) =>
     <tr key={index}>
@@ -72,6 +73,9 @@ function MiscTab(){
     updateExpYieldByStats();
   }
 
+  function handleUpdateTMsHMs(event){
+    updateTMsHMs();
+  }
 
   return ( dataLoaded &&
     <div className="misc-tab-container">
@@ -109,6 +113,10 @@ function MiscTab(){
         <input value={expYieldDiv} onChange={(e) => handleExpYieldDivChange(e)} />
         <button onClick={handleUpdateExpYield}>Update EXP Yields</button>
         <span title="All EXP Yields will be set to Base Stat Total divided by this number.">EXP Yield Divisor</span>
+      </div>
+      <div>
+        <button onClick={handleUpdateTMsHMs}>Enable Mew Mode</button>
+        <span title="All Pokemon will be able to learn any TM or HM">All Pokemon learn any TM or HM</span>
       </div>
     </div>
   );
