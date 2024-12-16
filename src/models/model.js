@@ -120,6 +120,9 @@ export default {
   setAltVersion: action((state, payload) => {
     state.altVersion = payload;
   }),
+  setTMsReusable: action((state, payload) => {
+    state.tmsReusable = payload;
+  }),
 
   //actions for updating the data.
   updatePokemonProperty: action((state, payload) => {
@@ -340,6 +343,10 @@ export default {
       poke.tms = pokeTMs;
     });
     getStoreActions().setPokemonArray(pokemon);
+  }),
+  updateTMsReusable: action((state, payload) => {
+    let newValue = state.tmsReusable.constructor(payload.value);
+    state.tmsReusable = newValue;
   }),
 
   //sorting data and actions for the pokemon grid and moves grid

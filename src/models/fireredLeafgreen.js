@@ -33,7 +33,7 @@ const trainerDataStart = 0x23EB38; // this is the start of the trainer data.
 const trainerClassesStart = 0x23E5C8; // the names of the different types of trainers.
 const trainerPokemonStart = 0x23A210; // Where the trainer pokemon data starts.
 
-const naturesStart = 0x252BB8 // start of the natures stat data.
+const naturesStart = 0x252BB8; // start of the natures stat data.
 
 //values used to load shops
 const shopsStarts = [
@@ -461,6 +461,7 @@ export default {
     actions.loadNaturesData(rawBinArray).then((res) => { getStoreActions().setNatures(res) });
     actions.loadShinyData(rawBinArray).then((res) => { getStoreActions().setIncreaseShinyOdds(res) });
     actions.loadIVData(rawBinArray).then((res) => { getStoreActions().setMaximizeIVs(res) });
+    actions.loadTMsReusable(rawBinArray).then((res) => { getStoreActions().setTMsReusable(res) });
   }),
   loadPokemonData: thunk(async (actions, rawBinArray) => {
     let pokemon = [];
@@ -1785,6 +1786,33 @@ export default {
 
     getStoreActions().setPokemon(pokemon);
   }),
+  loadTMsReusable: thunk (async (action, rawBinArray) => {
+    let tmsReusable = false;
+
+    if(
+      rawBinArray[0x124F18] === 0x90 &&
+      rawBinArray[0x124FE4] === 0x90 &&
+      rawBinArray[0x125CEC] === 0x90
+    ){
+      tmsReusable = true;
+    }
+
+    return tmsReusable;
+  }),
+  saveTMsReusable: thunk (async (actions, payload, {getStoreState}) => {
+    let romData = getStoreState().rawBinArray;
+    let tmsReusable = getStoreState().tmsReusable;
+
+    if(tmsReusable){
+      romData[0x124F18] = 0x90;
+      romData[0x124FE4] = 0x90;
+      romData[0x125CEC] = 0x90;
+    }else{
+      romData[0x124F18] = 0xA9;
+      romData[0x124FE4] = 0xA9;
+      romData[0x125CEC] = 0xA9;
+    }
+  }),
 
 
   prepareDataForSaving: thunk(async (actions, payload) => {
@@ -1803,5 +1831,6 @@ export default {
     actions.saveNaturesData();
     actions.saveShinyData();
     actions.saveIVData();
+    actions.saveTMsReusable();
   })
 }

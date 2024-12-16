@@ -25,6 +25,8 @@ function MiscTab(){
   const updateExpYieldDiv = useStoreActions(actions => actions.updateExpYieldDiv);
   const updateExpYieldByStats = useStoreActions(actions => actions.updateExpYieldByStats);
   const updateTMsHMs = useStoreActions(actions => actions.updateTMsHMs);
+  const updateTMsReusable = useStoreActions(actions => actions.updateTMsReusable);
+  const tmsReusable = useStoreState(state => state.tmsReusable);
 
   const startersList = starters.map((starter, index) =>
     <tr key={index}>
@@ -77,6 +79,11 @@ function MiscTab(){
     updateTMsHMs();
   }
 
+  function handleUpdateTMsReusable(event){
+    let newValue = event.target.checked;
+    updateTMsReusable({value: newValue});
+  }
+
   return ( dataLoaded &&
     <div className="misc-tab-container">
       {generation === 2 && <table>
@@ -116,8 +123,12 @@ function MiscTab(){
       </div>
       <div>
         <button onClick={handleUpdateTMsHMs}>Enable Mew Mode</button>
-        <span title="All Pokemon will be able to learn any TM or HM">All Pokemon learn any TM or HM</span>
+        <span title="All Pokemon will be able to learn any TM or HM.">All Pokemon learn any TM or HM</span>
       </div>
+      {generation === 3 && <div>
+        <input type="checkbox" checked={tmsReusable} onChange={(e) => handleUpdateTMsReusable(e)} />
+        <span title="This makes all TMs reusable.">Reusable TMs</span>
+      </div>}
     </div>
   );
 }
