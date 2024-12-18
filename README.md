@@ -18,6 +18,8 @@ FireRed (.gba)
 
 LeafGreen (.gba)
 
+This is only for the 1.1 versions of Firered and Leafgreen right now. The plan is to add 1.0 support in the future.
+
 I got tons of my info from:
 
 https://github.com/pret/pokered

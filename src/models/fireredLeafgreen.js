@@ -22,7 +22,7 @@ const moveAnimationsStart = 0x1C6968;
 const moveDescPointers = 0x488748;
 const moveDescStartByte = 0x482894;
 //values used to load the TMs and HMs
-const tmStart = 0x45A604; //The TM info.
+const tmStart = 0x45A86C ;//0x45A604; //The TM info.
 const itemPropertiesStart = 0x3DB098; // The item properties start here. 44 bytes per item.
 
 //values used to load wild encounters
